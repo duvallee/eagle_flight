@@ -7,13 +7,15 @@
 #include "main.h"
 
 #if defined(STEVAL_FCU001V1)
-#include "led.h"
-#include "battery_gauge.h"
-#include "motor.h"
-#include "motor_ext_esc.h"
-#include "remote_controller.h"
-#include "blue_nrg_spi1.h"
-#include "sensor_spi2.h"
+#include "steval_fcu001v1_driver.h"
+#endif
+
+#if defined(DISCOVERY_STM32F7)
+#include "discovery_stm32f7_driver.h"
+#endif
+
+#if defined(NUCLEO_H743ZI)
+#include "nucleo_h743zi_driver.h"
 #endif
 
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
@@ -110,26 +112,11 @@ int main(void)
    debug_output_info("Build Date : %s %s (%s) \r\n", __DATE__, __TIME__, __VERSION__);
    debug_output_info("=============================================== \r\n\r\n");
 
-#if defined(STEVAL_FCU001V1)
-   led_init();
-   set_led_1_mode(LED_BLINK_MODE);
-   Battery_Gauge_Init();
-   Motor_Init();
-
-   Motor_Ext_Init();
-
-#if defined(TIM2_REMOTE_CONTROL)
-   RemoteController_Init();
-#endif   // TIM2_REMOTE_CONTROL
-
-   BLUE_NRG_SPI1_Init();
-   Sensor_SPI2_Init();
-#endif   // STEVAL_FCU001V1
+   Board_Driver_Init();
 
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
    usb_device_init();
 #endif
-
 
    while (1)
    {

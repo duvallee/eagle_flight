@@ -121,6 +121,12 @@ OBJECT_DIR = OUTPUT
 BIN_DIR = $(OBJECT_DIR)
 
 # -----------------------------------------------------------------------------
+# device driver
+USB_DEVICE := 
+USE_USB_DEVICE := 
+SENSOR_LSM6DSL :=
+
+# -----------------------------------------------------------------------------
 # for TARGET Board
 
 # "STEVAL_FCU001V1"
@@ -139,8 +145,11 @@ ifeq ("$(TARGET_BOARD)", "STEVAL_FCU001V1")
 
 	TARGET_HAL_VERSION := F4_V1.22.0
 
+	#=================================================================================
 	USB_DEVICE := CDC
 	USE_USB_DEVICE := USED
+	SENSOR_LSM6DSL := SENSOR_LSM6DSL
+
 	ifeq ("$(DEBUG)", "1")
 		TARGET := $(TARGET_BOARD)_DEBUG
 		BUILD_OPTION += -g -O0
@@ -350,6 +359,15 @@ DRIVERS_C_SRC += src/common/src/scheduler.c
 
 INCLUDE_DIR += -Isrc/common/inc
 
+ifeq ($(SENSOR_LSM6DSL),SENSOR_LSM6DSL)
+	INCLUDE_DIR += -Isrc/drivers/sensor_imu/inc
+endif
+
+ifeq ($(SENSOR_LSM6DSL),SENSOR_LSM6DSL)
+	TARGET_MODEL_DEFINITION += -D$(SENSOR_LSM6DSL)
+	DRIVERS_C_SRC += src/drivers/sensor_imu/src/lsm6dsl.c
+endif
+
 # -----------------------------------------------------------------------------
 # Model Source
 
@@ -365,16 +383,20 @@ ifeq ("$(TARGET_BOARD)", "STEVAL_FCU001V1")
 	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/system_stm32f4xx.c
 
 	# C Source of user driver
+	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/steval_fcu001v1_driver.c
+	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/spi.c
+
+
+
+	# 외부로 뺄 함수들
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/battery_gauge.c
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/blue_nrg_spi1.c
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/led.c
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/lis2mdl.c
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/lps22hd.c
-	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/lsm6dsl.c
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/motor.c
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/motor_ext_esc.c
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/remote_controller.c
-	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/sensor_spi2.c
 
 	MODEL_CXX_SRC +=
 endif
@@ -390,12 +412,16 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/stm32f7xx_it.c
 	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/system_stm32f7xx.c
 
+	# C Source of user driver
+	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/discovery_stm32f7_driver.c
+
 endif
 
 
 # "NUCLEO_H743ZI"
 ifeq ("$(TARGET_BOARD)", "NUCLEO_H743ZI")
 	INCLUDE_DIR += -Isrc/model/$(TARGET_BOARD)/inc
+	INCLUDE_DIR += -Isrc/drivers/$(TARGET_BOARD)/inc
 
 	ASM_SRC += src/startup/$(TARGET_BOARD)/startup_stm32h753xx.s
 
@@ -404,6 +430,10 @@ ifeq ("$(TARGET_BOARD)", "NUCLEO_H743ZI")
 	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/system_stm32h7xx.c
 
 	MODEL_CXX_SRC +=
+
+	# C Source of user driver
+	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/nucleo_h743zi_driver.c
+
 endif
 
 # -----------------------------------------------------------------------------

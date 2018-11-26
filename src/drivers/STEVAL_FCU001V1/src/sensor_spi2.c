@@ -5,36 +5,22 @@
  *
  */
 #include "main.h"
-#include "sensor_spi2.h"
+#include "spi.h"
 
-#if defined(LSM6DSL)
-#include "lsm6dsl.h"
-#endif
 
-#if defined(LIS2MDL)
-#include "lis2mdl.h"
-#endif
+#if 0
+void* Sensor_SPI2_Init(void);
 
-#if defined(LPS22HD)
-#include "lps22hd.h"
+uint8_t Sensor_SPI2_Read(void* spi, void* port, uint32_t pin, uint8_t addr, uint8_t* pBuffer, uint16_t nbytes);
+uint8_t Sensor_SPI2_Write(void* spi, void* port, uint32_t pin, uint8_t addr, uint8_t* pBuffer, uint16_t nbytes);
 #endif
 
 
-// ---------------------------------------------------------------------------
-#define LSM6DSL_SPI2_CS_PORT	                           GPIOA
-#define LSM6DSL_SPI2_CS_PIN     	                        GPIO_PIN_8
-
-#define LPS22HB_SPI_CS_PORT	                           GPIOC
-#define LPS22HB_SPI_CS_PIN     	                        GPIO_PIN_13
-
-#define LIS2MDL_SPI_CS_PORT	                           GPIOB
-#define LIS2MDL_SPI_CS_PIN     	                        GPIO_PIN_12
-
+#if 0
 // ---------------------------------------------------------------------------
 static SPI_HandleTypeDef g_spi2_sensor_Handle;
 
 // ---------------------------------------------------------------------------
-#define LSM6DSL_SPI_READ_ADDR                            0x80
 
 // --------------------------------------------------------------------------------
 enum SPI2_CHIP_CS
@@ -456,5 +442,5 @@ uint8_t Sensor_SPI2_Write(enum SPI2_SENSOR sensor, uint8_t addr, uint8_t* pBuffe
    }
    return 0;
 }
-
+#endif
 
