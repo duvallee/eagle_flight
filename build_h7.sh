@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+#
+
+make TRUESTUDIO_BUILD=0 TARGET_BOARD=NUCLEO_H743ZI DEBUG=1 $1
+
+

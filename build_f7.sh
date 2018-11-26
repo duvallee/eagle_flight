@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+#
+
+make TRUESTUDIO_BUILD=0 TARGET_BOARD=DISCOVERY_STM32F7 DEBUG=1 $1 
+
+

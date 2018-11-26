@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceInsightParseConditions
+	AppVer="4.00.0096"
+	AppVerMinReader="4.00.0019"
+	>
+	<ParseConditions>
+		<Defines>
+			<define id="DEBUG_STRING_LEVEL_DEBUG" value="1" />
+			<define id="DEBUG_STRING_LEVEL_DUMP" value="1" />
+			<define id="DEBUG_STRING_LEVEL_ERROR" value="1" />
+			<define id="DEBUG_STRING_LEVEL_FN_TRACE" value="1" />
+			<define id="DEBUG_STRING_LEVEL_INFO" value="1" />
+			<define id="DEBUG_STRING_LEVEL_WARN" value="1" />
+			<define id="DISCOVERY_STM32F7" value="0" />
+			<define id="HAL_ADC_MODULE_ENABLED" value="1" />
+			<define id="HAL_CAN_MODULE_ENABLED" value="0" />
+			<define id="HAL_CEC_MODULE_ENABLED" value="0" />
+			<define id="HAL_CORTEX_MODULE_ENABLED" value="1" />
+			<define id="HAL_CRC_MODULE_ENABLED" value="0" />
+			<define id="HAL_CRYP_MODULE_ENABLED" value="0" />
+			<define id="HAL_DAC_MODULE_ENABLED" value="0" />
+			<define id="HAL_DCMI_MODULE_ENABLED" value="0" />
+			<define id="HAL_DFSDM_MODULE_ENABLED" value="0" />
+			<define id="HAL_DMA2D_MODULE_ENABLED" value="0" />
+			<define id="HAL_DMA_MODULE_ENABLED" value="1" />
+			<define id="HAL_DSI_MODULE_ENABLED" value="0" />
+			<define id="HAL_ETH_MODULE_ENABLED" value="0" />
+			<define id="HAL_FLASH_MODULE_ENABLED" value="1" />
+			<define id="HAL_FMPI2C_MODULE_ENABLED" value="0" />
+			<define id="HAL_GPIO_MODULE_ENABLED" value="1" />
+			<define id="HAL_HASH_MODULE_ENABLED" value="0" />
+			<define id="HAL_HCD_MODULE_ENABLED" value="0" />
+			<define id="HAL_I2C_MODULE_ENABLED" value="0" />
+			<define id="HAL_I2S_MODULE_ENABLED" value="0" />
+			<define id="HAL_IRDA_MODULE_ENABLED" value="0" />
+			<define id="HAL_IWDG_MODULE_ENABLED" value="0" />
+			<define id="HAL_LPTIM_MODULE_ENABLED" value="0" />
+			<define id="HAL_LTDC_MODULE_ENABLED" value="0" />
+			<define id="HAL_MMC_MODULE_ENABLED" value="0" />
+			<define id="HAL_MODULE_ENABLED" value="1" />
+			<define id="HAL_NAND_MODULE_ENABLED" value="0" />
+			<define id="HAL_NOR_MODULE_ENABLED" value="0" />
+			<define id="HAL_PCCARD_MODULE_ENABLED" value="0" />
+			<define id="HAL_PCD_MODULE_ENABLED" value="1" />
+			<define id="HAL_PWR_MODULE_ENABLED" value="1" />
+			<define id="HAL_QSPI_MODULE_ENABLED" value="0" />
+			<define id="HAL_RCC_MODULE_ENABLED" value="1" />
+			<define id="HAL_RNG_MODULE_ENABLED" value="0" />
+			<define id="HAL_RTC_MODULE_ENABLED" value="0" />
+			<define id="HAL_SAI_MODULE_ENABLED" value="0" />
+			<define id="HAL_SDRAM_MODULE_ENABLED" value="0" />
+			<define id="HAL_SD_MODULE_ENABLED" value="0" />
+			<define id="HAL_SMARTCARD_MODULE_ENABLED" value="0" />
+			<define id="HAL_SPDIFRX_MODULE_ENABLED" value="0" />
+			<define id="HAL_SPI_MODULE_ENABLED" value="1" />
+			<define id="HAL_SRAM_MODULE_ENABLED" value="0" />
+			<define id="HAL_TIM_MODULE_ENABLED" value="1" />
+			<define id="HAL_UART_MODULE_ENABLED" value="1" />
+			<define id="HAL_USART_MODULE_ENABLED" value="0" />
+			<define id="HAL_WWDG_MODULE_ENABLED" value="0" />
+			<define id="MOTOR_DC" value="1" />
+			<define id="MOTOR_ESC" value="0" />
+			<define id="NUCLEO_H743ZI" value="1" />
+			<define id="STEVAL_FCU001V1" value="1" />
+			<define id="STM32F401xC" value="0" />
+			<define id="STM32F401xE" value="0" />
+			<define id="STM32F405xx" value="0" />
+			<define id="STM32F407xx" value="0" />
+			<define id="STM32F40XX" value="0" />
+			<define id="STM32F410Cx" value="0" />
+			<define id="STM32F410Rx" value="0" />
+			<define id="STM32F410Tx" value="0" />
+			<define id="STM32F411xE" value="0" />
+			<define id="STM32F412Cx" value="0" />
+			<define id="STM32F412Rx" value="0" />
+			<define id="STM32F412Vx" value="0" />
+			<define id="STM32F412Zx" value="0" />
+			<define id="STM32F413xx" value="0" />
+			<define id="STM32F415xx" value="0" />
+			<define id="STM32F417xx" value="0" />
+			<define id="STM32F423xx" value="0" />
+			<define id="STM32F427xx" value="0" />
+			<define id="STM32F429xx" value="0" />
+			<define id="STM32F437xx" value="0" />
+			<define id="STM32F439xx" value="0" />
+			<define id="STM32F446xx" value="0" />
+			<define id="STM32F469xx" value="0" />
+			<define id="STM32F479xx" value="0" />
+			<define id="STM32F4XX" value="0" />
+			<define id="STM32F7" value="0" />
+			<define id="STM32F722xx" value="0" />
+			<define id="STM32F723xx" value="0" />
+			<define id="STM32F732xx" value="0" />
+			<define id="STM32F733xx" value="0" />
+			<define id="STM32F745xx" value="0" />
+			<define id="STM32F746xx" value="0" />
+			<define id="STM32F756xx" value="0" />
+			<define id="STM32F767xx" value="0" />
+			<define id="STM32F769xx" value="0" />
+			<define id="STM32F777xx" value="0" />
+			<define id="STM32F779xx" value="0" />
+			<define id="STM32F7xx" value="0" />
+			<define id="STM32H743XI" value="0" />
+			<define id="STM32H743xx" value="1" />
+			<define id="STM32H7xx" value="1" />
+			<define id="SUPPORT_DEBUG_OUTPUT" value="1" />
+			<define id="TIM2_MOTOR" value="0" />
+			<define id="TIM2_REMOTE_CONTROL" value="0" />
+			<define id="UART_DEBUG_OUTPUT" value="1" />
+			<define id="UART_DEBUG_PORT" value="1" />
+			<define id="USE_USB_BULK_DEVICE" value="0" />
+			<define id="USE_USB_CDC_DEVICE" value="1" />
+			<define id="USE_USB_FS" value="1" />
+			<define id="USE_USB_HS" value="0" />
+		</Defines>
+	</ParseConditions>
+</SourceInsightParseConditions>

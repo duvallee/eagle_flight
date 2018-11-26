@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+#
+
+make TRUESTUDIO_BUILD=0 TARGET_BOARD=STEVAL_FCU001V1 DEBUG=1 $1 
+
+
