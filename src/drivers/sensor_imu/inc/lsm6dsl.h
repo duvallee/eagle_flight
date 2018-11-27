@@ -12,8 +12,8 @@ extern "C" {
 #endif
 
 // --------------------------------------------------------------------------------
-typedef uint8_t (*LSM6DSL_READ_FN)(void* spi, void* port, uint32_t pin, uint8_t addr, uint8_t* pBuffer, uint16_t nbytes);
-typedef uint8_t (*LSM6DSL_WRITE_FN)(void* spi, void* port, uint32_t pin, uint8_t addr, uint8_t* pBuffer, uint16_t nbytes);
+typedef uint8_t (*LSM6DSL_READ_FN)(void* spi, void* port, uint32_t pin, uint8_t* pBuffer, uint16_t nbytes);
+typedef uint8_t (*LSM6DSL_WRITE_FN)(void* spi, void* port, uint32_t pin, uint8_t* pBuffer, uint16_t nbytes);
 
 typedef struct tag_SENSOR_LSM6DSL_STRUCT
 {

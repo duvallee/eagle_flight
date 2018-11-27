@@ -384,7 +384,7 @@ ifeq ("$(TARGET_BOARD)", "STEVAL_FCU001V1")
 
 	# C Source of user driver
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/steval_fcu001v1_driver.c
-	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/spi.c
+	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/sensor_spi2.c
 
 
 
