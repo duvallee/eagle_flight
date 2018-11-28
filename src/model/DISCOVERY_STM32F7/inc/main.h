@@ -28,6 +28,9 @@ extern "C" {
 #endif
 
 // --------------------------------------------------------------------------
+#define ETHERNET_SRAM_BASE_ADDRESS                       0x20010000
+
+// --------------------------------------------------------------------------
 #include "string.h"
 #if defined(SUPPORT_DEBUG_OUTPUT)
 #include "printf.h"
