@@ -28,7 +28,7 @@
 ifeq ("$(TRUESTUDIO_BUILD)", "1")
 	# -----------------------------------------------------------------------------
 	# Windows or Linux
-	ifneq (,$(findstring C:\Windows\System32, $(PATH)))
+	ifneq (,$(findstring C:, $(PATH)))
 		GCC_PREFIX := arm-atollic-eabi
 		CC = arm-atollic-eabi-gcc
 		CXX = arm-atollic-eabi-g++

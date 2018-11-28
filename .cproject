@@ -121,10 +121,10 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="STEVAL-FCU001V1-DEBUG"/>
 		<configuration configurationName="stm32_modulabs">
 			<resource resourceType="PROJECT" workspacePath="/stm32_modulabs"/>
 		</configuration>
+		<configuration configurationName="STEVAL-FCU001V1-DEBUG"/>
 		<configuration configurationName="STEVAL-FCU001V1-RELEASE"/>
 		<configuration configurationName="NUCLEO-H743ZI-RELEASE"/>
 		<configuration configurationName="Debug">

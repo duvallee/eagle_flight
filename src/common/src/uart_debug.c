@@ -111,7 +111,7 @@ static void MX_USART_UART_Init(void)
    g_dubug_uart.Init.Mode                                = UART_MODE_TX_RX;
    g_dubug_uart.Init.HwFlowCtl                           = UART_HWCONTROL_NONE;
    g_dubug_uart.Init.OverSampling                        = UART_OVERSAMPLING_16;
-#if defined(STM32H743xx)
+#if (defined(NUCLEO_H743ZI) || defined(DISCOVERY_STM32F7))
    g_dubug_uart.Init.OneBitSampling                      = UART_ONE_BIT_SAMPLE_DISABLE;
    g_dubug_uart.AdvancedInit.AdvFeatureInit              = UART_ADVFEATURE_NO_INIT;
 #endif
