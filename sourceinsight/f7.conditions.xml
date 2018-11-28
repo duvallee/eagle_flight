@@ -58,11 +58,9 @@
 			<define id="HAL_UART_MODULE_ENABLED" value="1" />
 			<define id="HAL_USART_MODULE_ENABLED" value="0" />
 			<define id="HAL_WWDG_MODULE_ENABLED" value="0" />
-			<define id="MOTOR_DC" value="0" />
-			<define id="MOTOR_ESC" value="0" />
 			<define id="NUCLEO_H743ZI" value="0" />
 			<define id="STEVAL_FCU001V1" value="0" />
-			<define id="STM32F401xC" value="0" />
+			<define id="STM32F401xC" value="1" />
 			<define id="STM32F401xE" value="0" />
 			<define id="STM32F405xx" value="0" />
 			<define id="STM32F407xx" value="0" />
@@ -104,14 +102,12 @@
 			<define id="STM32H743xx" value="0" />
 			<define id="STM32H7xx" value="0" />
 			<define id="SUPPORT_DEBUG_OUTPUT" value="1" />
-			<define id="TIM2_MOTOR" value="1" />
-			<define id="TIM2_REMOTE_CONTROL" value="0" />
-			<define id="UART_DEBUG_OUTPUT" value="0" />
-			<define id="UART_DEBUG_PORT" value="1" />
+			<define id="UART_DEBUG_OUTPUT" value="1" />
 			<define id="USE_USB_BULK_DEVICE" value="0" />
 			<define id="USE_USB_CDC_DEVICE" value="1" />
 			<define id="USE_USB_FS" value="0" />
 			<define id="USE_USB_HS" value="1" />
+			<define id="pData" value="STM32F7xx" />
 		</Defines>
 	</ParseConditions>
 </SourceInsightParseConditions>
