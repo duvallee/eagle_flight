@@ -215,6 +215,8 @@
 .\src\common\src\printf.c
 .\src\common\src\scheduler.c
 .\src\common\src\uart_debug.c
+.\src\drivers\DISCOVERY_STM32F7\inc\discovery_stm32f7_driver.h
+.\src\drivers\DISCOVERY_STM32F7\src\discovery_stm32f7_driver.c
 .\src\drivers\usb\cdc\inc\usbd_cdc_interface.h
 .\src\drivers\usb\cdc\inc\usbd_desc.h
 .\src\drivers\usb\cdc\src\usbd_cdc_interface.c
