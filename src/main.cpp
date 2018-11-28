@@ -119,7 +119,7 @@ int main(void)
 {
    // Configure the MPU attributes as Write Through
 #if defined(DISCOVERY_STM32F7)
-   MPU_Config(void);
+   MPU_Config();
 #endif
 
 #if (defined(NUCLEO_H743ZI) || defined(DISCOVERY_STM32F7))
@@ -142,7 +142,9 @@ int main(void)
    uart_debug_init();
 #endif
 
+#if !defined(RTOS_FREERTOS)
    scheduler_init();
+#endif
 
    debug_output_info("=============================================== \r\n");
    debug_output_info("%s Ver%d.%d.%d \r\n", PROGRAM_NAME, VERSION_MAIN, VERSION_MINOR, VERSION_SUB);
@@ -157,7 +159,9 @@ int main(void)
 
    while (1)
    {
+#if !defined(RTOS_FREERTOS)
       scheduler_run();
+#endif
    }
    return 0;
 }

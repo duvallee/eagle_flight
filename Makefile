@@ -126,6 +126,9 @@ USB_DEVICE :=
 USE_USB_DEVICE := 
 SENSOR_LSM6DSL :=
 
+NET_LWIP :=
+RTOS_FREERTOS :=
+
 # -----------------------------------------------------------------------------
 # for TARGET Board
 
@@ -176,14 +179,21 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 	TARGET_A_EXTRA += -specs=nano.specs -x assembler-with-cpp
 
 	TARGET_HAL_DEFINITION += -DSTM32F7xx -DSTM32F746xx -DUSE_HAL_DRIVER
-	TARGET_MODEL_DEFINITION += -D$(TARGET_BOARD) -DUART_DEBUG_PORT=1 -DSUPPORT_DEBUG_OUTPUT -DUART_DEBUG_OUTPUT -DDEBUG_STRING_LEVEL_ERROR
-	TARGET_MODEL_DEFINITION += -DUSE_USB_CDC_DEVICE -DUSE_USB_HS
+	TARGET_MODEL_DEFINITION += -D$(TARGET_BOARD) -DUART_DEBUG_PORT=6 -DSUPPORT_DEBUG_OUTPUT -DUART_DEBUG_OUTPUT -DDEBUG_STRING_LEVEL_ERROR
 	TARGET_MODEL_DEFINITION += -DSYSTEM_CLOCK_MAX_216MHZ
 
 	TARGET_HAL_VERSION := F7_V1.13.0
 
 	USB_DEVICE := CDC
 	USE_USB_DEVICE := USED
+
+	NET_LWIP := NET_LWIP
+	RTOS_FREERTOS := RTOS_FREERTOS
+
+	TARGET_MODEL_DEFINITION += -DUSE_USB_CDC_DEVICE -DUSE_USB_HS
+	TARGET_MODEL_DEFINITION += -DSYSTEM_CLOCK_MAX_216MHZ
+	TARGET_MODEL_DEFINITION += -DNET_LWIP
+	TARGET_MODEL_DEFINITION += -DRTOS_FREERTOS
 
 	ifeq ("$(DEBUG)", "1")
 		TARGET := $(TARGET_BOARD)_DEBUG
@@ -217,6 +227,7 @@ ifeq ("$(TARGET_BOARD)", "NUCLEO_H743ZI")
 
 	USB_DEVICE := CDC
 	USE_USB_DEVICE := USED
+
 	ifeq ("$(DEBUG)", "1")
 		TARGET := $(TARGET_BOARD)_DEBUG
 		BUILD_OPTION += -g -O0
@@ -346,6 +357,106 @@ ifeq ($(USB_DEVICE),BULK)
 	INCLUDE_DIR += -I./src/drivers/usb/bulk/inc
 endif
 
+ifeq ($(NET_LWIP),NET_LWIP)
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/ipv6cp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/mem.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/pppapi.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/utils.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/api/netbuf.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/pbuf.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv6/ip6_frag.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/vj.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/ppp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv4/icmp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/chap-new.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/pppos.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/ccp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv6/ip6_addr.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv4/ip4.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/api/sockets.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/api/api_lib.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/tcp_out.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv4/etharp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/demand.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/slipif.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/tcp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/api/api_msg.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/memp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/api/err.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/auth.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv4/autoip.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/api/netdb.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/api/netifapi.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/eui64.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv6/inet6.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/raw.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/magic.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv6/icmp6.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/upap.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/tcp_in.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/init.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/pppcrypt.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv4/igmp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/def.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv6/ip6.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/stats.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ip.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/chap_ms.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/sys.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/timeouts.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv6/nd6.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/polarssl/md5.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/polarssl/md4.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/netif.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/lcp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv6/ethip6.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv6/mld6.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/polarssl/arc4.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv6/dhcp6.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/chap-md5.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/pppoe.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/ipcp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ethernet.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/dns.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/polarssl/des.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv4/ip4_frag.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/pppol2tp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv4/dhcp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/mppe.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/fsm.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/api/tcpip.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/ecp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/lowpan6.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/eap.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/inet_chksum.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/udp.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/polarssl/sha1.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/ipv4/ip4_addr.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/multilink.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/system/OS/sys_arch.c
+
+	INCLUDE_DIR += -IMiddlewares/Third_Party/LwIP/src/include
+	INCLUDE_DIR += -IMiddlewares/Third_Party/LwIP/system
+	INCLUDE_DIR += -IMiddlewares/Third_Party/LwIP/test/unit
+endif
+
+ifeq ($(RTOS_FREERTOS),RTOS_FREERTOS)
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1/port.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/timers.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/queue.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/croutine.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/list.c
+	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c
+
+	INCLUDE_DIR += -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1
+	INCLUDE_DIR += -IMiddlewares/Third_Party/FreeRTOS/Source/include
+	INCLUDE_DIR += -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS
+endif
+
+
 # -----------------------------------------------------------------------------
 # Common Driver Source
 ifeq ($(USE_USB_DEVICE),USED)
@@ -356,7 +467,10 @@ endif
 # C Source of common
 DRIVERS_C_SRC += src/common/src/printf.c
 DRIVERS_C_SRC += src/common/src/uart_debug.c
-DRIVERS_C_SRC += src/common/src/scheduler.c
+
+ifneq ($(RTOS_FREERTOS),RTOS_FREERTOS)
+	DRIVERS_C_SRC += src/common/src/scheduler.c
+endif
 
 INCLUDE_DIR += -Isrc/common/inc
 

@@ -89,6 +89,19 @@ static void MX_USART_UART_Init(void)
    g_dubug_uart.Instance                                 = USART3;
 #endif
 
+#if (UART_DEBUG_PORT == 4)
+   g_dubug_uart.Instance                                 = UART4;
+#endif
+
+#if (UART_DEBUG_PORT == 5)
+   g_dubug_uart.Instance                                 = UART5;
+#endif
+
+#if (UART_DEBUG_PORT == 6)
+   g_dubug_uart.Instance                                 = USART6;
+#endif
+
+
 #endif
 
    g_dubug_uart.Init.BaudRate                            = UART_DEBUG_BAUDRATE;

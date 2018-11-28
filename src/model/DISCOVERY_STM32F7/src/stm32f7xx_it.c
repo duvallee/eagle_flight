@@ -30,145 +30,99 @@
   *
   ******************************************************************************
   */
-/* Includes ------------------------------------------------------------------*/
-#include "stm32f7xx_hal.h"
-#include "stm32f7xx.h"
-// #include "stm32f7xx_it.h"
+#include "main.h"
 
+/* --------------------------------------------------------------------------
+ * Name : NMI_Handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+#if !defined(RTOS_FREERTOS)
 void NMI_Handler(void)
 {
-  /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-
-  /* USER CODE END NonMaskableInt_IRQn 0 */
-  /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-
-  /* USER CODE END NonMaskableInt_IRQn 1 */
 }
+#endif
 
-/**
-* @brief This function handles Hard fault interrupt.
-*/
+/* --------------------------------------------------------------------------
+ * Name : HardFault_Handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 void HardFault_Handler(void)
 {
-  /* USER CODE BEGIN HardFault_IRQn 0 */
-
-  /* USER CODE END HardFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    /* USER CODE END W1_HardFault_IRQn 0 */
-  }
-  /* USER CODE BEGIN HardFault_IRQn 1 */
-
-  /* USER CODE END HardFault_IRQn 1 */
+   _Error_Handler(__FILE__, __LINE__);
 }
 
-/**
-* @brief This function handles Memory management fault.
-*/
+/* --------------------------------------------------------------------------
+ * Name : MemManage_Handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 void MemManage_Handler(void)
 {
-  /* USER CODE BEGIN MemoryManagement_IRQn 0 */
-
-  /* USER CODE END MemoryManagement_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
-    /* USER CODE END W1_MemoryManagement_IRQn 0 */
-  }
-  /* USER CODE BEGIN MemoryManagement_IRQn 1 */
-
-  /* USER CODE END MemoryManagement_IRQn 1 */
+   _Error_Handler(__FILE__, __LINE__);
 }
 
-/**
-* @brief This function handles Pre-fetch fault, memory access fault.
-*/
+/* --------------------------------------------------------------------------
+ * Name : BusFault_Handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 void BusFault_Handler(void)
 {
-  /* USER CODE BEGIN BusFault_IRQn 0 */
-
-  /* USER CODE END BusFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_BusFault_IRQn 0 */
-    /* USER CODE END W1_BusFault_IRQn 0 */
-  }
-  /* USER CODE BEGIN BusFault_IRQn 1 */
-
-  /* USER CODE END BusFault_IRQn 1 */
+   _Error_Handler(__FILE__, __LINE__);
 }
 
-/**
-* @brief This function handles Undefined instruction or illegal state.
-*/
+/* --------------------------------------------------------------------------
+ * Name : UsageFault_Handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 void UsageFault_Handler(void)
 {
-  /* USER CODE BEGIN UsageFault_IRQn 0 */
-
-  /* USER CODE END UsageFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
-    /* USER CODE END W1_UsageFault_IRQn 0 */
-  }
-  /* USER CODE BEGIN UsageFault_IRQn 1 */
-
-  /* USER CODE END UsageFault_IRQn 1 */
+   _Error_Handler(__FILE__, __LINE__);
 }
 
-/**
-* @brief This function handles System service call via SWI instruction.
-*/
+/* --------------------------------------------------------------------------
+ * Name : SVC_Handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+#if !defined(RTOS_FREERTOS)
 void SVC_Handler(void)
 {
-  /* USER CODE BEGIN SVCall_IRQn 0 */
-
-  /* USER CODE END SVCall_IRQn 0 */
-  /* USER CODE BEGIN SVCall_IRQn 1 */
-
-  /* USER CODE END SVCall_IRQn 1 */
 }
+#endif
 
-/**
-* @brief This function handles Debug monitor.
-*/
+/* --------------------------------------------------------------------------
+ * Name : DebugMon_Handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 void DebugMon_Handler(void)
 {
-  /* USER CODE BEGIN DebugMonitor_IRQn 0 */
-
-  /* USER CODE END DebugMonitor_IRQn 0 */
-  /* USER CODE BEGIN DebugMonitor_IRQn 1 */
-
-  /* USER CODE END DebugMonitor_IRQn 1 */
 }
 
-/**
-* @brief This function handles Pendable request for system service.
-*/
+/* --------------------------------------------------------------------------
+ * Name : PendSV_Handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+#if !defined(RTOS_FREERTOS)
 void PendSV_Handler(void)
 {
-  /* USER CODE BEGIN PendSV_IRQn 0 */
-
-  /* USER CODE END PendSV_IRQn 0 */
-  /* USER CODE BEGIN PendSV_IRQn 1 */
-
-  /* USER CODE END PendSV_IRQn 1 */
 }
+#endif
 
-/**
-* @brief This function handles System tick timer.
-*/
+/* --------------------------------------------------------------------------
+ * Name : SysTick_Handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 void SysTick_Handler(void)
 {
-  /* USER CODE BEGIN SysTick_IRQn 0 */
-
-  /* USER CODE END SysTick_IRQn 0 */
-  HAL_IncTick();
-  HAL_SYSTICK_IRQHandler();
-  /* USER CODE BEGIN SysTick_IRQn 1 */
-
-  /* USER CODE END SysTick_IRQn 1 */
+   HAL_IncTick();
+   HAL_SYSTICK_IRQHandler();
 }
 
 /******************************************************************************/
@@ -178,7 +132,62 @@ void SysTick_Handler(void)
 /* please refer to the startup file (startup_stm32f7xx.s).                    */
 /******************************************************************************/
 
-/* USER CODE BEGIN 1 */
+/* --------------------------------------------------------------------------
+ * Name : LTDC_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void LTDC_IRQHandler(void)
+{
+//   HAL_LTDC_IRQHandler(&hltdc);
+}
 
-/* USER CODE END 1 */
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/* --------------------------------------------------------------------------
+ * Name : EXTI15_10_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void EXTI15_10_IRQHandler(void)
+{
+   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != 0)
+   {
+      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+   }
+
+   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != 0)
+   {
+      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : ETH_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void ETH_IRQHandler(void)
+{
+   HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_6);
+//   HAL_ETH_IRQHandler(&heth);
+}
+
+/* --------------------------------------------------------------------------
+ * Name : USB_CDC_HS_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+__weak void USB_CDC_HS_IRQHandler(void)
+{
+}
+
+/* --------------------------------------------------------------------------
+ * Name : OTG_HS_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void OTG_HS_IRQHandler(void)
+{
+   USB_CDC_HS_IRQHandler();
+}
+
+
