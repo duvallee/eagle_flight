@@ -135,8 +135,11 @@ uint8_t ucHeap[configTOTAL_HEAP_SIZE]                    = {0, };
 
 void freertos_idle_task(void const* argument)
 {
-   osDelay(10000);
-   debug_output_info("================== IDLE TASK ================== \r\n");
+   while (1)
+   {
+      osDelay(10000);
+      debug_output_info("================== IDLE TASK ================== \r\n");
+   }
 }
 #endif
 

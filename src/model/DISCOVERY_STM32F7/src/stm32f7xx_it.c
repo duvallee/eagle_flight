@@ -114,6 +114,13 @@ void PendSV_Handler(void)
 }
 #endif
 
+
+#if defined(UART_DEBUG_OUTPUT)
+__weak void debug_tick_timer_handler()
+{
+}
+#endif
+
 /* --------------------------------------------------------------------------
  * Name : SysTick_Handler()
  *
@@ -123,6 +130,15 @@ void SysTick_Handler(void)
 {
    HAL_IncTick();
    HAL_SYSTICK_IRQHandler();
+
+#if defined(UART_DEBUG_OUTPUT)
+   debug_tick_timer_handler();
+#endif
+
+
+#if defined(RTOS_FREERTOS)
+   osSystickHandler();
+#endif
 }
 
 /******************************************************************************/
