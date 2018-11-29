@@ -175,8 +175,12 @@ int main(void)
    osThreadDef(idle_main_task, freertos_idle_task, osPriorityIdle, 0, configMINIMAL_STACK_SIZE);
    if (osThreadCreate(osThread(idle_main_task), (void *) NULL) == NULL)
    {
-      debug_output_error("Can't create thread : network_tcp_server_task !!!");
+      debug_output_error("Can't create thread : idle_main_task !!!");
    }
+
+   // --------------------------------------------------------------------------
+   // Start scheduler */
+   osKernelStart();
 #else
    scheduler_init();
 #endif
