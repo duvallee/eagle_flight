@@ -413,21 +413,37 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 {
    GPIO_InitTypeDef GPIO_InitStruct;
-   if (hi2c->Instance == I2C3)
+   if (hi2c->Instance == I2C1)
    {
-      /**I2C3 GPIO Configuration    
-      PH7     ------> I2C3_SCL
-      PH8     ------> I2C3_SDA 
-      */
+      // Peripheral clock enable
+      __HAL_RCC_I2C3_CLK_ENABLE();
+      __HAL_RCC_GPIOB_CLK_ENABLE();
+
+      // I2C1 GPIO Configuration    
+      // PB8     ------> I2C1_SCL
+      // PB9     ------> I2C1_SDA 
+      GPIO_InitStruct.Pin                                = GPIO_PIN_8 | GPIO_PIN_9;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_OD;
+      GPIO_InitStruct.Pull                               = GPIO_PULLUP;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_VERY_HIGH;
+      GPIO_InitStruct.Alternate                          = GPIO_AF4_I2C1;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+   }
+   else if (hi2c->Instance == I2C3)
+   {
+      // Peripheral clock enable
+      __HAL_RCC_I2C3_CLK_ENABLE();
+      __HAL_RCC_GPIOH_CLK_ENABLE();
+
+      // I2C3 GPIO Configuration    
+      // PH7     ------> I2C3_SCL
+      // PH8     ------> I2C3_SDA 
       GPIO_InitStruct.Pin                                = GPIO_PIN_7 | GPIO_PIN_8;
       GPIO_InitStruct.Mode                               = GPIO_MODE_AF_OD;
       GPIO_InitStruct.Pull                               = GPIO_PULLUP;
       GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_VERY_HIGH;
       GPIO_InitStruct.Alternate                          = GPIO_AF4_I2C3;
       HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
-
-      /* Peripheral clock enable */
-      __HAL_RCC_I2C3_CLK_ENABLE();
    }
 }
 

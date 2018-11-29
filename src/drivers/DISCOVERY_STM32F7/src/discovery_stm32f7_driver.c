@@ -18,6 +18,8 @@
 static SDRAM_HandleTypeDef g_SDRAM_handle;
 static LTDC_HandleTypeDef g_LTDC_handle;
 static DMA2D_HandleTypeDef g_DMA2D_handle;
+
+static I2C_HandleTypeDef g_I2C_Bus1_handle;
 static I2C_HandleTypeDef g_I2C_Bus3_handle;
 
 /* --------------------------------------------------------------------------
@@ -210,6 +212,81 @@ static void BSP_DMA2D_Init(void)
    {
       _Error_Handler(__FILE__, __LINE__);
    }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_I2C_BUS1_Init()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+static void BSP_I2C_BUS1_Init(void)
+{
+   g_I2C_Bus1_handle.Instance                            = I2C1;
+   g_I2C_Bus1_handle.Init.Timing                         = 0x00303D5B;
+   g_I2C_Bus1_handle.Init.OwnAddress1                    = 0;
+   g_I2C_Bus1_handle.Init.AddressingMode                 = I2C_ADDRESSINGMODE_7BIT;
+   g_I2C_Bus1_handle.Init.DualAddressMode                = I2C_DUALADDRESS_DISABLE;
+   g_I2C_Bus1_handle.Init.OwnAddress2                    = 0;
+   g_I2C_Bus1_handle.Init.OwnAddress2Masks               = I2C_OA2_NOMASK;
+   g_I2C_Bus1_handle.Init.GeneralCallMode                = I2C_GENERALCALL_DISABLE;
+   g_I2C_Bus1_handle.Init.NoStretchMode                  = I2C_NOSTRETCH_DISABLE;
+   if (HAL_I2C_Init(&g_I2C_Bus1_handle) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+      return;
+   }
+
+   // Configure Analogue filter 
+   if (HAL_I2CEx_ConfigAnalogFilter(&g_I2C_Bus1_handle, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+      return;
+   }
+
+   // Configure Digital filter 
+   if (HAL_I2CEx_ConfigDigitalFilter(&g_I2C_Bus1_handle, 0) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+      return;
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_I2C_BUS1_Read()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+int BSP_I2C_BUS1_Read(uint16_t device_addr, uint16_t reg_addr, uint16_t reg_addr_size, uint8_t* pData, uint16_t DataSize)
+{
+   HAL_StatusTypeDef status                              = HAL_OK;
+   status                                                = HAL_I2C_Mem_Read(&g_I2C_Bus1_handle, device_addr, (uint16_t) reg_addr, reg_addr_size, pData, DataSize, 1000);
+
+   // Check the communication status
+   if (status != HAL_OK)
+   {
+      debug_output_error("HAL_I2C_Mem_Read Failed() : %d \r\n", status);
+      return -1;
+   }
+   return 0;
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_I2C_BUS1_Write()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+int BSP_I2C_BUS1_Write(uint16_t device_addr, uint16_t reg_addr, uint16_t reg_addr_size, uint8_t* pData, uint16_t DataSize)
+{
+   HAL_StatusTypeDef status                              = HAL_OK;
+   status                                                = HAL_I2C_Mem_Write(&g_I2C_Bus1_handle, device_addr, (uint16_t) reg_addr, reg_addr_size, pData, DataSize, 1000);
+
+   // Check the communication status
+   if (status != HAL_OK)
+   {
+      debug_output_error("HAL_I2C_Mem_Read Failed() : %d \r\n", status);
+      return -1;
+   }
+   return 0;
 }
 
 

@@ -95,7 +95,7 @@ extern "C" {
 #define ARDUINO_CN7_PIN_09_PORT                          GPIOB
 #define ARDUINO_CN7_PIN_09                               GPIO_PIN_9
 
-// Connector 7 - Pin 10 : SCL (TIM2_CH3, I2C2_SCL, SPI2_SCK/I2S2_CK, USART3_TX)
+// Connector 7 - Pin 10 : SCL (TIM2_CH3, I2C1_SCL, SPI2_SCK/I2S2_CK, USART3_TX)
 // 5V tolerant I/O
 #define ARDUINO_CN7_PIN_10_PORT                          GPIOB
 #define ARDUINO_CN7_PIN_10                               GPIO_PIN_8
