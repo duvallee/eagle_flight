@@ -5,6 +5,8 @@
 	>
 	<ParseConditions>
 		<Defines>
+			<define id="__CC_ARM" value="0" />
+			<define id="CHECKSUM_BY_HARDWARE" value="0" />
 			<define id="DEBUG_STRING_LEVEL_DEBUG" value="1" />
 			<define id="DEBUG_STRING_LEVEL_DUMP" value="1" />
 			<define id="DEBUG_STRING_LEVEL_ERROR" value="1" />
@@ -12,6 +14,8 @@
 			<define id="DEBUG_STRING_LEVEL_INFO" value="1" />
 			<define id="DEBUG_STRING_LEVEL_WARN" value="1" />
 			<define id="DISCOVERY_STM32F7" value="1" />
+			<define id="FT5536" value="1" />
+			<define id="__GNUC__" value="1" />
 			<define id="HAL_ADC_MODULE_ENABLED" value="1" />
 			<define id="HAL_CAN_MODULE_ENABLED" value="0" />
 			<define id="HAL_CEC_MODULE_ENABLED" value="0" />
@@ -58,7 +62,15 @@
 			<define id="HAL_UART_MODULE_ENABLED" value="1" />
 			<define id="HAL_USART_MODULE_ENABLED" value="0" />
 			<define id="HAL_WWDG_MODULE_ENABLED" value="0" />
+			<define id="__ICCARM__" value="0" />
+			<define id="LWIP_DHCP" value="1" />
+			<define id="LWIP_NETIF_LINK_CALLBACK" value="1" />
+			<define id="LWIP_STATS" value="0" />
+			<define id="LWIP_TIMEVAL_PRIVATE" value="0" />
+			<define id="MEM_ALIGNMENT" value="4" />
+			<define id="NET_LWIP" value="0" />
 			<define id="NUCLEO_H743ZI" value="0" />
+			<define id="RTOS_FREERTOS" value="1" />
 			<define id="STEVAL_FCU001V1" value="0" />
 			<define id="STM32F401xC" value="1" />
 			<define id="STM32F401xE" value="0" />
@@ -109,6 +121,7 @@
 			<define id="USE_USB_CDC_DEVICE" value="1" />
 			<define id="USE_USB_FS" value="0" />
 			<define id="USE_USB_HS" value="1" />
+			<define id="WITH_RTOS" value="1" />
 			<define id="pData" value="STM32F7xx" />
 		</Defines>
 	</ParseConditions>
