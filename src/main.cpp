@@ -110,6 +110,22 @@ void power_on(void)
 }
 #endif
 
+#if defined(RTOS_FREERTOS)
+#if (configAPPLICATION_ALLOCATED_HEAP == 1)
+#if 0
+uint8_t* ucHeap                                          = (uint8_t *) 0xC0000000;
+#else
+uint8_t ucHeap[configTOTAL_HEAP_SIZE]                    = {0, };
+#endif
+#endif
+
+void freertos_idle_task(void const* argument)
+{
+   osDelay(10000);
+   debug_output_info("================== IDLE TASK ================== \r\n");
+}
+#endif
+
 /* --------------------------------------------------------------------------
  * Name : main()
  *
@@ -142,10 +158,6 @@ int main(void)
    uart_debug_init();
 #endif
 
-#if !defined(RTOS_FREERTOS)
-   scheduler_init();
-#endif
-
    debug_output_info("=============================================== \r\n");
    debug_output_info("%s Ver%d.%d.%d \r\n", PROGRAM_NAME, VERSION_MAIN, VERSION_MINOR, VERSION_SUB);
    debug_output_info("Build Date : %s %s (%s) \r\n", __DATE__, __TIME__, __VERSION__);
@@ -156,6 +168,19 @@ int main(void)
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
    usb_device_init();
 #endif
+
+#if defined(RTOS_FREERTOS)
+   // --------------------------------------------------------------------------
+   /* Thread definition for tcp server */
+   osThreadDef(idle_main_task, freertos_idle_task, osPriorityIdle, 0, configMINIMAL_STACK_SIZE);
+   if (osThreadCreate(osThread(idle_main_task), (void *) NULL) == NULL)
+   {
+      debug_output_error("Can't create thread : network_tcp_server_task !!!");
+   }
+#else
+   scheduler_init();
+#endif
+
 
    while (1)
    {

@@ -235,9 +235,12 @@ extern "C" {
 #include "debug_output.h"
 #include "stm32f7xx.h"
 
-#if !defined(RTOS_FREERTOS)
+#if defined(RTOS_FREERTOS)
+#include "cmsis_os.h"
+#else
 #include "scheduler.h"
 #endif
+
 
 // --------------------------------------------------------------------------
 #define VERSION_MAIN                                     0
