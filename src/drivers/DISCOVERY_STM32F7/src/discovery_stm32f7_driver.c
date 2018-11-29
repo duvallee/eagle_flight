@@ -6,12 +6,19 @@
  */
 #include "main.h"
 #include "discovery_stm32f7_driver.h"
+#if defined(NET_LWIP)
 #include "lwip.h"
+#endif
+
+#if defined(FT5536)
+#include "touch_ft5536.h"
+#endif
 
 // --------------------------------------------------------------------------
 static SDRAM_HandleTypeDef g_SDRAM_handle;
 static LTDC_HandleTypeDef g_LTDC_handle;
 static DMA2D_HandleTypeDef g_DMA2D_handle;
+static I2C_HandleTypeDef g_I2C_Bus3_handle;
 
 /* --------------------------------------------------------------------------
  * Name : BSP_SDRAM_Initialization_sequence()
@@ -205,6 +212,82 @@ static void BSP_DMA2D_Init(void)
    }
 }
 
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_I2C_BUS3_Init()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+static void BSP_I2C_BUS3_Init(void)
+{
+   g_I2C_Bus3_handle.Instance                            = I2C3;
+   g_I2C_Bus3_handle.Init.Timing                         = 0x00303D5B;
+   g_I2C_Bus3_handle.Init.OwnAddress1                    = 0;
+   g_I2C_Bus3_handle.Init.AddressingMode                 = I2C_ADDRESSINGMODE_7BIT;
+   g_I2C_Bus3_handle.Init.DualAddressMode                = I2C_DUALADDRESS_DISABLE;
+   g_I2C_Bus3_handle.Init.OwnAddress2                    = 0;
+   g_I2C_Bus3_handle.Init.OwnAddress2Masks               = I2C_OA2_NOMASK;
+   g_I2C_Bus3_handle.Init.GeneralCallMode                = I2C_GENERALCALL_DISABLE;
+   g_I2C_Bus3_handle.Init.NoStretchMode                  = I2C_NOSTRETCH_DISABLE;
+   if (HAL_I2C_Init(&g_I2C_Bus3_handle) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+      return;
+   }
+
+   // Configure Analogue filter 
+   if (HAL_I2CEx_ConfigAnalogFilter(&g_I2C_Bus3_handle, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+      return;
+   }
+
+   // Configure Digital filter 
+   if (HAL_I2CEx_ConfigDigitalFilter(&g_I2C_Bus3_handle, 0) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+      return;
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_I2C_BUS3_Read()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+int BSP_I2C_BUS3_Read(uint16_t device_addr, uint16_t reg_addr, uint16_t reg_addr_size, uint8_t* pData, uint16_t DataSize)
+{
+   HAL_StatusTypeDef status                              = HAL_OK;
+   status                                                = HAL_I2C_Mem_Read(&g_I2C_Bus3_handle, device_addr, (uint16_t) reg_addr, reg_addr_size, pData, DataSize, 1000);
+
+   // Check the communication status
+   if (status != HAL_OK)
+   {
+      debug_output_error("HAL_I2C_Mem_Read Failed() : %d \r\n", status);
+      return -1;
+   }
+   return 0;
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_I2C_BUS3_Write()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+int BSP_I2C_BUS3_Write(uint16_t device_addr, uint16_t reg_addr, uint16_t reg_addr_size, uint8_t* pData, uint16_t DataSize)
+{
+   HAL_StatusTypeDef status                              = HAL_OK;
+   status                                                = HAL_I2C_Mem_Write(&g_I2C_Bus3_handle, device_addr, (uint16_t) reg_addr, reg_addr_size, pData, DataSize, 1000);
+
+   // Check the communication status
+   if (status != HAL_OK)
+   {
+      debug_output_error("HAL_I2C_Mem_Read Failed() : %d \r\n", status);
+      return -1;
+   }
+   return 0;
+}
+
 /* --------------------------------------------------------------------------
  * Name : Display_On()
  *
@@ -223,7 +306,6 @@ void Display_On(int on)
       HAL_GPIO_WritePin(BACKLIGHT_CONTROL_PORT, BACKLIGHT_CONTROL_PIN, GPIO_PIN_RESET);      // Backlight off
    }
 }
-
 
 /* --------------------------------------------------------------------------
  * Name : Display_Clear()
@@ -289,10 +371,20 @@ void Board_Driver_Init()
    // Initialize DMA 2D for LCD
    BSP_DMA2D_Init();
 
+   // clear
    Display_Clear();
 
+   // I2C BUS 3
+   BSP_I2C_BUS3_Init();
+
+#if defined(FT5536)
+   touch_ft5536_init(BSP_I2C_BUS3_Read, BSP_I2C_BUS3_Write);
+#endif
+
+#if defined(NET_LWIP)
    // Initialize Network
-//   BSP_LWIP_Init();
+   BSP_LWIP_Init();
+#endif
 
 }
 

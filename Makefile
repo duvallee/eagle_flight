@@ -133,6 +133,7 @@ BIN_DIR = $(OBJECT_DIR)
 USB_DEVICE := 
 USE_USB_DEVICE := 
 SENSOR_LSM6DSL :=
+TOUCH_DEVICE :=
 
 NET_LWIP :=
 RTOS_FREERTOS :=
@@ -189,19 +190,16 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 	TARGET_HAL_DEFINITION += -DSTM32F7xx -DSTM32F746xx -DUSE_HAL_DRIVER
 	TARGET_MODEL_DEFINITION += -D$(TARGET_BOARD) -DUART_DEBUG_PORT=6 -DSUPPORT_DEBUG_OUTPUT -DUART_DEBUG_OUTPUT -DDEBUG_STRING_LEVEL_ERROR
 	TARGET_MODEL_DEFINITION += -DSYSTEM_CLOCK_MAX_216MHZ
+	TARGET_MODEL_DEFINITION += -DUSE_USB_CDC_DEVICE -DUSE_USB_HS
 
 	TARGET_HAL_VERSION := F7_V1.13.0
 
 	USB_DEVICE := CDC
 	USE_USB_DEVICE := USED
+	TOUCH_DEVICE := FT5536
 
-	NET_LWIP := NET_LWIP
+#	NET_LWIP := NET_LWIP
 	RTOS_FREERTOS := RTOS_FREERTOS
-
-	TARGET_MODEL_DEFINITION += -DUSE_USB_CDC_DEVICE -DUSE_USB_HS
-	TARGET_MODEL_DEFINITION += -DSYSTEM_CLOCK_MAX_216MHZ
-	TARGET_MODEL_DEFINITION += -DNET_LWIP
-	TARGET_MODEL_DEFINITION += -DRTOS_FREERTOS
 
 	ifeq ("$(DEBUG)", "1")
 		TARGET := $(TARGET_BOARD)_DEBUG
@@ -366,6 +364,8 @@ ifeq ($(USB_DEVICE),BULK)
 endif
 
 ifeq ($(NET_LWIP),NET_LWIP)
+	TARGET_MODEL_DEFINITION += -DNET_LWIP
+
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/ipv6cp.c
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/mem.c
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/pppapi.c
@@ -449,6 +449,8 @@ ifeq ($(NET_LWIP),NET_LWIP)
 endif
 
 ifeq ($(RTOS_FREERTOS),RTOS_FREERTOS)
+	TARGET_MODEL_DEFINITION += -DRTOS_FREERTOS
+
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1/port.c
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/tasks.c
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
@@ -483,13 +485,19 @@ endif
 INCLUDE_DIR += -Isrc/common/inc
 
 ifeq ($(SENSOR_LSM6DSL),SENSOR_LSM6DSL)
+	TARGET_MODEL_DEFINITION += -D$(SENSOR_LSM6DSL)
+
+	DRIVERS_C_SRC += src/drivers/sensor_imu/src/lsm6dsl.c
 	INCLUDE_DIR += -Isrc/drivers/sensor_imu/inc
 endif
 
-ifeq ($(SENSOR_LSM6DSL),SENSOR_LSM6DSL)
-	TARGET_MODEL_DEFINITION += -D$(SENSOR_LSM6DSL)
-	DRIVERS_C_SRC += src/drivers/sensor_imu/src/lsm6dsl.c
+ifeq ($(TOUCH_DEVICE),FT5536)
+	TARGET_MODEL_DEFINITION += -D$(TOUCH_DEVICE)
+
+	DRIVERS_C_SRC += src/drivers/touch/src/touch_ft5536.c
+	INCLUDE_DIR += -Isrc/drivers/touch/inc
 endif
+
 
 # -----------------------------------------------------------------------------
 # Model Source
