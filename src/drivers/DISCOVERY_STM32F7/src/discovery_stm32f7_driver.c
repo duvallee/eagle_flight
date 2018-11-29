@@ -458,6 +458,9 @@ void Board_Driver_Init()
    touch_ft5536_init(BSP_I2C_BUS3_Read, BSP_I2C_BUS3_Write);
 #endif
 
+   // initialize I2C1
+   BSP_I2C_BUS1_Init();
+
 #if defined(NET_LWIP)
    // Initialize Network
    BSP_LWIP_Init();
