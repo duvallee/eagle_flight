@@ -25,10 +25,21 @@
 
 # -----------------------------------------------------------------------------
 # Atollic Compiler or GCC
-ifeq ("$(TRUESTUDIO_BUILD)", "1")
+OS_NAME := LINUX
+
+ifeq (C:,$(findstring C:, $(PATH)))
+	OS_NAME := WINDOWS
+endif
+
+ifeq (c:,$(findstring c:, $(PATH)))
+	OS_NAME := WINDOWS
+endif
+
+
+ifeq ($(TRUESTUDIO_BUILD), 1)
 	# -----------------------------------------------------------------------------
 	# Windows or Linux
-	ifneq (,$(findstring C:, $(PATH)))
+	ifeq ($(OS_NAME),WINDOWS)
 		GCC_PREFIX := arm-atollic-eabi
 		CC = arm-atollic-eabi-gcc
 		CXX = arm-atollic-eabi-g++
@@ -39,7 +50,6 @@ ifeq ("$(TRUESTUDIO_BUILD)", "1")
 		MKDIR_TO_CHAR =\\
 		MKDIR_OPTION = 2> NUL || echo off
 
-		OS_NAME = WINDOWS
 		SHELL = cmd
 	else
 		GCC_PREFIX := arm-atollic-eabi
@@ -52,7 +62,6 @@ ifeq ("$(TRUESTUDIO_BUILD)", "1")
 		MKDIR_TO_CHAR = /
 		MKDIR_OPTION = 2> /dev/null
 
-		OS_NAME = LINUX
 		SHELL = /bin/sh
 	endif
 else
@@ -66,7 +75,6 @@ else
 	MKDIR_TO_CHAR = /
 	MKDIR_OPTION = 2> /dev/null
 
-	OS_NAME = LINUX
 	SHELL = /bin/sh
 endif
 
@@ -578,19 +586,23 @@ all: DEBUG_MAKE_BEFORE $(TARGET) DEBUG_MAKE_AFTER
 
 DEBUG_MAKE_BEFORE:
 	@echo =======================================================================================
-	@echo CFLAGS : $(CFLAGS)
-	@echo CXXFLAGS : $(CXXFLAGS)
-	@echo AFLAGS : $(AFLAGS)
-	@echo LFLAGS : $(LFLAGS)
-	@echo =======================================================================================
-	@echo ASM_SRC : $(ASM_SRC)
-	@echo C_SRC   : $(C_SRC)
-	@echo CXX_SRC : $(CXX_SRC)
-	@echo OBJS    : $(OBJS)
-	@echo =======================================================================================
+#	@echo "Buils System : $(OS_NAME)"
+#	@echo CFLAGS : $(CFLAGS)
+#	@echo CXXFLAGS : $(CXXFLAGS)
+#	@echo AFLAGS : $(AFLAGS)
+#	@echo LFLAGS : $(LFLAGS)
+#	@echo =======================================================================================
+#	@echo ASM_SRC : $(ASM_SRC)
+#	@echo C_SRC   : $(C_SRC)
+#	@echo CXX_SRC : $(CXX_SRC)
+#	@echo OBJS    : $(OBJS)
+#	@echo =======================================================================================
 
 DEBUG_MAKE_AFTER:
 #	@echo =======================================================================================
+#	@echo "Buils System   : $(OS_NAME)"
+#	@echo "Build Compiler : $(GCC_PREFIX)"
+#	@echo "Target Board   : $(TARGET_BOARD)"
 #	@echo OBJS : $(OBJS)
 #	@echo =======================================================================================
 
@@ -599,6 +611,10 @@ $(TARGET): $(OBJS)
 	$(OBJCOPY) -O ihex "$(BIN_DIR)/$(TARGET).elf" "$(BIN_DIR)/$(TARGET).hex"
 	$(OBJCOPY) -O binary "$(BIN_DIR)/$(TARGET).elf" "$(BIN_DIR)/$(TARGET).bin"
 	@echo =======================================================================================
+	@echo Buils System   : $(OS_NAME)
+	@echo Build Compiler : $(GCC_PREFIX)
+	@echo Target Board   : $(TARGET_BOARD)
+	@echo ---------------------------------------------------------------------------------------
 	$(SIZE) "$(BIN_DIR)/$(TARGET).elf"
 	@echo =======================================================================================
 
