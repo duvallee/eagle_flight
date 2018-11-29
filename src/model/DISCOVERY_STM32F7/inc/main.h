@@ -147,11 +147,12 @@ extern "C" {
 #endif
 
 // LCD
+#define DISPLAY_CONTROL_PIN                              GPIO_PIN_12
 #define DISPLAY_CONTROL_PORT                             GPIOI
-#define DISPLAY_CONTROL                                  GPIO_PIN_12
 
+// Backlight
+#define BACKLIGHT_CONTROL_PIN                            GPIO_PIN_3
 #define BACKLIGHT_CONTROL_PORT                           GPIOK
-#define BACKLIGHT_CONTROL                                GPIO_PIN_3
 
 // -----------------------------------------------------------------------------
 // LD1 ( shared with Connector 7 - Pin 6)

@@ -135,6 +135,28 @@ static void BSP_SDRAM_Init(void)
 // ***************************************************************************
 void Board_Driver_Init()
 {
+   GPIO_InitTypeDef GPIO_InitStruct;
+   __HAL_RCC_GPIOI_CLK_ENABLE();
+   __HAL_RCC_GPIOK_CLK_ENABLE();
+
+   // Display Control
+   GPIO_InitStruct.Pin                                   = DISPLAY_CONTROL_PIN;
+   GPIO_InitStruct.Mode                                  = GPIO_MODE_OUTPUT_PP;
+   GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
+   GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
+   HAL_GPIO_Init(DISPLAY_CONTROL_PORT, &GPIO_InitStruct);
+
+   // Backlight Control
+   GPIO_InitStruct.Pin                                   = BACKLIGHT_CONTROL_PIN;
+   GPIO_InitStruct.Mode                                  = GPIO_MODE_OUTPUT_PP;
+   GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
+   GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
+   HAL_GPIO_Init(BACKLIGHT_CONTROL_PORT, &GPIO_InitStruct);
+
+   HAL_GPIO_WritePin(DISPLAY_CONTROL_PORT, DISPLAY_CONTROL_PIN, GPIO_PIN_RESET);          // Display off
+   HAL_GPIO_WritePin(BACKLIGHT_CONTROL_PORT, BACKLIGHT_CONTROL_PIN, GPIO_PIN_RESET);      // Backlight off
+
+
    // initialize sdram
    BSP_SDRAM_Init();
 }

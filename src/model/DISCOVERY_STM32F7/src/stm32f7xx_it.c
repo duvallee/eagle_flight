@@ -172,11 +172,11 @@ void ETH_IRQHandler(void)
 }
 
 /* --------------------------------------------------------------------------
- * Name : USB_CDC_HS_IRQHandler()
+ * Name : USB_IRQHandler()
  *
  *
  * -------------------------------------------------------------------------- */
-__weak void USB_CDC_HS_IRQHandler(void)
+__weak void USB_IRQHandler(void)
 {
 }
 
@@ -187,7 +187,7 @@ __weak void USB_CDC_HS_IRQHandler(void)
  * -------------------------------------------------------------------------- */
 void OTG_HS_IRQHandler(void)
 {
-   USB_CDC_HS_IRQHandler();
+   USB_IRQHandler();
 }
 
 
