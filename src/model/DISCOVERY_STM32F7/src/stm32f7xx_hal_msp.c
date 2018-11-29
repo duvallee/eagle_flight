@@ -547,5 +547,92 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef * hpcd)
    }
 }
 
+/* --------------------------------------------------------------------------
+ * Name : HAL_ETH_MspInit()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void HAL_ETH_MspInit(ETH_HandleTypeDef* ethHandle)
+{
+   GPIO_InitTypeDef GPIO_InitStruct;
+
+   if (ethHandle->Instance == ETH)
+   {
+      /** ETH GPIO Configuration    
+      RMII_REF_CLK ----------------------> PA1
+      RMII_MDIO -------------------------> PA2
+      RMII_MDC --------------------------> PC1
+      RMII_MII_CRS_DV -------------------> PA7
+      RMII_MII_RXD0 ---------------------> PC4
+      RMII_MII_RXD1 ---------------------> PC5
+      RMII_MII_RXER ---------------------> PG2
+      RMII_MII_TX_EN --------------------> PG11
+      RMII_MII_TXD0 ---------------------> PG13
+      RMII_MII_TXD1 ---------------------> PG14
+      */
+
+      GPIO_InitStruct.Pin                                = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_7;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_HIGH;
+      GPIO_InitStruct.Alternate                          = GPIO_AF11_ETH;
+      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+      GPIO_InitStruct.Pin                                = GPIO_PIN_1 | GPIO_PIN_4 | GPIO_PIN_5;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_HIGH;
+      GPIO_InitStruct.Alternate                          = GPIO_AF11_ETH;
+      HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+      GPIO_InitStruct.Pin                                = GPIO_PIN_2 | GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_HIGH;
+      GPIO_InitStruct.Alternate                          = GPIO_AF11_ETH;
+      HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+      /* Enable the Ethernet global Interrupt */
+      HAL_NVIC_SetPriority(ETH_IRQn, 0x7, 0);
+      HAL_NVIC_EnableIRQ(ETH_IRQn);
+
+      /* Enable Peripheral clock */
+      __HAL_RCC_ETH_CLK_ENABLE();
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : HAL_ETH_MspDeInit()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void HAL_ETH_MspDeInit(ETH_HandleTypeDef* ethHandle)
+{
+   if (ethHandle->Instance == ETH)
+   {
+      /* Peripheral clock disable */
+      __HAL_RCC_ETH_CLK_DISABLE();
+
+      /** ETH GPIO Configuration    
+      RMII_REF_CLK ----------------------> PA1
+      RMII_MDIO -------------------------> PA2
+      RMII_MDC --------------------------> PC1
+      RMII_MII_CRS_DV -------------------> PA7
+      RMII_MII_RXD0 ---------------------> PC4
+      RMII_MII_RXD1 ---------------------> PC5
+      RMII_MII_RXER ---------------------> PG2
+      RMII_MII_TX_EN --------------------> PG11
+      RMII_MII_TXD0 ---------------------> PG13
+      RMII_MII_TXD1 ---------------------> PG14
+      */
+      HAL_GPIO_DeInit(GPIOG, GPIO_PIN_14 | GPIO_PIN_13 | GPIO_PIN_11 | GPIO_PIN_2);
+      HAL_GPIO_DeInit(GPIOC, GPIO_PIN_1  | GPIO_PIN_4  | GPIO_PIN_5);
+      HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1  | GPIO_PIN_2  | GPIO_PIN_7);
+
+      /* Peripheral interrupt Deinit*/
+      HAL_NVIC_DisableIRQ(ETH_IRQn);
+   }
+}
+
 
 

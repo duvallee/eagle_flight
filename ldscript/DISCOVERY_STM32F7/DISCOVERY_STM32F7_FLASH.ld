@@ -49,6 +49,10 @@ MEMORY
   SRAM1 (xrw)     : ORIGIN = 0x20010000, LENGTH = 240K
   SRAM2 (xrw)     : ORIGIN = 0x2004C000, LENGTH = 16K
   MEMORY_B1 (rx)  : ORIGIN = 0x60000000, LENGTH = 0K
+  Memory_B1(xrw)  : ORIGIN = 0xC0010000, LENGTH = 0x80
+  Memory_B2(xrw)  : ORIGIN = 0xC0010080, LENGTH = 0x80
+  Memory_B3(xrw)  : ORIGIN = 0xC004C000, LENGTH = 0x17D0
+  Memory_B4(xrw)  : ORIGIN = 0xC004D7D0, LENGTH = 0x17D0
 }
 
 /* Define output sections */
@@ -215,5 +219,9 @@ SECTIONS
     libgcc.a ( * )
   }
 
-  .ARM.attributes 0 : { *(.ARM.attributes) }
+  .ARM.attributes 0  : { *(.ARM.attributes) }
+  .RxDecripSection 	: { *(.RxDescripSection) 	} 	>Memory_B1
+  .TxDescripSection 	: { *(.TxDescripSection) 	} 	>Memory_B2
+  .RxarraySection 	: { *(.RxBUF) 		} 			   >Memory_B3
+  .TxarraySection 	: { *(.TxBUF) 		} 			   >Memory_B4 
 }

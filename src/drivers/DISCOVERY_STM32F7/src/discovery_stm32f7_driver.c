@@ -6,10 +6,12 @@
  */
 #include "main.h"
 #include "discovery_stm32f7_driver.h"
+#include "lwip.h"
 
 // --------------------------------------------------------------------------
-static SDRAM_HandleTypeDef hsdram1;
-
+static SDRAM_HandleTypeDef g_SDRAM_handle;
+static LTDC_HandleTypeDef g_LTDC_handle;
+static DMA2D_HandleTypeDef g_DMA2D_handle;
 
 /* --------------------------------------------------------------------------
  * Name : BSP_SDRAM_Initialization_sequence()
@@ -41,7 +43,7 @@ static FMC_SDRAM_CommandTypeDef Command;
    Command.ModeRegisterDefinition                        = 0;
 
    /* Send the command */
-   HAL_SDRAM_SendCommand(&hsdram1, &Command, SDRAM_TIMEOUT);
+   HAL_SDRAM_SendCommand(&g_SDRAM_handle, &Command, SDRAM_TIMEOUT);
 
    /* Step 2: Insert 100 us minimum delay */ 
    /* Inserted delay is equal to 1 ms due to systick time base unit (ms) */
@@ -54,7 +56,7 @@ static FMC_SDRAM_CommandTypeDef Command;
    Command.ModeRegisterDefinition                        = 0;
 
    /* Send the command */
-   HAL_SDRAM_SendCommand(&hsdram1, &Command, SDRAM_TIMEOUT);  
+   HAL_SDRAM_SendCommand(&g_SDRAM_handle, &Command, SDRAM_TIMEOUT);  
 
    /* Step 4: Configure an Auto Refresh command */ 
    Command.CommandMode                                   = FMC_SDRAM_CMD_AUTOREFRESH_MODE;
@@ -63,7 +65,7 @@ static FMC_SDRAM_CommandTypeDef Command;
    Command.ModeRegisterDefinition                        = 0;
 
    /* Send the command */
-   HAL_SDRAM_SendCommand(&hsdram1, &Command, SDRAM_TIMEOUT);
+   HAL_SDRAM_SendCommand(&g_SDRAM_handle, &Command, SDRAM_TIMEOUT);
 
    /* Step 5: Program the external memory mode register */
    tmpmrd                                                = (uint32_t) SDRAM_MODEREG_BURST_LENGTH_1          |  \
@@ -78,11 +80,11 @@ static FMC_SDRAM_CommandTypeDef Command;
    Command.ModeRegisterDefinition                        = tmpmrd;
 
    /* Send the command */
-   HAL_SDRAM_SendCommand(&hsdram1, &Command, SDRAM_TIMEOUT);
+   HAL_SDRAM_SendCommand(&g_SDRAM_handle, &Command, SDRAM_TIMEOUT);
 
    /* Step 6: Set the refresh rate counter */
    /* Set the device refresh rate */
-   HAL_SDRAM_ProgramRefreshRate(&hsdram1, RefreshCount); 
+   HAL_SDRAM_ProgramRefreshRate(&g_SDRAM_handle, RefreshCount); 
 }
 
 /* --------------------------------------------------------------------------
@@ -97,18 +99,18 @@ static void BSP_SDRAM_Init(void)
 
    /** Perform the SDRAM1 memory initialization sequence
    */
-   hsdram1.Instance                                      = FMC_SDRAM_DEVICE;
+   g_SDRAM_handle.Instance                               = FMC_SDRAM_DEVICE;
    /* hsdram1.Init */
-   hsdram1.Init.SDBank                                   = FMC_SDRAM_BANK1;
-   hsdram1.Init.ColumnBitsNumber                         = FMC_SDRAM_COLUMN_BITS_NUM_8;
-   hsdram1.Init.RowBitsNumber                            = FMC_SDRAM_ROW_BITS_NUM_12;
-   hsdram1.Init.MemoryDataWidth                          = FMC_SDRAM_MEM_BUS_WIDTH_16;
-   hsdram1.Init.InternalBankNumber                       = FMC_SDRAM_INTERN_BANKS_NUM_4;
-   hsdram1.Init.CASLatency                               = FMC_SDRAM_CAS_LATENCY_2;
-   hsdram1.Init.WriteProtection                          = FMC_SDRAM_WRITE_PROTECTION_DISABLE;
-   hsdram1.Init.SDClockPeriod                            = FMC_SDRAM_CLOCK_PERIOD_2;
-   hsdram1.Init.ReadBurst                                = FMC_SDRAM_RBURST_ENABLE;
-   hsdram1.Init.ReadPipeDelay                            = FMC_SDRAM_RPIPE_DELAY_0;
+   g_SDRAM_handle.Init.SDBank                            = FMC_SDRAM_BANK1;
+   g_SDRAM_handle.Init.ColumnBitsNumber                  = FMC_SDRAM_COLUMN_BITS_NUM_8;
+   g_SDRAM_handle.Init.RowBitsNumber                     = FMC_SDRAM_ROW_BITS_NUM_12;
+   g_SDRAM_handle.Init.MemoryDataWidth                   = FMC_SDRAM_MEM_BUS_WIDTH_16;
+   g_SDRAM_handle.Init.InternalBankNumber                = FMC_SDRAM_INTERN_BANKS_NUM_4;
+   g_SDRAM_handle.Init.CASLatency                        = FMC_SDRAM_CAS_LATENCY_2;
+   g_SDRAM_handle.Init.WriteProtection                   = FMC_SDRAM_WRITE_PROTECTION_DISABLE;
+   g_SDRAM_handle.Init.SDClockPeriod                     = FMC_SDRAM_CLOCK_PERIOD_2;
+   g_SDRAM_handle.Init.ReadBurst                         = FMC_SDRAM_RBURST_ENABLE;
+   g_SDRAM_handle.Init.ReadPipeDelay                     = FMC_SDRAM_RPIPE_DELAY_0;
    /* SdramTiming */
    SdramTiming.LoadToActiveDelay                         = 2;
    SdramTiming.ExitSelfRefreshDelay                      = 7;
@@ -118,12 +120,137 @@ static void BSP_SDRAM_Init(void)
    SdramTiming.RPDelay                                   = 2;
    SdramTiming.RCDDelay                                  = 2;
 
-   if (HAL_SDRAM_Init(&hsdram1, &SdramTiming) != HAL_OK)
+   if (HAL_SDRAM_Init(&g_SDRAM_handle, &SdramTiming) != HAL_OK)
    {
       _Error_Handler(__FILE__, __LINE__);
    }
 
    BSP_SDRAM_Initialization_sequence(REFRESH_COUNT);
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_LTDC_Init()
+ *        LTDC init function
+ *
+ * -------------------------------------------------------------------------- */
+static void BSP_LTDC_Init(void)
+{
+   LTDC_LayerCfgTypeDef pLayerCfg;
+
+   g_LTDC_handle.Instance                                = LTDC;
+   g_LTDC_handle.Init.HSPolarity                         = LTDC_HSPOLARITY_AL;
+   g_LTDC_handle.Init.VSPolarity                         = LTDC_VSPOLARITY_AL;
+   g_LTDC_handle.Init.DEPolarity                         = LTDC_DEPOLARITY_AL;
+   g_LTDC_handle.Init.PCPolarity                         = LTDC_PCPOLARITY_IPC;
+   g_LTDC_handle.Init.HorizontalSync                     = (RK043FN48H_HSYNC - 1);
+   g_LTDC_handle.Init.VerticalSync                       = (RK043FN48H_VSYNC - 1);
+   g_LTDC_handle.Init.AccumulatedHBP                     = (RK043FN48H_HSYNC + RK043FN48H_HBP - 1);;
+   g_LTDC_handle.Init.AccumulatedVBP                     = (RK043FN48H_VSYNC + RK043FN48H_VBP- 1);;
+   g_LTDC_handle.Init.AccumulatedActiveW                 = (RK043FN48H_WIDTH + RK043FN48H_HSYNC + RK043FN48H_HBP - 1);
+   g_LTDC_handle.Init.AccumulatedActiveH                 = (RK043FN48H_HEIGHT + RK043FN48H_VSYNC + RK043FN48H_VBP - 1);
+   g_LTDC_handle.Init.TotalWidth                         = (RK043FN48H_WIDTH + RK043FN48H_HSYNC + RK043FN48H_HBP + RK043FN48H_HFP - 1);
+   g_LTDC_handle.Init.TotalHeigh                         = (RK043FN48H_HEIGHT + RK043FN48H_VSYNC + RK043FN48H_VBP + RK043FN48H_VFP - 1);;
+   g_LTDC_handle.Init.Backcolor.Blue                     = 0;
+   g_LTDC_handle.Init.Backcolor.Green                    = 0;
+   g_LTDC_handle.Init.Backcolor.Red                      = 0;
+   if (HAL_LTDC_Init(&g_LTDC_handle) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+   }
+
+   pLayerCfg.WindowX0                                    = 0;
+   pLayerCfg.WindowX1                                    = (RK043FN48H_WIDTH - 1);
+   pLayerCfg.WindowY0                                    = 0;
+   pLayerCfg.WindowY1                                    = (RK043FN48H_HEIGHT - 1);
+   pLayerCfg.PixelFormat                                 = LTDC_PIXEL_FORMAT_ARGB8888;
+   pLayerCfg.Alpha                                       = 255;
+   pLayerCfg.Alpha0                                      = 0;
+   pLayerCfg.BlendingFactor1                             = LTDC_BLENDING_FACTOR1_CA;
+   pLayerCfg.BlendingFactor2                             = LTDC_BLENDING_FACTOR2_CA;
+   pLayerCfg.FBStartAdress                               = (uint32_t) LCD_FRAMEBUFFER;
+   pLayerCfg.ImageWidth                                  = RK043FN48H_WIDTH;
+   pLayerCfg.ImageHeight                                 = RK043FN48H_HEIGHT;
+   pLayerCfg.Backcolor.Blue                              = 0;
+   pLayerCfg.Backcolor.Green                             = 0;
+   pLayerCfg.Backcolor.Red                               = 0;
+   if (HAL_LTDC_ConfigLayer(&g_LTDC_handle, &pLayerCfg, 0) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : MX_DMA2D_Init()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+static void BSP_DMA2D_Init(void)
+{
+   g_DMA2D_handle.Instance                               = DMA2D;
+   g_DMA2D_handle.Init.Mode                              = DMA2D_M2M;
+   g_DMA2D_handle.Init.ColorMode                         = DMA2D_OUTPUT_ARGB8888;
+   g_DMA2D_handle.Init.OutputOffset                      = 0;
+   g_DMA2D_handle.LayerCfg[1].InputOffset                = 0;
+   g_DMA2D_handle.LayerCfg[1].InputColorMode             = DMA2D_INPUT_ARGB8888;
+   g_DMA2D_handle.LayerCfg[1].AlphaMode                  = DMA2D_NO_MODIF_ALPHA;
+   g_DMA2D_handle.LayerCfg[1].InputAlpha                 = 0;
+   if (HAL_DMA2D_Init(&g_DMA2D_handle) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+   }
+
+   if (HAL_DMA2D_ConfigLayer(&g_DMA2D_handle, 1) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : Display_On()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void Display_On(int on)
+{
+   if (on)
+   {
+      HAL_GPIO_WritePin(DISPLAY_CONTROL_PORT, DISPLAY_CONTROL_PIN, GPIO_PIN_SET);            // Display on
+      HAL_GPIO_WritePin(BACKLIGHT_CONTROL_PORT, BACKLIGHT_CONTROL_PIN, GPIO_PIN_SET);        // Backlight on
+   }
+   else
+   {
+      HAL_GPIO_WritePin(DISPLAY_CONTROL_PORT, DISPLAY_CONTROL_PIN, GPIO_PIN_RESET);          // Display off
+      HAL_GPIO_WritePin(BACKLIGHT_CONTROL_PORT, BACKLIGHT_CONTROL_PIN, GPIO_PIN_RESET);      // Backlight off
+   }
+}
+
+
+/* --------------------------------------------------------------------------
+ * Name : Display_Clear()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void Display_Clear(void)
+{
+   if (HAL_DMA2D_Start(&g_DMA2D_handle, 0x00000000, (uint32_t) LCD_FRAMEBUFFER, RK043FN48H_WIDTH, RK043FN48H_HEIGHT) == HAL_OK)
+   {
+      /* Polling For DMA transfer */  
+      HAL_DMA2D_PollForTransfer(&g_DMA2D_handle, 10);
+   }
+   else
+   {
+      debug_output_info("MX_DMA2D_LCD_Clear() failed !!! \r\n");
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : LCD_Clear()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+volatile uint32_t* getFrameBuffer(void)
+{
+   return ((volatile uint32_t*) LCD_FRAMEBUFFER);
 }
 
 
@@ -153,12 +280,20 @@ void Board_Driver_Init()
    GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
    HAL_GPIO_Init(BACKLIGHT_CONTROL_PORT, &GPIO_InitStruct);
 
-   HAL_GPIO_WritePin(DISPLAY_CONTROL_PORT, DISPLAY_CONTROL_PIN, GPIO_PIN_RESET);          // Display off
-   HAL_GPIO_WritePin(BACKLIGHT_CONTROL_PORT, BACKLIGHT_CONTROL_PIN, GPIO_PIN_RESET);      // Backlight off
-
+   Display_On(0);
 
    // initialize sdram
    BSP_SDRAM_Init();
+   // initialize LCD
+   BSP_LTDC_Init();
+   // Initialize DMA 2D for LCD
+   BSP_DMA2D_Init();
+
+   Display_Clear();
+
+   // Initialize Network
+//   BSP_LWIP_Init();
+
 }
 
 

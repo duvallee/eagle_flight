@@ -14,6 +14,9 @@ extern "C" {
 // --------------------------------------------------------------------------------
 void Board_Driver_Init();
 
+void Display_Clear(void);
+void Display_On(int on);
+volatile uint32_t* getFrameBuffer(void);
 
 
 #ifdef __cplusplus

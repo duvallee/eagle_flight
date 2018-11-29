@@ -537,7 +537,13 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 
 	# C Source of user driver
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/discovery_stm32f7_driver.c
+	ifeq ($(NET_LWIP),NET_LWIP)
+		INCLUDE_DIR += -Isrc/drivers/lwip/inc
 
+		DRIVERS_C_SRC += src/drivers/lwip/src/lwip.c
+		DRIVERS_C_SRC += src/drivers/lwip/src/ethernetif.c
+		DRIVERS_C_SRC += src/drivers/lwip/src/dhcp_ethernet.c
+	endif
 endif
 
 
