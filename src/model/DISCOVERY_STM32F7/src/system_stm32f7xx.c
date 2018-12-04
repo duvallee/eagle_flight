@@ -213,14 +213,16 @@ void SystemCoreClockUpdate(void)
 // ***************************************************************************
 void SystemClock_Config(void)
 {
-   RCC_OscInitTypeDef RCC_OscInitStruct;
-   RCC_ClkInitTypeDef RCC_ClkInitStruct;
+   RCC_OscInitTypeDef RCC_OscInitStruct                  = {0, };
+   RCC_ClkInitTypeDef RCC_ClkInitStruct                  = {0, };
 #if defined(SYSTEM_CLOCK_200MHZ)
-   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct          = {0, };
 #endif
 
-   /**Configure the main internal regulator output voltage 
-   */
+   // Configure LSE Drive Capability 
+   HAL_PWR_EnableBkUpAccess();
+
+   // Configure the main internal regulator output voltage 
    __HAL_RCC_PWR_CLK_ENABLE();
    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
@@ -267,14 +269,15 @@ void SystemClock_Config(void)
 #elif defined(SYSTEM_CLOCK_200MHZ)                                               // HCLK : 200 MHz
    /**Initializes the CPU, AHB and APB busses clocks 
    */
-   RCC_OscInitStruct.OscillatorType                      = RCC_OSCILLATORTYPE_HSE;
+   RCC_OscInitStruct.OscillatorType                      = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
    RCC_OscInitStruct.HSEState                            = RCC_HSE_ON;
+   RCC_OscInitStruct.LSIState                            = RCC_LSI_ON;
    RCC_OscInitStruct.PLL.PLLState                        = RCC_PLL_ON;
    RCC_OscInitStruct.PLL.PLLSource                       = RCC_PLLSOURCE_HSE;
    RCC_OscInitStruct.PLL.PLLM                            = 25;
    RCC_OscInitStruct.PLL.PLLN                            = 400;
    RCC_OscInitStruct.PLL.PLLP                            = RCC_PLLP_DIV2;
-   RCC_OscInitStruct.PLL.PLLQ                            = 2;
+   RCC_OscInitStruct.PLL.PLLQ                            = 9;
    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
    {
       _Error_Handler(__FILE__, __LINE__);
@@ -303,17 +306,38 @@ void SystemClock_Config(void)
       _Error_Handler(__FILE__, __LINE__);
    }
 
-   PeriphClkInitStruct.PeriphClockSelection              = RCC_PERIPHCLK_LTDC | RCC_PERIPHCLK_CLK48;
-   PeriphClkInitStruct.PLLSAI.PLLSAIN                    = 192;
+   PeriphClkInitStruct.PeriphClockSelection              = RCC_PERIPHCLK_SPDIFRX    |
+                                                           RCC_PERIPHCLK_LTDC       |
+                                                           RCC_PERIPHCLK_RTC        |
+                                                           RCC_PERIPHCLK_USART1     |
+                                                           RCC_PERIPHCLK_USART6     |
+                                                           RCC_PERIPHCLK_SAI2       |
+                                                           RCC_PERIPHCLK_I2C1       |
+                                                           RCC_PERIPHCLK_I2C3       |
+                                                           RCC_PERIPHCLK_SDMMC1     |
+                                                           RCC_PERIPHCLK_CLK48;
+   PeriphClkInitStruct.PLLI2S.PLLI2SN                    = 100;
+   PeriphClkInitStruct.PLLI2S.PLLI2SP                    = RCC_PLLP_DIV2;
+   PeriphClkInitStruct.PLLI2S.PLLI2SR                    = 2;
+   PeriphClkInitStruct.PLLI2S.PLLI2SQ                    = 2;
+   PeriphClkInitStruct.PLLSAI.PLLSAIN                    = 384;
    PeriphClkInitStruct.PLLSAI.PLLSAIR                    = 5;
    PeriphClkInitStruct.PLLSAI.PLLSAIQ                    = 2;
-   PeriphClkInitStruct.PLLSAI.PLLSAIP                    = RCC_PLLSAIP_DIV4;
+   PeriphClkInitStruct.PLLSAI.PLLSAIP                    = RCC_PLLSAIP_DIV8;
+   PeriphClkInitStruct.PLLI2SDivQ                        = 1;
    PeriphClkInitStruct.PLLSAIDivQ                        = 1;
-   PeriphClkInitStruct.PLLSAIDivR                        = RCC_PLLSAIDIVR_4;
+   PeriphClkInitStruct.PLLSAIDivR                        = RCC_PLLSAIDIVR_8;
+   PeriphClkInitStruct.RTCClockSelection                 = RCC_RTCCLKSOURCE_LSI;
+   PeriphClkInitStruct.Sai2ClockSelection                = RCC_SAI2CLKSOURCE_PLLSAI;
+   PeriphClkInitStruct.Usart1ClockSelection              = RCC_USART1CLKSOURCE_PCLK2;
+   PeriphClkInitStruct.Usart6ClockSelection              = RCC_USART6CLKSOURCE_PCLK2;
+   PeriphClkInitStruct.I2c1ClockSelection                = RCC_I2C1CLKSOURCE_PCLK1;
+   PeriphClkInitStruct.I2c3ClockSelection                = RCC_I2C3CLKSOURCE_PCLK1;
    PeriphClkInitStruct.Clk48ClockSelection               = RCC_CLK48SOURCE_PLLSAIP;
+   PeriphClkInitStruct.Sdmmc1ClockSelection              = RCC_SDMMC1CLKSOURCE_CLK48;
    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
    {
-   _Error_Handler(__FILE__, __LINE__);
+      _Error_Handler(__FILE__, __LINE__);
    }
 #else
 #error "Not defined clock"
