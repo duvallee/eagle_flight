@@ -139,6 +139,9 @@ void freertos_idle_task(void const* argument)
    {
       osDelay(10000);
       debug_output_info("================== IDLE TASK ================== \r\n");
+#if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
+      usb_write((uint8_t*) "================== IDLE TASK(USB-HS) ================== \r\n", strlen("================== IDLE TASK(USB-HS) ================== \r\n"));
+#endif
    }
 }
 #endif
