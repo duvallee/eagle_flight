@@ -480,7 +480,7 @@ ifeq ($(STEMWIN),STEMWIN)
 	INCLUDE_DIR += -Isrc/drivers/stemwin/inc
 	INCLUDE_DIR += -IMiddlewares/ST/STemWin/inc
 
-	SATIC_LIBRARY += -L./Middlewares/ST/STemWin/Lib -lSTemWin_CM7_wc32.a
+	SATIC_LIBRARY += -LMiddlewares/ST/STemWin/Lib -l:STemWin_CM7_wc32.a
 endif
 
 # -----------------------------------------------------------------------------
@@ -597,7 +597,7 @@ CFLAGS :=   $(BUILD_OPTION) $(TARGET_MCU) $(TARGET_FPU) $(TARGET_INSTRUCTION) $(
 CXXFLAGS := $(BUILD_OPTION) $(TARGET_MCU) $(TARGET_FPU) $(TARGET_INSTRUCTION) $(TARGET_CXX_EXTRA) $(TARGET_HAL_DEFINITION) $(TARGET_MODEL_DEFINITION) $(INCLUDE_DIR)
 AFLAGS :=   $(BUILD_OPTION) $(TARGET_MCU) $(TARGET_FPU) $(TARGET_INSTRUCTION) $(TARGET_A_EXTRA)   $(TARGET_HAL_DEFINITION) $(TARGET_MODEL_DEFINITION) $(INCLUDE_DIR)
 LFLAGS :=   $(TARGET_MCU) $(TARGET_FPU) $(TARGET_INSTRUCTION) -Wl,--gc-sections -static  -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group -specs=nano.specs -specs=nosys.specs -Wl,-cref
-LFLAGS +=   -lstdc++ $(SATIC_LIBRARY)
+LFLAGS +=   -Wl,-V $(SATIC_LIBRARY)
 LFLAGS +=   "-Wl,-Map=$(BIN_DIR)/$(TARGET).map"  -Wl,--defsym=malloc_getpagesize_P=0x1000  -T$(LINK_SCCRIPT_FILES)
 
 # -----------------------------------------------------------------------------
