@@ -112,6 +112,8 @@ ASM_SRC :=
 C_SRC :=
 CXX_SRC :=
 
+SATIC_LIBRARY :=
+
 INCLUDE_DIR :=
 HAL_LIBRARY_C_SRC :=
 MIDDLEWARE_C_SRC :=
@@ -137,6 +139,7 @@ TOUCH_DEVICE :=
 
 NET_LWIP :=
 RTOS_FREERTOS :=
+STEMWIN :=
 
 # -----------------------------------------------------------------------------
 # for TARGET Board
@@ -201,6 +204,7 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 
 #	NET_LWIP := NET_LWIP
 	RTOS_FREERTOS := RTOS_FREERTOS
+	STEMWIN := STEMWIN
 
 	ifeq ("$(DEBUG)", "1")
 		TARGET := $(TARGET_BOARD)_DEBUG
@@ -365,7 +369,7 @@ ifeq ($(USB_DEVICE),BULK)
 endif
 
 ifeq ($(NET_LWIP),NET_LWIP)
-	TARGET_MODEL_DEFINITION += -DNET_LWIP
+	TARGET_MODEL_DEFINITION += -D$(NET_LWIP)
 
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/netif/ppp/ipv6cp.c
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/LwIP/src/core/mem.c
@@ -450,7 +454,7 @@ ifeq ($(NET_LWIP),NET_LWIP)
 endif
 
 ifeq ($(RTOS_FREERTOS),RTOS_FREERTOS)
-	TARGET_MODEL_DEFINITION += -DRTOS_FREERTOS
+	TARGET_MODEL_DEFINITION += -D$(RTOS_FREERTOS)
 
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1/port.c
 	MIDDLEWARE_C_SRC += Middlewares/Third_Party/FreeRTOS/Source/tasks.c
@@ -467,6 +471,17 @@ ifeq ($(RTOS_FREERTOS),RTOS_FREERTOS)
 	INCLUDE_DIR += -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS
 endif
 
+ifeq ($(STEMWIN),STEMWIN)
+	TARGET_MODEL_DEFINITION += -D$(STEMWIN)
+
+	DRIVERS_C_SRC += src/drivers/stemwin/src/GUIConf.c
+	DRIVERS_C_SRC += src/drivers/stemwin/src/LCDConf.c
+
+	INCLUDE_DIR += -Isrc/drivers/stemwin/inc
+	INCLUDE_DIR += -IMiddlewares/ST/STemWin/inc
+
+	SATIC_LIBRARY += -L./Middlewares/ST/STemWin/Lib -lSTemWin_CM7_wc32.a
+endif
 
 # -----------------------------------------------------------------------------
 # Common Driver Source
@@ -517,8 +532,6 @@ ifeq ("$(TARGET_BOARD)", "STEVAL_FCU001V1")
 	# C Source of user driver
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/steval_fcu001v1_driver.c
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/sensor_spi2.c
-
-
 
 	# 외부로 뺄 함수들
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/battery_gauge.c
@@ -571,7 +584,6 @@ ifeq ("$(TARGET_BOARD)", "NUCLEO_H743ZI")
 
 	# C Source of user driver
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/nucleo_h743zi_driver.c
-
 endif
 
 # -----------------------------------------------------------------------------
@@ -585,6 +597,7 @@ CFLAGS :=   $(BUILD_OPTION) $(TARGET_MCU) $(TARGET_FPU) $(TARGET_INSTRUCTION) $(
 CXXFLAGS := $(BUILD_OPTION) $(TARGET_MCU) $(TARGET_FPU) $(TARGET_INSTRUCTION) $(TARGET_CXX_EXTRA) $(TARGET_HAL_DEFINITION) $(TARGET_MODEL_DEFINITION) $(INCLUDE_DIR)
 AFLAGS :=   $(BUILD_OPTION) $(TARGET_MCU) $(TARGET_FPU) $(TARGET_INSTRUCTION) $(TARGET_A_EXTRA)   $(TARGET_HAL_DEFINITION) $(TARGET_MODEL_DEFINITION) $(INCLUDE_DIR)
 LFLAGS :=   $(TARGET_MCU) $(TARGET_FPU) $(TARGET_INSTRUCTION) -Wl,--gc-sections -static  -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group -specs=nano.specs -specs=nosys.specs -Wl,-cref
+LFLAGS +=   -lstdc++ $(SATIC_LIBRARY)
 LFLAGS +=   "-Wl,-Map=$(BIN_DIR)/$(TARGET).map"  -Wl,--defsym=malloc_getpagesize_P=0x1000  -T$(LINK_SCCRIPT_FILES)
 
 # -----------------------------------------------------------------------------

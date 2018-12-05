@@ -241,6 +241,12 @@ extern "C" {
 #include "scheduler.h"
 #endif
 
+#if defined(STEMWIN)
+#include "GUI.h"
+
+#include "LCDConf.h"
+#include "GUI_Private.h"
+#endif
 
 // --------------------------------------------------------------------------
 #define VERSION_MAIN                                     0
