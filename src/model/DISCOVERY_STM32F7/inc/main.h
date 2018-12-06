@@ -218,11 +218,25 @@ extern "C" {
 #define RK043FN48H_VBP                                   2                       // Vertical Back Porch
 #define RK043FN48H_VFP                                   2                       // Vertical Front Porch
 
+#define LCD_WIDTH                                        480
+#define LCD_HEIGHT                                       272
+#define LCD_PIXEL_BYTE                                   4
+
+#define LCD_FRAMEBUFFER_SIZE                             (LCD_WIDTH * LCD_HEIGHT * LCD_PIXEL_BYTE)
+
 // --------------------------------------------------------------------------
 #define ETHERNET_SRAM_BASE_ADDRESS                       0x20010000
 
-#define DMA2D_FRAMEBUFFER                                0xC0700000
-#define LCD_FRAMEBUFFER                                  0xC0780000
+// --------------------------------------------------------------------------
+// SDRAM (16 MB) : 0xC000 0000 -- 0xC0FF FFFF
+#define STEMWIN_GUI_MEM_BASE                             0xC0100000              // 0xC010 0000 -- 0xC01F FFFF
+#define STEMWIN_GUI_MEM_SIZE                             0x100000
+
+#define LCD_FRAMEBUFFER_LAYER_0                          0xC0200000
+#define LCD_FRAMEBUFFER_LAYER_1                          0xC0400000
+
+#define DMA2D_FRAMEBUFFER_LAYER_0                        0xC0600000
+#define DMA2D_FRAMEBUFFER_LAYER_1                        0xC0800000
 
 // --------------------------------------------------------------------------
 #include "string.h"
@@ -246,6 +260,8 @@ extern "C" {
 
 #include "LCDConf.h"
 #include "GUI_Private.h"
+
+#include "WM.h"
 #endif
 
 // --------------------------------------------------------------------------

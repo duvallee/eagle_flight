@@ -142,6 +142,12 @@ void freertos_idle_task(void const* argument)
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
       usb_write((uint8_t*) "================== IDLE TASK(USB-HS) ================== \r\n", strlen("================== IDLE TASK(USB-HS) ================== \r\n"));
 #endif
+
+#if defined(STEMWIN)
+     GUI_Clear();
+     GUI_SetFont(&GUI_Font20_1);
+     GUI_DispStringAt("Hello world!", (LCD_GetXSize() - 100) / 2, (LCD_GetYSize() - 20) / 2);
+#endif
    }
 }
 #endif

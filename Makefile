@@ -474,6 +474,13 @@ endif
 ifeq ($(STEMWIN),STEMWIN)
 	TARGET_MODEL_DEFINITION += -D$(STEMWIN)
 
+	ifeq ($(RTOS_FREERTOS),RTOS_FREERTOS)
+		TARGET_MODEL_DEFINITION += -DOS_SUPPORT
+		MIDDLEWARE_C_SRC += Middlewares/ST/STemWin/OS/GUI_X_OS.c
+	else
+		MIDDLEWARE_C_SRC += Middlewares/ST/STemWin/OS/GUI_X.c
+	endif
+
 	DRIVERS_C_SRC += src/drivers/stemwin/src/GUIConf.c
 	DRIVERS_C_SRC += src/drivers/stemwin/src/LCDConf.c
 

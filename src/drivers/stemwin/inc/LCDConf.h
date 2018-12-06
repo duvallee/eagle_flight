@@ -46,20 +46,21 @@
 extern "C" {
 #endif
 
-#include "main.h"
 #include "GUIDRV_Lin.h"
 
 typedef struct
 {
-   int32_t      address;          
+   int32_t address;          
    __IO int32_t pending_buffer;   
-   int32_t      buffer_index;     
-   int32_t      xSize;            
-   int32_t      ySize;            
-   int32_t      BytesPerPixel;
-   LCD_API_COLOR_CONV   *pColorConvAPI;
+   int32_t buffer_index;     
+   int32_t xSize;            
+   int32_t ySize;            
+   int32_t BytesPerPixel;
+   LCD_API_COLOR_CONV* pColorConvAPI;
 }
 LCD_LayerPropTypedef;
+
+void lcd_init_for_stemwin(void* ltdc_handle, void* dma2d_handle);
 
 #ifdef __cplusplus
 }

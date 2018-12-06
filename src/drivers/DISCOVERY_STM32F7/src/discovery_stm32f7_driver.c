@@ -45,38 +45,38 @@ static void BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount)
    __IO uint32_t tmpmrd                                  = 0;
 static FMC_SDRAM_CommandTypeDef Command;
 
-   /* Step 1: Configure a clock configuration enable command */
+   // Step 1: Configure a clock configuration enable command
    Command.CommandMode                                   = FMC_SDRAM_CMD_CLK_ENABLE;
    Command.CommandTarget                                 = FMC_SDRAM_CMD_TARGET_BANK1;
    Command.AutoRefreshNumber                             = 1;
    Command.ModeRegisterDefinition                        = 0;
 
-   /* Send the command */
+   // Send the command
    HAL_SDRAM_SendCommand(&g_SDRAM_handle, &Command, SDRAM_TIMEOUT);
 
-   /* Step 2: Insert 100 us minimum delay */ 
-   /* Inserted delay is equal to 1 ms due to systick time base unit (ms) */
+   // Step 2: Insert 100 us minimum delay
+   // Inserted delay is equal to 1 ms due to systick time base unit (ms)
    HAL_Delay(1);
 
-   /* Step 3: Configure a PALL (precharge all) command */ 
+   // Step 3: Configure a PALL (precharge all) command
    Command.CommandMode                                   = FMC_SDRAM_CMD_PALL;
    Command.CommandTarget                                 = FMC_SDRAM_CMD_TARGET_BANK1;
    Command.AutoRefreshNumber                             = 1;
    Command.ModeRegisterDefinition                        = 0;
 
-   /* Send the command */
+   // Send the command
    HAL_SDRAM_SendCommand(&g_SDRAM_handle, &Command, SDRAM_TIMEOUT);  
 
-   /* Step 4: Configure an Auto Refresh command */ 
+   // Step 4: Configure an Auto Refresh command
    Command.CommandMode                                   = FMC_SDRAM_CMD_AUTOREFRESH_MODE;
    Command.CommandTarget                                 = FMC_SDRAM_CMD_TARGET_BANK1;
    Command.AutoRefreshNumber                             = 8;
    Command.ModeRegisterDefinition                        = 0;
 
-   /* Send the command */
+   // Send the command
    HAL_SDRAM_SendCommand(&g_SDRAM_handle, &Command, SDRAM_TIMEOUT);
 
-   /* Step 5: Program the external memory mode register */
+   // Step 5: Program the external memory mode register
    tmpmrd                                                = (uint32_t) SDRAM_MODEREG_BURST_LENGTH_1          |  \
                                                                       SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL   |  \
                                                                       SDRAM_MODEREG_CAS_LATENCY_2           |  \
@@ -88,11 +88,11 @@ static FMC_SDRAM_CommandTypeDef Command;
    Command.AutoRefreshNumber                             = 1;
    Command.ModeRegisterDefinition                        = tmpmrd;
 
-   /* Send the command */
+   // Send the command
    HAL_SDRAM_SendCommand(&g_SDRAM_handle, &Command, SDRAM_TIMEOUT);
 
-   /* Step 6: Set the refresh rate counter */
-   /* Set the device refresh rate */
+   // Step 6: Set the refresh rate counter
+   // Set the device refresh rate
    HAL_SDRAM_ProgramRefreshRate(&g_SDRAM_handle, RefreshCount); 
 }
 
@@ -106,10 +106,9 @@ static void BSP_SDRAM_Init(void)
 {
    FMC_SDRAM_TimingTypeDef SdramTiming;
 
-   /** Perform the SDRAM1 memory initialization sequence
-   */
+   // Perform the SDRAM1 memory initialization sequence
    g_SDRAM_handle.Instance                               = FMC_SDRAM_DEVICE;
-   /* hsdram1.Init */
+   // hsdram1.Init
    g_SDRAM_handle.Init.SDBank                            = FMC_SDRAM_BANK1;
    g_SDRAM_handle.Init.ColumnBitsNumber                  = FMC_SDRAM_COLUMN_BITS_NUM_8;
    g_SDRAM_handle.Init.RowBitsNumber                     = FMC_SDRAM_ROW_BITS_NUM_12;
@@ -120,7 +119,7 @@ static void BSP_SDRAM_Init(void)
    g_SDRAM_handle.Init.SDClockPeriod                     = FMC_SDRAM_CLOCK_PERIOD_2;
    g_SDRAM_handle.Init.ReadBurst                         = FMC_SDRAM_RBURST_ENABLE;
    g_SDRAM_handle.Init.ReadPipeDelay                     = FMC_SDRAM_RPIPE_DELAY_0;
-   /* SdramTiming */
+   // SdramTiming
    SdramTiming.LoadToActiveDelay                         = 2;
    SdramTiming.ExitSelfRefreshDelay                      = 7;
    SdramTiming.SelfRefreshTime                           = 4;
@@ -147,10 +146,14 @@ static void BSP_LTDC_Init(void)
    LTDC_LayerCfgTypeDef pLayerCfg;
 
    g_LTDC_handle.Instance                                = LTDC;
+
+   // Polarity
    g_LTDC_handle.Init.HSPolarity                         = LTDC_HSPOLARITY_AL;
    g_LTDC_handle.Init.VSPolarity                         = LTDC_VSPOLARITY_AL;
    g_LTDC_handle.Init.DEPolarity                         = LTDC_DEPOLARITY_AL;
    g_LTDC_handle.Init.PCPolarity                         = LTDC_PCPOLARITY_IPC;
+
+   // timing
    g_LTDC_handle.Init.HorizontalSync                     = (RK043FN48H_HSYNC - 1);
    g_LTDC_handle.Init.VerticalSync                       = (RK043FN48H_VSYNC - 1);
    g_LTDC_handle.Init.AccumulatedHBP                     = (RK043FN48H_HSYNC + RK043FN48H_HBP - 1);;
@@ -159,13 +162,20 @@ static void BSP_LTDC_Init(void)
    g_LTDC_handle.Init.AccumulatedActiveH                 = (RK043FN48H_HEIGHT + RK043FN48H_VSYNC + RK043FN48H_VBP - 1);
    g_LTDC_handle.Init.TotalWidth                         = (RK043FN48H_WIDTH + RK043FN48H_HSYNC + RK043FN48H_HBP + RK043FN48H_HFP - 1);
    g_LTDC_handle.Init.TotalHeigh                         = (RK043FN48H_HEIGHT + RK043FN48H_VSYNC + RK043FN48H_VBP + RK043FN48H_VFP - 1);;
+
+   // background value
    g_LTDC_handle.Init.Backcolor.Blue                     = 0;
    g_LTDC_handle.Init.Backcolor.Green                    = 0;
    g_LTDC_handle.Init.Backcolor.Red                      = 0;
+
    if (HAL_LTDC_Init(&g_LTDC_handle) != HAL_OK)
    {
       _Error_Handler(__FILE__, __LINE__);
    }
+
+   HAL_LTDC_ProgramLineEvent(&g_LTDC_handle, 0);
+   // Enable dithering
+   HAL_LTDC_EnableDither(&g_LTDC_handle);
 
    pLayerCfg.WindowX0                                    = 0;
    pLayerCfg.WindowX1                                    = (RK043FN48H_WIDTH - 1);
@@ -176,7 +186,7 @@ static void BSP_LTDC_Init(void)
    pLayerCfg.Alpha0                                      = 0;
    pLayerCfg.BlendingFactor1                             = LTDC_BLENDING_FACTOR1_CA;
    pLayerCfg.BlendingFactor2                             = LTDC_BLENDING_FACTOR2_CA;
-   pLayerCfg.FBStartAdress                               = (uint32_t) LCD_FRAMEBUFFER;
+   pLayerCfg.FBStartAdress                               = (uint32_t) LCD_FRAMEBUFFER_LAYER_0;
    pLayerCfg.ImageWidth                                  = RK043FN48H_WIDTH;
    pLayerCfg.ImageHeight                                 = RK043FN48H_HEIGHT;
    pLayerCfg.Backcolor.Blue                              = 0;
@@ -391,7 +401,7 @@ void Display_On(int on)
  * -------------------------------------------------------------------------- */
 void Display_Clear(void)
 {
-   if (HAL_DMA2D_Start(&g_DMA2D_handle, 0x00000000, (uint32_t) LCD_FRAMEBUFFER, RK043FN48H_WIDTH, RK043FN48H_HEIGHT) == HAL_OK)
+   if (HAL_DMA2D_Start(&g_DMA2D_handle, 0x00000000, (uint32_t) LCD_FRAMEBUFFER_LAYER_0, LCD_WIDTH, LCD_HEIGHT) == HAL_OK)
    {
       /* Polling For DMA transfer */  
       HAL_DMA2D_PollForTransfer(&g_DMA2D_handle, 10);
@@ -409,7 +419,7 @@ void Display_Clear(void)
  * -------------------------------------------------------------------------- */
 volatile uint32_t* getFrameBuffer(void)
 {
-   return ((volatile uint32_t*) LCD_FRAMEBUFFER);
+   return ((volatile uint32_t*) LCD_FRAMEBUFFER_LAYER_0);
 }
 
 
@@ -450,6 +460,16 @@ void Board_Driver_Init()
 
    // clear
    Display_Clear();
+
+#if defined(STEMWIN)
+   lcd_init_for_stemwin((void *) &g_LTDC_handle, (void *) &g_DMA2D_handle);
+   GUI_Init();
+
+   GUI_DispStringAt("Starting...", 0, 0);
+
+   // ctivate the use of memory device feature
+   WM_SetCreateFlags(WM_CF_MEMDEV);
+#endif
 
    // I2C BUS 3
    BSP_I2C_BUS3_Init();
