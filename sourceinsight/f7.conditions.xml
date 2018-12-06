@@ -71,6 +71,7 @@
 			<define id="NET_LWIP" value="0" />
 			<define id="NUCLEO_H743ZI" value="0" />
 			<define id="RTOS_FREERTOS" value="1" />
+			<define id="STEMWIN" value="1" />
 			<define id="STEVAL_FCU001V1" value="0" />
 			<define id="STM32F401xC" value="1" />
 			<define id="STM32F401xE" value="0" />
@@ -114,8 +115,8 @@
 			<define id="STM32H743xx" value="0" />
 			<define id="STM32H7xx" value="0" />
 			<define id="SUPPORT_DEBUG_OUTPUT" value="1" />
-			<define id="SYSTEM_CLOCK_200MHZ" value="0" />
-			<define id="SYSTEM_CLOCK_MAX_216MHZ" value="1" />
+			<define id="SYSTEM_CLOCK_200MHZ" value="1" />
+			<define id="SYSTEM_CLOCK_MAX_216MHZ" value="0" />
 			<define id="UART_DEBUG_OUTPUT" value="1" />
 			<define id="USE_USB_BULK_DEVICE" value="0" />
 			<define id="USE_USB_CDC_DEVICE" value="1" />
