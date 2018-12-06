@@ -16,6 +16,12 @@
 			<define id="DISCOVERY_STM32F7" value="1" />
 			<define id="FT5536" value="1" />
 			<define id="__GNUC__" value="1" />
+			<define id="GUI_OS" value="1" />
+			<define id="GUI_SUPPORT_DEVICES" value="1" />
+			<define id="GUI_SUPPORT_MEMDEV" value="1" />
+			<define id="GUI_SUPPORT_MOUSE" value="1" />
+			<define id="GUI_SUPPORT_TOUCH" value="1" />
+			<define id="GUI_WINSUPPORT" value="1" />
 			<define id="HAL_ADC_MODULE_ENABLED" value="1" />
 			<define id="HAL_CAN_MODULE_ENABLED" value="0" />
 			<define id="HAL_CEC_MODULE_ENABLED" value="0" />
@@ -70,6 +76,8 @@
 			<define id="MEM_ALIGNMENT" value="4" />
 			<define id="NET_LWIP" value="0" />
 			<define id="NUCLEO_H743ZI" value="0" />
+			<define id="NUM_BUFFERS" value="3" />
+			<define id="OS_SUPPORT" value="1" />
 			<define id="RTOS_FREERTOS" value="1" />
 			<define id="STEMWIN" value="1" />
 			<define id="STEVAL_FCU001V1" value="0" />
@@ -122,6 +130,7 @@
 			<define id="USE_USB_CDC_DEVICE" value="1" />
 			<define id="USE_USB_FS" value="0" />
 			<define id="USE_USB_HS" value="1" />
+			<define id="WIN32" value="0" />
 			<define id="WITH_RTOS" value="1" />
 			<define id="pData" value="STM32F7xx" />
 		</Defines>

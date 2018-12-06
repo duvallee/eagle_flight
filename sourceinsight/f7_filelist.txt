@@ -24,7 +24,6 @@
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal_adc_ex.h
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal_can.h
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal_cec.h
-.\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal_conf_template.h
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal_cortex.h
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal_crc.h
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal_crc_ex.h
@@ -114,7 +113,6 @@
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_ll_usb.h
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_ll_utils.h
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32f7xx_ll_wwdg.h
-.\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Inc\stm32_assert_template.h
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\Legacy\stm32f7xx_hal_can.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_adc.c
@@ -153,7 +151,6 @@
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_ltdc_ex.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_mdios.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_mmc.c
-.\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_msp_template.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_nand.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_nor.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_pcd.c
@@ -177,9 +174,6 @@
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_spi.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_sram.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_tim.c
-.\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_timebase_rtc_alarm_template.c
-.\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_timebase_rtc_wakeup_template.c
-.\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_timebase_tim_template.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_tim_ex.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_uart.c
 .\Drivers\F7_V1.14.0\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_usart.c
