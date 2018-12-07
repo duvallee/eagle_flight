@@ -1,0 +1,14 @@
+;
+; test cmm file : Create by duvallee, 2018-01-25
+;
+sys.d
+sys.reset
+sys.u
+
+Print "STM32F746NG"
+SYStem.CPU STM32F746NG	
+
+sys.u
+
+data.load.elf "Z:\Project\eagle_flight\OUTPUT\DISCOVERY_STM32F7_DEBUG.elf" /gnu
+list

@@ -137,6 +137,17 @@ static void BSP_SDRAM_Init(void)
 }
 
 /* --------------------------------------------------------------------------
+ * Name : BSP_LTDC_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void BSP_LTDC_IRQHandler(void)
+{
+   HAL_LTDC_IRQHandler(&g_LTDC_handle);
+}
+
+
+/* --------------------------------------------------------------------------
  * Name : BSP_LTDC_Init()
  *        LTDC init function
  *

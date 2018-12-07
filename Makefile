@@ -487,7 +487,13 @@ ifeq ($(STEMWIN),STEMWIN)
 	INCLUDE_DIR += -Isrc/drivers/stemwin/inc
 	INCLUDE_DIR += -IMiddlewares/ST/STemWin/inc
 
-	SATIC_LIBRARY += -LMiddlewares/ST/STemWin/Lib -l:STemWin_CM7_wc32.a
+	ifeq ($(RTOS_FREERTOS),RTOS_FREERTOS)
+			SATIC_LIBRARY += -LMiddlewares/ST/STemWin/Lib -l:STemWin_CM7_OS_wc32_ARGB.a
+	else
+			SATIC_LIBRARY += -LMiddlewares/ST/STemWin/Lib -l:STemWin_CM7_wc16.a
+	endif
+
+#	SATIC_LIBRARY += -LMiddlewares/ST/STemWin/Lib -l:STemWin_CM7_wc32.a
 endif
 
 # -----------------------------------------------------------------------------
