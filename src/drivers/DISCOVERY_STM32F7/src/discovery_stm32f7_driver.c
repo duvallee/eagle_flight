@@ -473,8 +473,11 @@ void Board_Driver_Init()
    Display_Clear();
 
 #if defined(STEMWIN)
+   __HAL_RCC_CRC_CLK_ENABLE();                                                         // Enable the CRC Module
    lcd_init_for_stemwin((void *) &g_LTDC_handle, (void *) &g_DMA2D_handle);
    GUI_Init();
+
+   Display_On(1);
 
    GUI_DispStringAt("Starting...", 0, 0);
 
