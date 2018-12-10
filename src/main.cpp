@@ -97,7 +97,7 @@ static void MPU_Config(void)
 int __attribute__ ((noinline)) debug_break(int data)
 {
 static volatile int debug_break_count                    = 0;
-   UNUSED(debug_break_count);
+   UNUSED((void) debug_break_count);
 
    debug_break_count                                     = data;
    return 0;
@@ -111,16 +111,6 @@ static volatile int debug_break_count                    = 0;
  * -------------------------------------------------------------------------- */
 void power_on(void)
 {
-   GPIO_InitTypeDef GPIO_InitStruct;
-
-   __HAL_RCC_GPIOJ_CLK_ENABLE();
-
-   GPIO_InitStruct.Pin                                   = GPIO_PIN_5;
-   GPIO_InitStruct.Mode                                  = GPIO_MODE_OUTPUT_PP;
-   GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
-   GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
-   HAL_GPIO_Init(GPIOJ, &GPIO_InitStruct);
-   HAL_GPIO_WritePin(GPIOJ, GPIO_PIN_5, GPIO_PIN_SET);
 }
 #endif
 

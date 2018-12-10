@@ -14,13 +14,12 @@ extern "C" {
 
 // --------------------------------------------------------------------------
 #if defined(UART_DEBUG_OUTPUT)
-#define UART_DEBUG_PORT                                  1
 #define UART_DEBUG_BAUDRATE                              115200
 
-#define UART_DEBUG_RX_PIN                                GPIO_PIN_10
-#define UART_DEBUG_RX_GPIO_PORT                          GPIOA
-#define UART_DEBUG_TX_PIN                                GPIO_PIN_9
-#define UART_DEBUG_TX_GPIO_PORT                          GPIOA
+#define UART_DEBUG_RX_PIN                                GPIO_PIN_9
+#define UART_DEBUG_RX_GPIO_PORT                          GPIOG
+#define UART_DEBUG_TX_PIN                                GPIO_PIN_14
+#define UART_DEBUG_TX_GPIO_PORT                          GPIOG
 #endif
 
 #if defined(USE_USB_CDC_DEVICE)
@@ -37,7 +36,12 @@ extern "C" {
 #endif
 #include "debug_output.h"
 #include "stm32h7xx_hal.h"
+
+#if defined(RTOS_FREERTOS)
+#include "cmsis_os.h"
+#else
 #include "scheduler.h"
+#endif
 
 // --------------------------------------------------------------------------
 #define VERSION_MAIN                                     0

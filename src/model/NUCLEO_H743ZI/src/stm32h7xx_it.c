@@ -39,9 +39,11 @@
  *        This function handles Non maskable interrupt.
  *
  * -------------------------------------------------------------------------- */
+#if !defined(RTOS_FREERTOS)
 void NMI_Handler(void)
 {
 }
+#endif
 
 /* --------------------------------------------------------------------------
  * Name : HardFault_Handler()
@@ -88,9 +90,11 @@ void UsageFault_Handler(void)
  *        This function handles System service call via SWI instruction.
  *
  * -------------------------------------------------------------------------- */
+#if !defined(RTOS_FREERTOS)
 void SVC_Handler(void)
 {
 }
+#endif
 
 /* --------------------------------------------------------------------------
  * Name : DebugMon_Handler()
@@ -106,10 +110,11 @@ void DebugMon_Handler(void)
  *        This function handles Pendable request for system service.
  *
  * -------------------------------------------------------------------------- */
+#if !defined(RTOS_FREERTOS)
 void PendSV_Handler(void)
 {
 }
-
+#endif
 
 #if defined(SUPPORT_DEBUG_OUTPUT)
 /* --------------------------------------------------------------------------

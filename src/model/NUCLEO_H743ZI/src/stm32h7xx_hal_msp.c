@@ -221,17 +221,17 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
    GPIO_InitTypeDef GPIO_InitStruct;
 
-   if (huart->Instance == USART1)
+   if (huart->Instance == USART6)
    {
       // Peripheral clock enable
-      __HAL_RCC_USART1_CLK_ENABLE();
-      __HAL_RCC_GPIOA_CLK_ENABLE();
+      __HAL_RCC_USART6_CLK_ENABLE();
+      __HAL_RCC_GPIOG_CLK_ENABLE();
 
       GPIO_InitStruct.Pin                                = UART_DEBUG_RX_PIN | UART_DEBUG_TX_PIN;
       GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
       GPIO_InitStruct.Pull                               = GPIO_NOPULL;
       GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_LOW;
-      GPIO_InitStruct.Alternate                          = GPIO_AF7_USART1;
+      GPIO_InitStruct.Alternate                          = GPIO_AF7_USART6;
       HAL_GPIO_Init(UART_DEBUG_RX_GPIO_PORT, &GPIO_InitStruct);
    }
 }
@@ -243,10 +243,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
  * -------------------------------------------------------------------------- */
 void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 {
-   if (huart->Instance == USART1)
+   if (huart->Instance == USART6)
    {
       // Peripheral clock disable
-      __HAL_RCC_USART1_CLK_DISABLE();
+      __HAL_RCC_USART6_CLK_DISABLE();
    }
 }
 
