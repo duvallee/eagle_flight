@@ -134,12 +134,16 @@ __weak void debug_tick_timer_handler()
  * -------------------------------------------------------------------------- */
 void SysTick_Handler(void)
 {
+   HAL_IncTick();
+   HAL_SYSTICK_IRQHandler();
+
 #if defined(SUPPORT_DEBUG_OUTPUT)
    debug_tick_timer_handler();
 #endif
 
-   HAL_IncTick();
-   HAL_SYSTICK_IRQHandler();
+#if defined(RTOS_FREERTOS)
+      osSystickHandler();
+#endif
 }
 
 #if defined(USE_USB)

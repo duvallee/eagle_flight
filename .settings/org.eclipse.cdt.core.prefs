@@ -37,7 +37,7 @@ environment/project/com.atollic.truestudio.exe.debug.toolchain.1443610896.998215
 environment/project/com.atollic.truestudio.exe.debug.toolchain.1443610896.998215324/DEBUG/value=1
 environment/project/com.atollic.truestudio.exe.debug.toolchain.1443610896.998215324/TARGET_BOARD/delimiter=;
 environment/project/com.atollic.truestudio.exe.debug.toolchain.1443610896.998215324/TARGET_BOARD/operation=replace
-environment/project/com.atollic.truestudio.exe.debug.toolchain.1443610896.998215324/TARGET_BOARD/value=DISCOVERY_STM32F7
+environment/project/com.atollic.truestudio.exe.debug.toolchain.1443610896.998215324/TARGET_BOARD/value=NUCLEO_H743ZI
 environment/project/com.atollic.truestudio.exe.debug.toolchain.1443610896.998215324/TRUESTUDIO_BUILD/delimiter=\:
 environment/project/com.atollic.truestudio.exe.debug.toolchain.1443610896.998215324/TRUESTUDIO_BUILD/operation=append
 environment/project/com.atollic.truestudio.exe.debug.toolchain.1443610896.998215324/TRUESTUDIO_BUILD/value=1
