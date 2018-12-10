@@ -142,7 +142,7 @@ void SysTick_Handler(void)
 #endif
 
 #if defined(RTOS_FREERTOS)
-      osSystickHandler();
+   osSystickHandler();
 #endif
 }
 
