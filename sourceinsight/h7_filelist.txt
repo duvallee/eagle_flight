@@ -203,6 +203,7 @@
 .\src\drivers\usb\inc\usbd_conf.h
 .\src\drivers\usb\inc\usb_device.h
 .\src\drivers\usb\usb_device.c
+.\src\main.cpp
 .\src\model\NUCLEO_H743ZI\inc\main.h
 .\src\model\NUCLEO_H743ZI\inc\stm32h7xx_hal_conf.h
 .\src\model\NUCLEO_H743ZI\src\stm32h7xx_hal_msp.c
