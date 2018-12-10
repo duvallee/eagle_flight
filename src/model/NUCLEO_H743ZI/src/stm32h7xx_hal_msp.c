@@ -250,4 +250,43 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
    }
 }
 
+// ***************************************************************************
+// Fuction      : HAL_TIM_Base_MspInit()
+// Description  : 
+// 
+//
+// ***************************************************************************
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
+{
+   GPIO_InitTypeDef GPIO_InitStruct;
+   if (htim_base->Instance == TIM1)
+   {
+      // Peripheral clock enable
+      __TIM1_CLK_ENABLE();
+      __HAL_RCC_GPIOE_CLK_ENABLE();
+  
+      GPIO_InitStruct.Pin                                = GPIO_PIN_9 | GPIO_PIN_11;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_PULLDOWN;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_VERY_HIGH;
+      GPIO_InitStruct.Alternate                          = GPIO_AF1_TIM1;
+      HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+   }
+}
+
+// ***************************************************************************
+// Fuction      : HAL_TIM_Base_MspDeInit()
+// Description  : 
+// 
+//
+// ***************************************************************************
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
+{
+   if (htim_base->Instance == TIM1)
+   {
+      __TIM1_CLK_DISABLE();
+   }
+}
+
+
 

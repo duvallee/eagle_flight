@@ -341,6 +341,8 @@ ifeq ("$(TARGET_BOARD)", "NUCLEO_H743ZI")
 	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_adc_ex.c
 	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
 	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
 
 	ifeq ($(USE_USB_DEVICE),USED)
 		HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd.c

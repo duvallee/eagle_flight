@@ -27,6 +27,13 @@ extern "C" {
 #endif
 
 // --------------------------------------------------------------------------
+#define MOTOR_1_PIN                                      GPIO_PIN_9
+#define MOTOR_1_PORT                                     GPIOE
+
+#define MOTOR_2_PIN                                      GPIO_PIN_11
+#define MOTOR_2_PORT                                     GPIOE
+
+// --------------------------------------------------------------------------
 #include "string.h"
 #if defined(SUPPORT_DEBUG_OUTPUT)
 #include "printf.h"
