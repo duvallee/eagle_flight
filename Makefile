@@ -140,6 +140,7 @@ TOUCH_DEVICE :=
 NET_LWIP :=
 RTOS_FREERTOS :=
 STEMWIN :=
+CLEANFLIGHT_CLI :=
 
 # -----------------------------------------------------------------------------
 # for TARGET Board
@@ -205,6 +206,7 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 #	NET_LWIP := NET_LWIP
 	RTOS_FREERTOS := RTOS_FREERTOS
 	STEMWIN := STEMWIN
+	CLEANFLIGHT_CLI := CLEANFLIGHT_CLI
 
 	ifeq ("$(DEBUG)", "1")
 		TARGET := $(TARGET_BOARD)_DEBUG
@@ -242,7 +244,7 @@ ifeq ("$(TARGET_BOARD)", "NUCLEO_H743ZI")
 
 	# supported freertos
 	RTOS_FREERTOS := RTOS_FREERTOS
-
+	CLEANFLIGHT_CLI := CLEANFLIGHT_CLI
 
 	ifeq ("$(DEBUG)", "1")
 		TARGET := $(TARGET_BOARD)_DEBUG
@@ -503,6 +505,15 @@ ifeq ($(STEMWIN),STEMWIN)
 #	SATIC_LIBRARY += -LMiddlewares/ST/STemWin/Lib -l:STemWin_CM7_wc32.a
 endif
 
+ifeq ($(CLEANFLIGHT_CLI),CLEANFLIGHT_CLI)
+	TARGET_MODEL_DEFINITION += -D$(CLEANFLIGHT_CLI)
+
+	DRIVERS_C_SRC += src/interface/src/cleanflight_cli.c
+	INCLUDE_DIR += -Isrc/interface/inc
+endif
+
+
+
 # -----------------------------------------------------------------------------
 # Common Driver Source
 ifeq ($(USE_USB_DEVICE),USED)
@@ -513,6 +524,7 @@ endif
 # C Source of common
 DRIVERS_C_SRC += src/common/src/printf.c
 DRIVERS_C_SRC += src/common/src/uart_debug.c
+DRIVERS_C_SRC += src/common/src/ring_buffer.c
 
 ifneq ($(RTOS_FREERTOS),RTOS_FREERTOS)
 	DRIVERS_C_SRC += src/common/src/scheduler.c

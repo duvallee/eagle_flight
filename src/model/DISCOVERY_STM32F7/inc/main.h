@@ -206,6 +206,10 @@ extern "C" {
 #define USBD_CDC_BAUDRATE                                115200
 #endif
 
+#if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
+#define USB_MAX_RECEIVE_BUFFER_SIZE                      2048
+#endif
+
 // -----------------------------------------------------------------------------
 // LCD
 #define RK043FN48H_WIDTH                                 480                     // LCD Pixel Width
@@ -263,6 +267,8 @@ extern "C" {
 
 #include "WM.h"
 #endif
+
+#include "ring_buffer.h"
 
 // --------------------------------------------------------------------------
 #define VERSION_MAIN                                     0

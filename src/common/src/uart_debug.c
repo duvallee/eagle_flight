@@ -1,5 +1,5 @@
 /*
- *  File: uart_debug.c
+ * File: uart_debug.c
  *
  * Written by duvallee.lee in 2018
  *

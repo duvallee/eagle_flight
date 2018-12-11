@@ -63,6 +63,6 @@ Purpose     : Display controller initialization
 void GUI_X_Config(void) 
 {
    // Assign memory to STemWin
-   GUI_ALLOC_AssignMemory(STEMWIN_GUI_MEM_BASE, STEMWIN_GUI_MEM_SIZE);
+   GUI_ALLOC_AssignMemory((void*) STEMWIN_GUI_MEM_BASE, STEMWIN_GUI_MEM_SIZE);
 }
 

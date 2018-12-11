@@ -12,8 +12,13 @@ extern "C" {
 #endif
 
 int usb_device_init(void);
-void usb_read(uint8_t* Buf, uint16_t Len);
-void usb_write(uint8_t* Buf, uint16_t Len);
+int usb_write(uint8_t* Buf, uint16_t Len);
+int usb_get_data(uint8_t* Buf, uint16_t Len);
+
+#if defined(RTOS_FREERTOS)
+osSemaphoreId get_usb_device_semaphore(void);
+#endif
+
 
 #ifdef __cplusplus
 }

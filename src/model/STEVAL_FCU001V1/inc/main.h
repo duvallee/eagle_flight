@@ -27,6 +27,10 @@ extern "C" {
 #define USBD_CDC_BAUDRATE                                115200
 #endif
 
+#if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
+#define USB_MAX_RECEIVE_BUFFER_SIZE                      256
+#endif
+
 // --------------------------------------------------------------------------
 #include "string.h"
 #if defined(SUPPORT_DEBUG_OUTPUT)
@@ -37,7 +41,23 @@ extern "C" {
 #endif
 #include "debug_output.h"
 #include "stm32f4xx_hal.h"
+
+#if defined(RTOS_FREERTOS)
+#include "cmsis_os.h"
+#else
 #include "scheduler.h"
+#endif
+
+#if defined(STEMWIN)
+#include "GUI.h"
+
+#include "LCDConf.h"
+#include "GUI_Private.h"
+
+#include "WM.h"
+#endif
+
+#include "ring_buffer.h"
 
 // --------------------------------------------------------------------------
 #define VERSION_MAIN                                     0

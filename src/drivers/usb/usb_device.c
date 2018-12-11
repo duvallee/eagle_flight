@@ -5,7 +5,6 @@
  *
  */
 #include "main.h"
-
 #include "usbd_core.h"
 
 #if defined(USE_USB_CDC_DEVICE)
@@ -23,7 +22,6 @@
 #if defined(USE_USB_BULK_DEVICE)
 #include "usbd_bulk_interface.h"
 #endif
-
 #include "usb_device.h"
 
 // ===============================================================================
@@ -35,6 +33,23 @@ extern USBD_CDC_ItfTypeDef USBD_CDC_fops;
 
 #if defined(USE_USB_BULK_DEVICE)
 extern USBD_BULK_ItfTypeDef USBD_Interface_fops;
+#endif
+
+byte g_usb_recive_buffer[USB_MAX_RECEIVE_BUFFER_SIZE];
+RING_BUFFER g_usb_ring_buffer[1]                         = {0, };
+
+#if defined(RTOS_FREERTOS)
+osSemaphoreId g_usb_read_Semaphore                       = NULL;
+
+/* --------------------------------------------------------------------------
+ * Name : get_usb_device_semaphore()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+osSemaphoreId get_usb_device_semaphore(void)
+{
+   return g_usb_read_Semaphore;
+}
 #endif
 
 /* --------------------------------------------------------------------------
@@ -80,6 +95,16 @@ int usb_device_init(void)
 #endif
 #endif
 
+   // initialize ring buffer for usb
+   memset(g_usb_recive_buffer, 0, sizeof(g_usb_recive_buffer));
+   initRingBuffer(g_usb_ring_buffer, g_usb_recive_buffer, sizeof(g_usb_recive_buffer));
+
+#if defined(RTOS_FREERTOS)
+   // create a binary semaphore used for informing ethernetif of frame reception
+   osSemaphoreDef(SEM);
+   g_usb_read_Semaphore                                  = osSemaphoreCreate(osSemaphore(SEM), 1);
+#endif
+
    return 0;
 }
 
@@ -90,9 +115,29 @@ int usb_device_init(void)
  * -------------------------------------------------------------------------- */
 void usb_read(uint8_t* Buf, uint16_t Len)
 {
-#if 1    // for echo test
-   usb_write(Buf, Len);
+#if defined(RTOS_FREERTOS)
+
+   if (writeRingBuffer(g_usb_ring_buffer, (byte*) Buf, (int) Len) < -1)
+   {
+      debug_output_error("buffer overrun : %d(required), %d(free) !!!", Len, getRingBufferFreeSize(g_usb_ring_buffer));
+      return;
+   }
+
+   if (g_usb_read_Semaphore != NULL)
+   {
+      osSemaphoreRelease(g_usb_read_Semaphore);
+   }
 #endif
+}
+
+/* --------------------------------------------------------------------------
+ * Name : usb_get_data()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+int usb_get_data(uint8_t* Buf, uint16_t Len)
+{
+   return (readRingBuffer(g_usb_ring_buffer, Buf, Len));
 }
 
 /* --------------------------------------------------------------------------
@@ -100,7 +145,7 @@ void usb_read(uint8_t* Buf, uint16_t Len)
  *
  *
  * -------------------------------------------------------------------------- */
-void usb_write(uint8_t* Buf, uint16_t Len)
+int usb_write(uint8_t* Buf, uint16_t Len)
 {
 #if defined(USE_USB_CDC_DEVICE)
    CDC_Itf_Transmitter(Buf, Len);
@@ -108,8 +153,7 @@ void usb_write(uint8_t* Buf, uint16_t Len)
 
 #if defined(USE_USB_BULK_DEVICE)
 #endif
-
+   return (int) Len;
 }
-
 
 

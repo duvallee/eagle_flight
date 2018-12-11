@@ -22,6 +22,10 @@
 #include "usb_device.h"
 #endif
 
+#if defined(CLEANFLIGHT_CLI)
+#include "cleanflight_cli.h"
+#endif
+
 
 #if (defined(NUCLEO_H743ZI) || defined(DISCOVERY_STM32F7))
 /* --------------------------------------------------------------------------
@@ -129,10 +133,6 @@ void freertos_idle_task(void const* argument)
    {
       osDelay(10000);
       debug_output_info("================== IDLE TASK ================== \r\n");
-#if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
-      usb_write((uint8_t*) "================== IDLE TASK(USB-HS) ================== \r\n", strlen("================== IDLE TASK(USB-HS) ================== \r\n"));
-#endif
-
 #if defined(STEMWIN)
      GUI_Clear();
      GUI_SetFont(&GUI_Font20_1);
@@ -183,6 +183,10 @@ int main(void)
 
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
    usb_device_init();
+#endif
+
+#if defined(CLEANFLIGHT_CLI)
+   cleanflight_cliInit();
 #endif
 
 #if defined(RTOS_FREERTOS)

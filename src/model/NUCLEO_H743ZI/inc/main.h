@@ -26,6 +26,9 @@ extern "C" {
 #define USBD_CDC_BAUDRATE                                115200
 #endif
 
+#if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
+#define USB_MAX_RECEIVE_BUFFER_SIZE                      2048
+#endif
 // --------------------------------------------------------------------------
 #define MOTOR_1_PIN                                      GPIO_PIN_9
 #define MOTOR_1_PORT                                     GPIOE
@@ -49,6 +52,17 @@ extern "C" {
 #else
 #include "scheduler.h"
 #endif
+
+#if defined(STEMWIN)
+#include "GUI.h"
+
+#include "LCDConf.h"
+#include "GUI_Private.h"
+
+#include "WM.h"
+#endif
+
+#include "ring_buffer.h"
 
 // --------------------------------------------------------------------------
 #define VERSION_MAIN                                     0
