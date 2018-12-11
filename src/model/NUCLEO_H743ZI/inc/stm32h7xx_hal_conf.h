@@ -82,7 +82,7 @@
 // #define HAL_SWPMI_MODULE_ENABLED
 #define HAL_TIM_MODULE_ENABLED
 #define HAL_UART_MODULE_ENABLED
-// #define HAL_USART_MODULE_ENABLED
+#define HAL_USART_MODULE_ENABLED
 // #define HAL_IRDA_MODULE_ENABLED
 // #define HAL_SMARTCARD_MODULE_ENABLED
 // #define HAL_WWDG_MODULE_ENABLED
@@ -98,17 +98,19 @@
 #define HAL_RCC_MODULE_ENABLED
 #define HAL_FLASH_MODULE_ENABLED
 #define HAL_PWR_MODULE_ENABLED
-// #define HAL_I2C_MODULE_ENABLED
+#define HAL_I2C_MODULE_ENABLED
 #define HAL_CORTEX_MODULE_ENABLED
 // #define HAL_HSEM_MODULE_ENABLED
 
-// ########################## Oscillator Values adaptation ####################
-// @brief Adjust the value of External High Speed oscillator (HSE) used in your application.
-//        This value is used by the RCC HAL module to compute the system frequency
-//        (when HSE is used as system clock source, directly or through the PLL).  
-#if !defined(HSE_VALUE)
-#define HSE_VALUE                                        ((uint32_t) 25000000)      // !< Value of the External oscillator in Hz : FPGA case fixed to 60MHZ
-#endif   // HSE_VALUE
+/* ########################## Oscillator Values adaptation ####################*/
+/**
+  * @brief Adjust the value of External High Speed oscillator (HSE) used in your application.
+  *        This value is used by the RCC HAL module to compute the system frequency
+  *        (when HSE is used as system clock source, directly or through the PLL).  
+  */
+#if !defined  (HSE_VALUE) 
+#define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External oscillator in Hz : FPGA case fixed to 60MHZ */
+#endif /* HSE_VALUE */
 
 #if !defined(HSE_STARTUP_TIMEOUT)
 #define HSE_STARTUP_TIMEOUT                              ((uint32_t) 100U)          // !< Time out for HSE start up, in ms
