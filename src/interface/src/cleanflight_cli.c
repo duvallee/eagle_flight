@@ -82,19 +82,27 @@ static void cliPutp(void *p, char ch)
  * -------------------------------------------------------------------------- */
 static void cliPrintfva(const char *format, va_list va)
 {
-//   tfp_format(cliWriter, cliPutp, format, va);
-//   bufWriterFlush(cliWriter);
+static char buffer[100];
+
+   vsnprintf(buffer, 100, format, va);
+   cliPrint(buffer);
 }
 
-
-
-
-// Check if a string's length is zero
+/* --------------------------------------------------------------------------
+ * Name : isEmpty()
+ *  Check if a string's length is zero
+ *
+ * -------------------------------------------------------------------------- */
 static int isEmpty(const char *string)
 {
    return (string == NULL || *string == '\0') ? 1 : 0;
 }
 
+/* --------------------------------------------------------------------------
+ * Name : nextArg()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 static const char *nextArg(const char *currentArg)
 {
    const char *ptr                                       = strchr(currentArg, ' ');
