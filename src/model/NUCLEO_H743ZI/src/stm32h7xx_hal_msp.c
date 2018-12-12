@@ -326,15 +326,16 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
       GPIO_InitStruct.Alternate                          = GPIO_AF10_OTG1_FS;
       HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-
       // Peripheral clock enable
       __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
       // Set USBFS Interrupt to the lowest priority
       HAL_NVIC_SetPriority(OTG_FS_IRQn, 6, 0);
 
+#if 0
       // Enable USBFS Interrupt
       HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+#endif
    }
 }
 
