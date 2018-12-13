@@ -5,6 +5,7 @@
 	>
 	<ParseConditions>
 		<Defines>
+			<define id="CLEANFLIGHT_CLI" value="1" />
 			<define id="DEBUG_STRING_LEVEL_DEBUG" value="1" />
 			<define id="DEBUG_STRING_LEVEL_DUMP" value="1" />
 			<define id="DEBUG_STRING_LEVEL_ERROR" value="1" />
@@ -62,6 +63,7 @@
 			<define id="MOTOR_ESC" value="0" />
 			<define id="NUCLEO_H743ZI" value="1" />
 			<define id="RTOS_FREERTOS" value="1" />
+			<define id="STEMWIN" value="0" />
 			<define id="STEVAL_FCU001V1" value="1" />
 			<define id="STM32F401xC" value="0" />
 			<define id="STM32F401xE" value="0" />
@@ -109,6 +111,7 @@
 			<define id="TIM2_REMOTE_CONTROL" value="0" />
 			<define id="UART_DEBUG_OUTPUT" value="1" />
 			<define id="UART_DEBUG_PORT" value="6" />
+			<define id="USED_AUTOGENERATION_CLOCK" value="1" />
 			<define id="USE_USB_BULK_DEVICE" value="0" />
 			<define id="USE_USB_CDC_DEVICE" value="1" />
 			<define id="USE_USB_FS" value="1" />
