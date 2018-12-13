@@ -30,11 +30,39 @@ extern "C" {
 #define USB_MAX_RECEIVE_BUFFER_SIZE                      2048
 #endif
 // --------------------------------------------------------------------------
+// Pin Definition
+#define USER_BTN_PIN                                     GPIO_PIN_13
+#define USER_BTN_PORT                                    GPIOC
+
+#define LED_PIN                                          GPIO_PIN_14
+#define LED_PORT                                         GPIOB
+
 #define MOTOR_1_PIN                                      GPIO_PIN_9
 #define MOTOR_1_PORT                                     GPIOE
 
 #define MOTOR_2_PIN                                      GPIO_PIN_11
 #define MOTOR_2_PORT                                     GPIOE
+
+#define USB_POWER_SWITCH_PIN                             GPIO_PIN_6
+#define USB_POWER_SWITCH_PORT                            GPIOG
+
+#define USB_OVERCURRENT_PIN                              GPIO_PIN_7
+#define USB_OVERCURRENT_PORT                             GPIOG
+
+#define USB_SOF_PIN                                      GPIO_PIN_8
+#define USB_SOF_PORT                                     GPIOA
+
+#define USB_VBUS_PIN                                     GPIO_PIN_9
+#define USB_VBUS_PORT                                    GPIOA
+
+#define USB_ID_PIN                                       GPIO_PIN_10
+#define USB_ID_PORT                                      GPIOA
+
+#define USB_DM_PIN                                       GPIO_PIN_11
+#define USB_DM_PORT                                      GPIOA
+
+#define USB_DP_PIN                                       GPIO_PIN_12
+#define USB_DP_PORT                                      GPIOA
 
 // --------------------------------------------------------------------------
 #include "string.h"

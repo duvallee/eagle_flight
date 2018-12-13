@@ -571,6 +571,25 @@ void SystemClock_Config(void)
 
    }
 
+#if defined(USED_AUTOGENERATION_CLOCK)
+   // Initializes the CPU, AHB and APB busses clocks 
+   RCC_OscInitStruct.OscillatorType                      = RCC_OSCILLATORTYPE_HSE;
+   RCC_OscInitStruct.HSEState                            = RCC_HSE_BYPASS;
+   RCC_OscInitStruct.HSIState                            = RCC_HSI_OFF;
+   RCC_OscInitStruct.CSIState                            = RCC_CSI_OFF;
+   RCC_OscInitStruct.PLL.PLLState                        = RCC_PLL_ON;
+   RCC_OscInitStruct.PLL.PLLSource                       = RCC_PLLSOURCE_HSE;
+
+   RCC_OscInitStruct.PLL.PLLM                            = 1;
+   RCC_OscInitStruct.PLL.PLLN                            = 100;
+   RCC_OscInitStruct.PLL.PLLP                            = 2;
+   RCC_OscInitStruct.PLL.PLLQ                            = 4;
+   RCC_OscInitStruct.PLL.PLLR                            = 2;
+
+   RCC_OscInitStruct.PLL.PLLRGE                          = RCC_PLL1VCIRANGE_3;
+   RCC_OscInitStruct.PLL.PLLVCOSEL                       = RCC_PLL1VCOWIDE;
+   RCC_OscInitStruct.PLL.PLLFRACN                        = 0;
+#else
    // Initializes the CPU, AHB and APB busses clocks 
    RCC_OscInitStruct.OscillatorType                      = RCC_OSCILLATORTYPE_HSE;
    RCC_OscInitStruct.HSEState                            = RCC_HSE_BYPASS;
@@ -582,12 +601,13 @@ void SystemClock_Config(void)
    RCC_OscInitStruct.PLL.PLLM                            = 4;
    RCC_OscInitStruct.PLL.PLLN                            = 400;
    RCC_OscInitStruct.PLL.PLLP                            = 2;
-   RCC_OscInitStruct.PLL.PLLR                            = 2;
    RCC_OscInitStruct.PLL.PLLQ                            = 4;
+   RCC_OscInitStruct.PLL.PLLR                            = 2;
 
-   RCC_OscInitStruct.PLL.PLLVCOSEL                       = RCC_PLL1VCOWIDE;
    RCC_OscInitStruct.PLL.PLLRGE                          = RCC_PLL1VCIRANGE_1;
+   RCC_OscInitStruct.PLL.PLLVCOSEL                       = RCC_PLL1VCOWIDE;
    RCC_OscInitStruct.PLL.PLLFRACN                        = 0;
+#endif
    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
    {
       _Error_Handler(__FILE__, __LINE__);
@@ -625,8 +645,22 @@ void SystemClock_Config(void)
    HAL_EnableCompensationCell();  
 
    PeriphClkInitStruct.PeriphClockSelection              = RCC_PERIPHCLK_USART6     |
+                                                           RCC_PERIPHCLK_I2C1       |
                                                            RCC_PERIPHCLK_USB;
+#if defined(USED_AUTOGENERATION_CLOCK)
+   // PLL3 for USB Clock
+   PeriphClkInitStruct.PLL3.PLL3M                        = 1;
+   PeriphClkInitStruct.PLL3.PLL3N                        = 24;
+   PeriphClkInitStruct.PLL3.PLL3P                        = 2;
+   PeriphClkInitStruct.PLL3.PLL3R                        = 4;
+   PeriphClkInitStruct.PLL3.PLL3Q                        = 2;
+   PeriphClkInitStruct.PLL3.PLL3RGE                      = RCC_PLL3VCIRANGE_3;
+   PeriphClkInitStruct.PLL3.PLL3VCOSEL                   = RCC_PLL3VCOWIDE;
+   PeriphClkInitStruct.PLL3.PLL3FRACN                    = 0;
 
+   PeriphClkInitStruct.Usart16ClockSelection             = RCC_USART16CLKSOURCE_D2PCLK2;
+   PeriphClkInitStruct.UsbClockSelection                 = RCC_USBCLKSOURCE_PLL3;
+#else
    PeriphClkInitStruct.PLL2.PLL2M                        = 2;
    PeriphClkInitStruct.PLL2.PLL2N                        = 12;
    PeriphClkInitStruct.PLL2.PLL2P                        = 1;
@@ -648,6 +682,7 @@ void SystemClock_Config(void)
 
    PeriphClkInitStruct.Usart16ClockSelection             = RCC_USART16CLKSOURCE_D2PCLK2;
    PeriphClkInitStruct.UsbClockSelection                 = RCC_USBCLKSOURCE_PLL3;
+#endif
    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
    {
       _Error_Handler(__FILE__, __LINE__);
