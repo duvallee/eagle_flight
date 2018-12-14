@@ -438,12 +438,12 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
       // I2C3 GPIO Configuration    
       // PH7     ------> I2C3_SCL
       // PH8     ------> I2C3_SDA 
-      GPIO_InitStruct.Pin                                = GPIO_PIN_7 | GPIO_PIN_8;
+      GPIO_InitStruct.Pin                                = TOUCH_FT5536_SCL_PIN | TOUCH_FT5536_SDA_PIN;
       GPIO_InitStruct.Mode                               = GPIO_MODE_AF_OD;
       GPIO_InitStruct.Pull                               = GPIO_PULLUP;
       GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_VERY_HIGH;
       GPIO_InitStruct.Alternate                          = GPIO_AF4_I2C3;
-      HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
+      HAL_GPIO_Init(TOUCH_FT5536_SCL_PORT, &GPIO_InitStruct);  
    }
 }
 
