@@ -200,6 +200,15 @@ extern "C" {
 #define USB_HS_ULPI_OTG_OVERCURRENT_PIN                  GPIO_PIN_3
 #define USB_HS_ULPI_OTG_OVERCURRENT_PORT                 GPIOE
 
+// TOUCH
+#define TOUCH_FT5536_INT_PIN                             GPIO_PIN_13
+#define TOUCH_FT5536_INT_PORT                            GPIOI
+
+#define TOUCH_FT5536_SCL_PIN                             GPIO_PIN_7
+#define TOUCH_FT5536_SCL_PORT                            GPIOH
+
+#define TOUCH_FT5536_SDA_PIN                             GPIO_PIN_8
+#define TOUCH_FT5536_SDA_PORT                            GPIOH
 
 // --------------------------------------------------------------------------
 #if defined(USE_USB_CDC_DEVICE)

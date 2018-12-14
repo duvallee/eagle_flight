@@ -349,6 +349,20 @@ static void BSP_I2C_BUS3_Init(void)
 }
 
 /* --------------------------------------------------------------------------
+ * Name : BSP_TOUCH_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void BSP_TOUCH_IRQHandler(void)
+{
+//   GPIO_InitStruct.Pin                                   = TOUCH_FT5536_INT_PIN;
+//   HAL_GPIO_Init(TOUCH_FT5536_INT_PORT, &GPIO_InitStruct);
+
+   debug_output_info("Touch interrupt : %d \r\n", HAL_GPIO_ReadPin(TOUCH_FT5536_INT_PORT, TOUCH_FT5536_INT_PIN));
+}
+
+
+/* --------------------------------------------------------------------------
  * Name : BSP_I2C_BUS3_Read()
  *
  *
@@ -490,6 +504,18 @@ void Board_Driver_Init()
 
 #if defined(FT5536)
    touch_ft5536_init(BSP_I2C_BUS3_Read, BSP_I2C_BUS3_Write);
+
+    // -------------------------------------------------------------------------
+    // touch interrupt
+    GPIO_InitStruct.Pin                                   = TOUCH_FT5536_INT_PIN;
+    GPIO_InitStruct.Mode                                  = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(TOUCH_FT5536_INT_PORT, &GPIO_InitStruct);
+
+    // EXTI interrupt init for PJ4 (EXTI15_10_IRQn)
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0x0F, 0);
+    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 #endif
 
    // initialize I2C1
