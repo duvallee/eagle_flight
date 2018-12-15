@@ -58,7 +58,7 @@ int getRingBufferFreeSize(RING_BUFFER* ring_buffer)
  * -------------------------------------------------------------------------- */
 int writeRingBuffer(RING_BUFFER* ring_buffer, byte* data, int len)
 {
-   int circular_ramin                                    = (int) (ring_buffer->buffer - ring_buffer->tail);
+   int circular_ramin                                    = (int) ((ring_buffer->buffer + ring_buffer->totoal_size) - ring_buffer->tail);
    if ((ring_buffer->totoal_size - ring_buffer->data_size) < len)
    {
       return -1;
