@@ -22,6 +22,11 @@ static DMA2D_HandleTypeDef g_DMA2D_handle;
 static I2C_HandleTypeDef g_I2C_Bus1_handle;
 static I2C_HandleTypeDef g_I2C_Bus3_handle;
 
+#if (defined(RTOS_FREERTOS) && defined(FT5536))
+osSemaphoreId g_touch_event_Semaphore                    = NULL;
+
+#endif
+
 /* --------------------------------------------------------------------------
  * Name : BSP_SDRAM_Initialization_sequence()
  *
@@ -348,6 +353,7 @@ static void BSP_I2C_BUS3_Init(void)
    }
 }
 
+#if defined(FT5536)
 /* --------------------------------------------------------------------------
  * Name : BSP_TOUCH_IRQHandler()
  *
@@ -355,11 +361,68 @@ static void BSP_I2C_BUS3_Init(void)
  * -------------------------------------------------------------------------- */
 void BSP_TOUCH_IRQHandler(void)
 {
-//   GPIO_InitStruct.Pin                                   = TOUCH_FT5536_INT_PIN;
-//   HAL_GPIO_Init(TOUCH_FT5536_INT_PORT, &GPIO_InitStruct);
+#if defined(RTOS_FREERTOS)
+      if (g_touch_event_Semaphore != NULL)
+      {
+         osSemaphoreRelease(g_touch_event_Semaphore);
+      }
+#endif
 
    debug_output_info("Touch interrupt : %d \r\n", HAL_GPIO_ReadPin(TOUCH_FT5536_INT_PORT, TOUCH_FT5536_INT_PIN));
 }
+
+#if defined(RTOS_FREERTOS)
+/* --------------------------------------------------------------------------
+ * Name : touch_event_task()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void touch_event_task(void const* argument)
+{
+   TOUCH_EVENT_STRUCT touch_event;
+   while (1)
+   {
+      if (osSemaphoreWait(g_touch_event_Semaphore, portMAX_DELAY) == osOK)
+      {
+         if (get_ft5536_event(&touch_event) > 0)
+         {
+            int i;
+            debug_output_dump("pt=%d, ", touch_event.touch_point_num);
+            for (i = 0; i < touch_event.touch_point_num; i++)
+            {
+               debug_output_dump("[x=%3d, y=%3d, ", touch_event.touch_point[i].x_pos, touch_event.touch_point[i].y_pos);
+               debug_output_dump("action=%d,", touch_event.touch_point[i].touch_action);
+
+#if 0
+               switch (touch_event.touch_point[i].touch_action)
+               {
+                  case FT5336_TOUCH_EVT_FLAG_PRESS_DOWN :
+                     debug_output_dump("press, ");
+                     break;
+
+                  case FT5336_TOUCH_EVT_FLAG_LIFT_UP :
+                     debug_output_dump("up, ");
+                     break;
+
+                  case FT5336_TOUCH_EVT_FLAG_CONTACT :
+                     debug_output_dump("contact, ");
+                     break;
+
+                  case FT5336_TOUCH_EVT_FLAG_NO_EVENT :
+                     debug_output_dump("no_event, ");
+                     break;
+               }
+#endif
+               debug_output_dump("weight=%3d, ", touch_event.touch_point[i].touch_weight);
+               debug_output_dump("misc=%d] ", touch_event.touch_point[i].touch_area);
+            }
+            debug_output_dump("\r\n");
+         }
+      }
+   }
+}
+#endif      // RTOS_FREERTOS
+#endif      // FT5536
 
 
 /* --------------------------------------------------------------------------
@@ -516,7 +579,23 @@ void Board_Driver_Init()
     // EXTI interrupt init for PJ4 (EXTI15_10_IRQn)
     HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0x0F, 0);
     HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-#endif
+
+   touch_start(TOUCH_FT5536_TRIGGER_MODE_INTERRUPT);
+
+#if defined(RTOS_FREERTOS)
+   // create a binary semaphore used for informing ethernetif of frame reception
+   osSemaphoreDef(SEM);
+   g_touch_event_Semaphore                               = osSemaphoreCreate(osSemaphore(SEM), 1);
+
+   // --------------------------------------------------------------------------
+   /* Thread definition for tcp server */
+   osThreadDef(touch_event_task_def, touch_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+   if (osThreadCreate(osThread(touch_event_task_def), (void *) NULL) == NULL)
+   {
+      debug_output_error("Can't create thread : touch_event_task !!!");
+   }
+#endif      // RTOS_FREERTOS
+#endif      // FT5536
 
    // initialize I2C1
    BSP_I2C_BUS1_Init();

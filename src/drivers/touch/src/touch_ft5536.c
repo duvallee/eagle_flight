@@ -485,51 +485,27 @@ uint8_t get_touch_event()
 
 
 /* --------------------------------------------------------------------------
- * Name : touch_polling()
+ * Name : get_ft5536_event()
  *
  *
  * -------------------------------------------------------------------------- */
-void touch_polling(void* pData)
+int get_ft5536_event(TOUCH_EVENT_STRUCT* pEvent)
 {
-   uint8_t touch_pt_num                                  = 0;
-   int i;
-   touch_pt_num                                          = get_touch_event();
-   if (touch_pt_num > 0)
+   if (pEvent == NULL)
    {
-      debug_output_dump("pt=%d, ", touch_pt_num);
-      for (i = 0; i < g_Touch_Event.touch_point_num; i++)
-      {
-         debug_output_dump("[x=%3d, y=%3d, ", g_Touch_Event.touch_point[i].x_pos, g_Touch_Event.touch_point[i].y_pos);
-         debug_output_dump("action=");
-         switch (g_Touch_Event.touch_point[i].touch_action)
-         {
-            case FT5336_TOUCH_EVT_FLAG_PRESS_DOWN :
-               debug_output_dump("press, ");
-               break;
+      return -1;
+   }
 
-            case FT5336_TOUCH_EVT_FLAG_LIFT_UP :
-               debug_output_dump("up, ");
-               break;
-
-            case FT5336_TOUCH_EVT_FLAG_CONTACT :
-               debug_output_dump("contact, ");
-               break;
-
-            case FT5336_TOUCH_EVT_FLAG_NO_EVENT :
-               debug_output_dump("no_event, ");
-               break;
-         }
-         debug_output_dump("weight=%3d, ", g_Touch_Event.touch_point[i].touch_weight);
-         debug_output_dump("misc=%d] ", g_Touch_Event.touch_point[i].touch_area);
-      }
-      debug_output_dump("\r\n");
+   if (get_touch_event() > 0)
+   {
+      memcpy(pEvent, &g_Touch_Event, sizeof(TOUCH_EVENT_STRUCT));
+      return pEvent->touch_point_num;
+   }
+   else
+   {
+      pEvent->touch_point_num                            = 0;
+      return 0;
    }
 }
-
-
-
-
-
-
 
 

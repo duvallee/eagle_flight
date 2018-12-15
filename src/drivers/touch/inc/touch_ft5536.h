@@ -52,9 +52,6 @@ typedef struct
 void touch_ft5536_init(FT5536_READ_FN, FT5536_WRITE_FN);
 void touch_start(TOUCH_FT5536_TRIGGER_MODE trigger_mode);
 
-// void touch_start(uint8_t trigger_mode);
-// void touch_polling(void*);
-
-
+int get_ft5536_event(TOUCH_EVENT_STRUCT* pEvent);
 #endif // __TOUCH_FT5536_H__
 
