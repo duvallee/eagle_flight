@@ -39,6 +39,7 @@ byte g_usb_recive_buffer[USB_MAX_RECEIVE_BUFFER_SIZE];
 RING_BUFFER g_usb_ring_buffer[1]                         = {0, };
 
 #if defined(RTOS_FREERTOS)
+osSemaphoreDef_t os_semaphore_def_USB_EVENT;
 osSemaphoreId g_usb_read_Semaphore                       = NULL;
 
 /* --------------------------------------------------------------------------
@@ -101,8 +102,8 @@ int usb_device_init(void)
 
 #if defined(RTOS_FREERTOS)
    // create a binary semaphore used for informing ethernetif of frame reception
-   osSemaphoreDef(SEM);
-   g_usb_read_Semaphore                                  = osSemaphoreCreate(osSemaphore(SEM), 1);
+   osSemaphoreDef(USB_EVENT);
+   g_usb_read_Semaphore                                  = osSemaphoreCreate(osSemaphore(USB_EVENT), 1);
 #endif
 
    return 0;

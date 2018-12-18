@@ -23,8 +23,8 @@ static I2C_HandleTypeDef g_I2C_Bus1_handle;
 static I2C_HandleTypeDef g_I2C_Bus3_handle;
 
 #if (defined(RTOS_FREERTOS) && defined(FT5536))
+osSemaphoreDef_t os_semaphore_def_TOUCH_EVENT;
 osSemaphoreId g_touch_event_Semaphore                    = NULL;
-
 #endif
 
 /* --------------------------------------------------------------------------
@@ -576,16 +576,10 @@ void Board_Driver_Init()
     GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(TOUCH_FT5536_INT_PORT, &GPIO_InitStruct);
 
-    // EXTI interrupt init for PJ4 (EXTI15_10_IRQn)
-    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0x0F, 0);
-    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-
-   touch_start(TOUCH_FT5536_TRIGGER_MODE_INTERRUPT);
-
 #if defined(RTOS_FREERTOS)
    // create a binary semaphore used for informing ethernetif of frame reception
-   osSemaphoreDef(SEM);
-   g_touch_event_Semaphore                               = osSemaphoreCreate(osSemaphore(SEM), 1);
+   osSemaphoreDef(TOUCH_EVENT);
+   g_touch_event_Semaphore                               = osSemaphoreCreate(osSemaphore(TOUCH_EVENT), 1);
 
    // --------------------------------------------------------------------------
    /* Thread definition for tcp server */
@@ -595,6 +589,12 @@ void Board_Driver_Init()
       debug_output_error("Can't create thread : touch_event_task !!!");
    }
 #endif      // RTOS_FREERTOS
+
+    // EXTI interrupt init for PJ4 (EXTI15_10_IRQn)
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0x0F, 0);
+    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
+   touch_start(TOUCH_FT5536_TRIGGER_MODE_INTERRUPT);
 #endif      // FT5536
 
    // initialize I2C1

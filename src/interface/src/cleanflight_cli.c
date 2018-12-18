@@ -581,7 +581,7 @@ void cliVersion(char *cmdline)
 
 #if defined(RTOS_FREERTOS)
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
-osSemaphoreId g_usb_event_semaphore                      = NULL;
+static osSemaphoreId g_usb_event_semaphore               = NULL;
 #endif
 
 /* --------------------------------------------------------------------------
@@ -601,6 +601,7 @@ void cleanflight_cli_task(void const* argument)
          if (receive_data < 0)
          {
             debug_output_warn("... \r\n");
+            osDelay(5);
             continue;
          }
 
@@ -610,7 +611,7 @@ void cleanflight_cli_task(void const* argument)
          debug_output_warn("time-out in cli \r\n");
       }
 #endif
-      osDelay(10);
+      osDelay(5);
    }
 }
 #endif
@@ -630,8 +631,8 @@ void cleanflight_cliInit()
 
    // --------------------------------------------------------------------------
    // Thread definition for tcp server
-   osThreadDef(cleanflight_cli_handle, cleanflight_cli_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-   if (osThreadCreate(osThread(cleanflight_cli_handle), (void *) NULL) == NULL)
+   osThreadDef(cleanflight_cli_task, cleanflight_cli_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+   if (osThreadCreate(osThread(cleanflight_cli_task), (void *) NULL) == NULL)
    {
       debug_output_error("Can't create thread : cleanflight_cli_task !!!");
    }
