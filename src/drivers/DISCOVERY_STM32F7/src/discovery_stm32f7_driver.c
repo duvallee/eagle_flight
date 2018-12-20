@@ -535,7 +535,7 @@ void touch_event_task(void const* argument)
                debug_output_dump("weight=%3d, ", touch_event.touch_point[i].touch_weight);
                debug_output_dump("misc=%d] ", touch_event.touch_point[i].touch_area);
             }
-            debug_output_dump("\r\n");
+            debug_output_dump("%c\r\n", ' ');
          }
          taskEXIT_CRITICAL();
       }

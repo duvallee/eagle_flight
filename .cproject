@@ -21,7 +21,7 @@
 							<option id="com.atollic.truestudio.toolchain_options.mcu.516152178" name="Microcontroller" superClass="com.atollic.truestudio.toolchain_options.mcu" value="STM32H743ZI" valueType="string"/>
 							<option id="com.atollic.truestudio.toolchain_options.vendor.339888089" name="Vendor name" superClass="com.atollic.truestudio.toolchain_options.vendor" value="STMicroelectronics" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.atollic.truestudio.exe.debug.toolchain.platform.1203867611" isAbstract="false" name="Debug platform" osList="all" superClass="com.atollic.truestudio.exe.debug.toolchain.platform"/>
-							<builder id="org.eclipse.cdt.build.core.settings.default.builder.891962859" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<builder id="org.eclipse.cdt.build.core.settings.default.builder.891962859" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
 							<tool id="com.atollic.truestudio.exe.debug.toolchain.as.1290572540" name="Assembler" superClass="com.atollic.truestudio.exe.debug.toolchain.as">
 								<option id="com.atollic.truestudio.common_options.target.endianess.1348323543" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.1462793820" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" value="STM32H743ZI" valueType="enumerated"/>
