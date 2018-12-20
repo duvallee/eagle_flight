@@ -115,13 +115,16 @@ int usb_device_init(void)
 void usb_read(uint8_t* Buf, uint16_t Len)
 {
 #if defined(RTOS_FREERTOS)
+   UBaseType_t uxSavedInterruptStatus;
    BaseType_t xHigherPriorityTaskWoken                   = pdFALSE;
 
+   uxSavedInterruptStatus                                = taskENTER_CRITICAL_FROM_ISR();
    if (writeRingBuffer(g_usb_ring_buffer, (byte*) Buf, (int) Len) < -1)
    {
       debug_output_error("buffer overrun : %d(required), %d(free) !!!", Len, getRingBufferFreeSize(g_usb_ring_buffer));
       return;
    }
+   taskEXIT_CRITICAL_FROM_ISR(uxSavedInterruptStatus);
 
    if (g_usb_read_Semaphore != NULL)
    {
