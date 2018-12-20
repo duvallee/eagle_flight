@@ -385,6 +385,9 @@ void touch_event_task(void const* argument)
    {
       if (xSemaphoreTake(g_touch_event_Semaphore, portMAX_DELAY) == pdPASS)
       {
+//         taskENTER_CRITICAL();
+//         taskEXIT_CRITICAL();
+
          if (get_ft5536_event(&touch_event) > 0)
          {
             int i;
