@@ -39,8 +39,7 @@ byte g_usb_recive_buffer[USB_MAX_RECEIVE_BUFFER_SIZE];
 RING_BUFFER g_usb_ring_buffer[1]                         = {0, };
 
 #if defined(RTOS_FREERTOS)
-osSemaphoreDef_t os_semaphore_def_USB_EVENT;
-osSemaphoreId g_usb_read_Semaphore                       = NULL;
+SemaphoreHandle_t g_usb_read_Semaphore                   = NULL;
 
 /* --------------------------------------------------------------------------
  * Name : get_usb_device_semaphore()
@@ -102,8 +101,7 @@ int usb_device_init(void)
 
 #if defined(RTOS_FREERTOS)
    // create a binary semaphore used for informing ethernetif of frame reception
-   osSemaphoreDef(USB_EVENT);
-   g_usb_read_Semaphore                                  = osSemaphoreCreate(osSemaphore(USB_EVENT), 1);
+   g_usb_read_Semaphore                                  = xSemaphoreCreateBinary();
 #endif
 
    return 0;
@@ -117,6 +115,7 @@ int usb_device_init(void)
 void usb_read(uint8_t* Buf, uint16_t Len)
 {
 #if defined(RTOS_FREERTOS)
+   BaseType_t xHigherPriorityTaskWoken                   = pdFALSE;
 
    if (writeRingBuffer(g_usb_ring_buffer, (byte*) Buf, (int) Len) < -1)
    {
@@ -126,7 +125,8 @@ void usb_read(uint8_t* Buf, uint16_t Len)
 
    if (g_usb_read_Semaphore != NULL)
    {
-      osSemaphoreRelease(g_usb_read_Semaphore);
+      xSemaphoreGiveFromISR(g_usb_read_Semaphore, &xHigherPriorityTaskWoken);
+      portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
    }
 #endif
 }

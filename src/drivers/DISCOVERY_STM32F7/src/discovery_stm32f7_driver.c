@@ -23,8 +23,7 @@ static I2C_HandleTypeDef g_I2C_Bus1_handle;
 static I2C_HandleTypeDef g_I2C_Bus3_handle;
 
 #if (defined(RTOS_FREERTOS) && defined(FT5536))
-osSemaphoreDef_t os_semaphore_def_TOUCH_EVENT;
-osSemaphoreId g_touch_event_Semaphore                    = NULL;
+SemaphoreHandle_t g_touch_event_Semaphore                = NULL;
 #endif
 
 /* --------------------------------------------------------------------------
@@ -362,13 +361,15 @@ static void BSP_I2C_BUS3_Init(void)
 void BSP_TOUCH_IRQHandler(void)
 {
 #if defined(RTOS_FREERTOS)
-      if (g_touch_event_Semaphore != NULL)
-      {
-         osSemaphoreRelease(g_touch_event_Semaphore);
-      }
+   BaseType_t xHigherPriorityTaskWoken                   = pdFALSE;
+   if (g_touch_event_Semaphore != NULL)
+   {
+      xSemaphoreGiveFromISR(g_touch_event_Semaphore, &xHigherPriorityTaskWoken);
+      portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+   }
 #endif
 
-   debug_output_info("Touch interrupt : %d \r\n", HAL_GPIO_ReadPin(TOUCH_FT5536_INT_PORT, TOUCH_FT5536_INT_PIN));
+//   debug_output_info("Touch interrupt : %d \r\n", HAL_GPIO_ReadPin(TOUCH_FT5536_INT_PORT, TOUCH_FT5536_INT_PIN));
 }
 
 #if defined(RTOS_FREERTOS)
@@ -382,7 +383,7 @@ void touch_event_task(void const* argument)
    TOUCH_EVENT_STRUCT touch_event;
    while (1)
    {
-      if (osSemaphoreWait(g_touch_event_Semaphore, portMAX_DELAY) == osOK)
+      if (xSemaphoreTake(g_touch_event_Semaphore, portMAX_DELAY) == pdTRUE)
       {
          if (get_ft5536_event(&touch_event) > 0)
          {
@@ -578,11 +579,10 @@ void Board_Driver_Init()
 
 #if defined(RTOS_FREERTOS)
    // create a binary semaphore used for informing ethernetif of frame reception
-   osSemaphoreDef(TOUCH_EVENT);
-   g_touch_event_Semaphore                               = osSemaphoreCreate(osSemaphore(TOUCH_EVENT), 1);
+   g_touch_event_Semaphore                               = xSemaphoreCreateBinary();
 
    // --------------------------------------------------------------------------
-   /* Thread definition for tcp server */
+   // Thread definition for tcp server
    osThreadDef(touch_event_task, touch_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
    if (osThreadCreate(osThread(touch_event_task), (void *) NULL) == NULL)
    {

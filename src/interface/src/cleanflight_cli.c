@@ -581,7 +581,7 @@ void cliVersion(char *cmdline)
 
 #if defined(RTOS_FREERTOS)
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
-static osSemaphoreId g_usb_event_semaphore               = NULL;
+static SemaphoreHandle_t g_usb_event_semaphore           = NULL;
 #endif
 
 /* --------------------------------------------------------------------------
@@ -595,7 +595,7 @@ void cleanflight_cli_task(void const* argument)
    while (1)
    {
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
-      if (osSemaphoreWait(g_usb_event_semaphore, portMAX_DELAY) == osOK)
+      if (xSemaphoreTake(g_usb_event_semaphore, portMAX_DELAY) == pdTRUE)
       {
          receive_data                                    = usb_get_data((byte*) cliBuffer, sizeof(cliBuffer));
          if (receive_data < 0)
