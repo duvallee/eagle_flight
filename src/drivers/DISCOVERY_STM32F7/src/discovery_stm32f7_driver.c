@@ -239,6 +239,50 @@ static void BSP_DMA2D_Init(void)
    }
 }
 
+
+#if 0
+// #if defined(P_NUCLEO_53L0A1)
+#include "vl53l0x_platform.h"
+/* --------------------------------------------------------------------------
+ * Name : _I2CWrite()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+int _I2CWrite(VL53L0X_DEV Dev, uint8_t *pdata, uint32_t count)
+{
+   int status;
+   int i2c_time_out                                      = I2C_TIME_OUT_BASE + count * I2C_TIME_OUT_BYTE;
+
+   status                                                = HAL_I2C_Master_Transmit(Dev->I2cHandle, Dev->I2cDevAddr, pdata, count, i2c_time_out);
+   if (status)
+   {
+   //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
+   //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
+   }
+   return status;
+}
+
+/* --------------------------------------------------------------------------
+ * Name : _I2CRead()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+int _I2CRead(VL53L0X_DEV Dev, uint8_t *pdata, uint32_t count)
+{
+   int status;
+   int i2c_time_out = I2C_TIME_OUT_BASE+ count* I2C_TIME_OUT_BYTE;
+
+   status                                                = HAL_I2C_Master_Receive(Dev->I2cHandle, Dev->I2cDevAddr|1, pdata, count, i2c_time_out);
+   if (status)
+   {
+      //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
+      //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
+   }
+   return status;
+}
+#endif
+
+
 //#if defined(P_NUCLEO_53L0A1)
 #if 0
 /* --------------------------------------------------------------------------
