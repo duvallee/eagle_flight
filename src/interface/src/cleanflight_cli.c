@@ -595,7 +595,7 @@ void cleanflight_cli_task(void const* argument)
    while (1)
    {
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
-      if (xSemaphoreTake(g_usb_event_semaphore, portMAX_DELAY) == pdTRUE)
+      if (xSemaphoreTake(g_usb_event_semaphore, portMAX_DELAY) == pdPASS)
       {
          receive_data                                    = usb_get_data((byte*) cliBuffer, sizeof(cliBuffer));
          if (receive_data < 0)

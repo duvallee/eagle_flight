@@ -383,7 +383,7 @@ void touch_event_task(void const* argument)
    TOUCH_EVENT_STRUCT touch_event;
    while (1)
    {
-      if (xSemaphoreTake(g_touch_event_Semaphore, portMAX_DELAY) == pdTRUE)
+      if (xSemaphoreTake(g_touch_event_Semaphore, portMAX_DELAY) == pdPASS)
       {
          if (get_ft5536_event(&touch_event) > 0)
          {
