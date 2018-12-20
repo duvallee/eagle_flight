@@ -69,6 +69,14 @@
 			<define id="HAL_USART_MODULE_ENABLED" value="0" />
 			<define id="HAL_WWDG_MODULE_ENABLED" value="0" />
 			<define id="__ICCARM__" value="0" />
+			<define id="INCLUDE_uxTaskPriorityGet" value="1" />
+			<define id="INCLUDE_vTaskCleanUpResources" value="0" />
+			<define id="INCLUDE_vTaskDelay" value="1" />
+			<define id="INCLUDE_vTaskDelayUntil" value="0" />
+			<define id="INCLUDE_vTaskDelete" value="1" />
+			<define id="INCLUDE_vTaskPrioritySet" value="1" />
+			<define id="INCLUDE_vTaskSuspend" value="1" />
+			<define id="INCLUDE_xTaskGetSchedulerState" value="1" />
 			<define id="LWIP_DHCP" value="1" />
 			<define id="LWIP_NETIF_LINK_CALLBACK" value="1" />
 			<define id="LWIP_STATS" value="0" />
@@ -132,6 +140,26 @@
 			<define id="USE_USB_HS" value="1" />
 			<define id="WIN32" value="0" />
 			<define id="WITH_RTOS" value="1" />
+			<define id="configAPPLICATION_ALLOCATED_HEAP" value="1" />
+			<define id="configCHECK_FOR_STACK_OVERFLOW" value="0" />
+			<define id="configGENERATE_RUN_TIME_STATS" value="0" />
+			<define id="configIDLE_SHOULD_YIELD" value="1" />
+			<define id="configQUEUE_REGISTRY_SIZE" value="8" />
+			<define id="configSUPPORT_DYNAMIC_ALLOCATION" value="1" />
+			<define id="configSUPPORT_STATIC_ALLOCATION" value="0" />
+			<define id="configTIMER_TASK_PRIORITY" value="2" />
+			<define id="configUSE_16_BIT_TICKS" value="0" />
+			<define id="configUSE_APPLICATION_TASK_TAG" value="0" />
+			<define id="configUSE_COUNTING_SEMAPHORES" value="1" />
+			<define id="configUSE_CO_ROUTINES" value="0" />
+			<define id="configUSE_IDLE_HOOK" value="0" />
+			<define id="configUSE_MALLOC_FAILED_HOOK" value="0" />
+			<define id="configUSE_MUTEXES" value="1" />
+			<define id="configUSE_PREEMPTION" value="1" />
+			<define id="configUSE_RECURSIVE_MUTEXES" value="1" />
+			<define id="configUSE_TICK_HOOK" value="0" />
+			<define id="configUSE_TIMERS" value="0" />
+			<define id="configUSE_TRACE_FACILITY" value="1" />
 			<define id="pData" value="STM32F7xx" />
 		</Defines>
 	</ParseConditions>

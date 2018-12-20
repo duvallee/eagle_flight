@@ -421,6 +421,8 @@
 .\src\drivers\usb\inc\usbd_conf.h
 .\src\drivers\usb\inc\usb_device.h
 .\src\drivers\usb\usb_device.c
+.\src\interface\inc\cleanflight_cli.h
+.\src\interface\src\cleanflight_cli.c
 .\src\main.cpp
 .\src\model\DISCOVERY_STM32F7\inc\FreeRTOSConfig.h
 .\src\model\DISCOVERY_STM32F7\inc\main.h
