@@ -129,14 +129,30 @@ uint8_t ucHeap[configTOTAL_HEAP_SIZE]                    = {0, };
 
 void freertos_idle_task(void const* argument)
 {
+#if defined(STEMWIN)
+   GUI_Clear();
+   GUI_SetBkColor(GUI_DARKGRAY);
+#endif
    while (1)
    {
       osDelay(10000);
       debug_output_info("================== IDLE TASK ================== \r\n");
 #if defined(STEMWIN)
-     GUI_Clear();
-     GUI_SetFont(&GUI_Font20_1);
-     GUI_DispStringAt("Hello world!", (LCD_GetXSize() - 100) / 2, (LCD_GetYSize() - 20) / 2);
+
+      GUI_SetPenSize(3);
+      GUI_SetColor(GUI_GREEN);
+      
+      GUI_SetDrawMode(GUI_DRAWMODE_NORMAL);
+      
+      GUI_DrawRoundedRect(  0, 200, 159, 269, 10);
+      GUI_DrawRoundedRect(160, 200, 319, 269, 10);
+      GUI_DrawRoundedRect(320, 200, 479, 269, 10);
+
+      GUI_SetFont(&GUI_Font10_1);
+      GUI_SetColor(GUI_CYAN);
+      GUI_DispStringAt("Left : ", 2, 235);
+      GUI_DispStringAt("Center : ", 162, 235);
+      GUI_DispStringAt("Right : ", 322, 235);
 #endif
    }
 }

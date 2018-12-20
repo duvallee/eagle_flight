@@ -507,11 +507,13 @@ void touch_event_task(void const* argument)
          {
             int i;
             debug_output_dump("pt=%d, ", touch_event.touch_point_num);
+            GUI_CURSOR_SetPosition(touch_event.touch_point[0].x_pos, touch_event.touch_point[0].y_pos);
+            GUI_CURSOR_Show();
+
             for (i = 0; i < touch_event.touch_point_num; i++)
             {
                debug_output_dump("[x=%3d, y=%3d, ", touch_event.touch_point[i].x_pos, touch_event.touch_point[i].y_pos);
                debug_output_dump("action=%d,", touch_event.touch_point[i].touch_action);
-
 #if 0
                switch (touch_event.touch_point[i].touch_action)
                {
