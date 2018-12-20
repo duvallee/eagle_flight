@@ -132,6 +132,27 @@ extern "C" {
 #define ARDUINO_CN5_PIN_06                               GPIO_PIN_6
 
 // -----------------------------------------------------------------------------
+#if defined(P_NUCLEO_53L0A1)
+#define P_NUCLEO_53L0A1_SCL_PIN                          GPIO_PIN_8
+#define P_NUCLEO_53L0A1_SCL_PORT                         GPIOB
+
+#define P_NUCLEO_53L0A1_SDA_PIN                          GPIO_PIN_9
+#define P_NUCLEO_53L0A1_SDA_PORT                         GPIOB
+
+#define P_NUCLEO_53L0A1_GPIO1_L_PIN                      GPIO_PIN_7
+#define P_NUCLEO_53L0A1_GPIO1_L_PORT                     GPIOC
+
+#define P_NUCLEO_53L0A1_GPIO1_R_PIN                      GPIO_PIN_10
+#define P_NUCLEO_53L0A1_GPIO1_R_PORT                     GPIOF
+
+#define P_NUCLEO_53L0A1_GPIO1_PIN                        GPIO_PIN_9
+#define P_NUCLEO_53L0A1_GPIO1_PORT                       GPIOF
+
+#define P_NUCLEO_53L0A1_GPIO_EXT_I2C_ADDR                0x86
+
+#endif
+
+// -----------------------------------------------------------------------------
 // LD1 ( shared with Connector 7 - Pin 6)
 #define LED_1_GREEN_PORT                                 GPIOI
 #define LED_1_GREEN                                      GPIO_PIN_1

@@ -142,6 +142,9 @@ RTOS_FREERTOS :=
 STEMWIN :=
 CLEANFLIGHT_CLI :=
 
+P_NUCLEO_53L0A1 :=
+SENSOR_VL53L0X :=
+
 # -----------------------------------------------------------------------------
 # for TARGET Board
 
@@ -205,6 +208,9 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 	USB_DEVICE := CDC
 	USE_USB_DEVICE := USED
 	TOUCH_DEVICE := FT5536
+	# STM32 Expansion Board
+	P_NUCLEO_53L0A1 := P_NUCLEO_53L0A1
+	SENSOR_VL53L0X := SENSOR_VL53L0X
 
 	# supported middleware
 #	NET_LWIP := NET_LWIP
@@ -365,7 +371,7 @@ endif
 # -----------------------------------------------------------------------------
 # Middle Source
 
-# C Source of USB
+# for CDC of USB
 ifeq ($(USB_DEVICE),CDC)
 	MIDDLEWARE_C_SRC += $(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/*.c)
 	MIDDLEWARE_C_SRC += $(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/*.c)
@@ -375,6 +381,7 @@ ifeq ($(USB_DEVICE),CDC)
 	INCLUDE_DIR += -I./src/drivers/usb/cdc/inc
 endif
 
+# for BULK of USB
 ifeq ($(USB_DEVICE),BULK)
 	MIDDLEWARE_C_SRC += $(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/*.c)
 	MIDDLEWARE_C_SRC += $(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Class/BULK/Src/*.c)
@@ -384,6 +391,7 @@ ifeq ($(USB_DEVICE),BULK)
 	INCLUDE_DIR += -I./src/drivers/usb/bulk/inc
 endif
 
+# for LWIP of Net
 ifeq ($(NET_LWIP),NET_LWIP)
 	TARGET_MODEL_DEFINITION += -D$(NET_LWIP)
 
@@ -469,6 +477,7 @@ ifeq ($(NET_LWIP),NET_LWIP)
 	INCLUDE_DIR += -IMiddlewares/Third_Party/LwIP/test/unit
 endif
 
+# for Free RTOS
 ifeq ($(RTOS_FREERTOS),RTOS_FREERTOS)
 	TARGET_MODEL_DEFINITION += -D$(RTOS_FREERTOS)
 
@@ -487,6 +496,7 @@ ifeq ($(RTOS_FREERTOS),RTOS_FREERTOS)
 	INCLUDE_DIR += -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS
 endif
 
+# for STemWin of Graphic Library
 ifeq ($(STEMWIN),STEMWIN)
 	TARGET_MODEL_DEFINITION += -D$(STEMWIN)
 
@@ -512,11 +522,34 @@ ifeq ($(STEMWIN),STEMWIN)
 #	SATIC_LIBRARY += -LMiddlewares/ST/STemWin/Lib -l:STemWin_CM7_wc32.a
 endif
 
+# for CLI of Cleanflight
 ifeq ($(CLEANFLIGHT_CLI),CLEANFLIGHT_CLI)
 	TARGET_MODEL_DEFINITION += -D$(CLEANFLIGHT_CLI)
 
 	DRIVERS_C_SRC += src/interface/src/cleanflight_cli.c
 	INCLUDE_DIR += -Isrc/interface/inc
+endif
+
+# for 52L0A1 Expansion Board fo ST
+ifeq ($(P_NUCLEO_53L0A1),P_NUCLEO_53L0A1)
+	TARGET_MODEL_DEFINITION += -D$(P_NUCLEO_53L0A1)
+
+#	DRIVERS_C_SRC += src/interface/src/cleanflight_cli.c
+#	INCLUDE_DIR += -Isrc/interface/inc
+endif
+
+# for VL53L0X Sensor
+ifeq ($(SENSOR_VL53L0X), SENSOR_VL53L0X)
+	TARGET_MODEL_DEFINITION += -D$(SENSOR_VL53L0X)
+
+	DRIVERS_C_SRC += src/drivers/vl53l0x/src/vl53l0x_api.c
+	DRIVERS_C_SRC += src/drivers/vl53l0x/src/vl53l0x_api_calibration.c
+	DRIVERS_C_SRC += src/drivers/vl53l0x/src/vl53l0x_api_core.c
+	DRIVERS_C_SRC += src/drivers/vl53l0x/src/vl53l0x_api_ranging.c
+	DRIVERS_C_SRC += src/drivers/vl53l0x/src/vl53l0x_api_strings.c
+	DRIVERS_C_SRC += src/drivers/vl53l0x/src/vl53l0x_platform_log.c
+
+	INCLUDE_DIR += -Isrc/drivers/vl53l0x/inc
 endif
 
 

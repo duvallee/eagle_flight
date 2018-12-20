@@ -239,6 +239,65 @@ static void BSP_DMA2D_Init(void)
    }
 }
 
+//#if defined(P_NUCLEO_53L0A1)
+#if 0
+/* --------------------------------------------------------------------------
+ * Name : BSP_I2C_BUS1_FailRecover()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+static void BSP_I2C_BUS1_FailRecover(void)
+{
+   GPIO_InitTypeDef GPIO_InitStruct;
+   int i, nRetry                                         = 0;
+
+   // Enable I/O
+   __GPIOB_CLK_ENABLE();
+   HAL_GPIO_WritePin(ARDUINO_CN7_PIN_09_PORT, ARDUINO_CN7_PIN_10, GPIO_PIN_SET);
+   HAL_GPIO_WritePin(ARDUINO_CN7_PIN_09_PORT, ARDUINO_CN7_PIN_09, GPIO_PIN_SET);
+   GPIO_InitStruct.Pin                                = ARDUINO_CN7_PIN_10 | ARDUINO_CN7_PIN_09;
+   GPIO_InitStruct.Mode                               = GPIO_MODE_OUTPUT_OD;
+   GPIO_InitStruct.Pull                               = GPIO_PULLUP;
+   HAL_GPIO_Init(ARDUINO_CN7_PIN_09_PORT, &GPIO_InitStruct);
+
+   //TODO we could do this faster by not using HAL delay 1ms for clk timing
+   do {
+      for (i = 0; i < 10; i++)
+      {
+         HAL_GPIO_WritePin(ARDUINO_CN7_PIN_09_PORT, ARDUINO_CN7_PIN_10, GPIO_PIN_RESET);
+         HAL_Delay(1);
+         HAL_GPIO_WritePin(ARDUINO_CN7_PIN_09_PORT, ARDUINO_CN7_PIN_10, GPIO_PIN_SET);
+         HAL_Delay(1);
+      }
+      //        if( HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_9) == 0 ){
+      //            static int RetryRecover;
+      //            RetryRecover++;
+      //        }
+   } while (HAL_GPIO_ReadPin(ARDUINO_CN7_PIN_09_PORT, ARDUINO_CN7_PIN_09) == 0 && nRetry++ < 7);
+
+   if (HAL_GPIO_ReadPin(ARDUINO_CN7_PIN_09_PORT, ARDUINO_CN7_PIN_09) == 0)
+   {
+      __GPIOA_CLK_ENABLE();
+      //We are still in bad i2c state warm user by blinking led but stay here
+      GPIO_InitStruct.Pin = GPIO_PIN_5 ;
+      GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+      GPIO_InitStruct.Pull = GPIO_NOPULL;
+      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+      do{
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+      HAL_Delay(33);
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+      HAL_Delay(33);
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+      HAL_Delay(33);
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+      HAL_Delay(33*20);
+      }while(1);
+   }
+
+}
+#endif
+
 /* --------------------------------------------------------------------------
  * Name : BSP_I2C_BUS1_Init()
  *
@@ -246,8 +305,17 @@ static void BSP_DMA2D_Init(void)
  * -------------------------------------------------------------------------- */
 static void BSP_I2C_BUS1_Init(void)
 {
+#if defined(P_NUCLEO_53L0A1)
+//   BSP_I2C_BUS1_FailRecover();
+#endif
+
    g_I2C_Bus1_handle.Instance                            = I2C1;
+#if (defined(USE_HAL_DRIVER) && defined(STM32F4XX))
+   g_I2C_Bus1_handle.Init.ClockSpeed                     = 400000;                                 // fast I2C
+   g_I2C_Bus1_handle.Init.DutyCycle                      = I2C_DUTYCYCLE_2;
+#else
    g_I2C_Bus1_handle.Init.Timing                         = 0x00303D5B;
+#endif
    g_I2C_Bus1_handle.Init.OwnAddress1                    = 0;
    g_I2C_Bus1_handle.Init.AddressingMode                 = I2C_ADDRESSINGMODE_7BIT;
    g_I2C_Bus1_handle.Init.DualAddressMode                = I2C_DUALADDRESS_DISABLE;
@@ -314,7 +382,6 @@ int BSP_I2C_BUS1_Write(uint16_t device_addr, uint16_t reg_addr, uint16_t reg_add
    return 0;
 }
 
-
 /* --------------------------------------------------------------------------
  * Name : BSP_I2C_BUS3_Init()
  *
@@ -323,7 +390,12 @@ int BSP_I2C_BUS1_Write(uint16_t device_addr, uint16_t reg_addr, uint16_t reg_add
 static void BSP_I2C_BUS3_Init(void)
 {
    g_I2C_Bus3_handle.Instance                            = I2C3;
+#if (defined(USE_HAL_DRIVER) && defined(STM32F4XX))
+   g_I2C_Bus3_handle.Init.ClockSpeed                     = 400000;                                 // fast I2C
+   g_I2C_Bus3_handle.Init.DutyCycle                      = I2C_DUTYCYCLE_2;
+#else
    g_I2C_Bus3_handle.Init.Timing                         = 0x00303D5B;
+#endif
    g_I2C_Bus3_handle.Init.OwnAddress1                    = 0;
    g_I2C_Bus3_handle.Init.AddressingMode                 = I2C_ADDRESSINGMODE_7BIT;
    g_I2C_Bus3_handle.Init.DualAddressMode                = I2C_DUALADDRESS_DISABLE;
