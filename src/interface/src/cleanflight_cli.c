@@ -597,14 +597,16 @@ void cleanflight_cli_task(void const* argument)
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
       if (xSemaphoreTake(g_usb_event_semaphore, portMAX_DELAY) == pdPASS)
       {
+         taskENTER_CRITICAL();
          receive_data                                    = usb_get_data((byte*) cliBuffer, sizeof(cliBuffer));
          if (receive_data < 0)
          {
             debug_output_warn("... \r\n");
             osDelay(5);
+            taskEXIT_CRITICAL();
             continue;
          }
-
+         taskEXIT_CRITICAL();
       }
       else
       {
