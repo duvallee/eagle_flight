@@ -704,7 +704,7 @@ void Board_Driver_Init()
 
    // --------------------------------------------------------------------------
    // Thread definition for tcp server
-   osThreadDef(touch_event_task, touch_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+   osThreadDef(touch_event_task, touch_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 3);
    if (osThreadCreate(osThread(touch_event_task), (void *) NULL) == NULL)
    {
       debug_output_error("Can't create thread : touch_event_task !!!");
