@@ -86,6 +86,7 @@
 			<define id="NUCLEO_H743ZI" value="0" />
 			<define id="NUM_BUFFERS" value="3" />
 			<define id="OS_SUPPORT" value="1" />
+			<define id="P_NUCLEO_53L0A1" value="1" />
 			<define id="RTOS_FREERTOS" value="1" />
 			<define id="STEMWIN" value="1" />
 			<define id="STEVAL_FCU001V1" value="0" />
@@ -134,6 +135,7 @@
 			<define id="SYSTEM_CLOCK_200MHZ" value="1" />
 			<define id="SYSTEM_CLOCK_MAX_216MHZ" value="0" />
 			<define id="UART_DEBUG_OUTPUT" value="1" />
+			<define id="USE_HAL_DRIVER" value="1" />
 			<define id="USE_USB_BULK_DEVICE" value="0" />
 			<define id="USE_USB_CDC_DEVICE" value="1" />
 			<define id="USE_USB_FS" value="0" />
