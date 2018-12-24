@@ -14,6 +14,11 @@
 #include "touch_ft5536.h"
 #endif
 
+#if defined(P_NUCLEO_53L0A1)
+#include "vl53l0x_platform.h"
+#endif
+
+
 // --------------------------------------------------------------------------
 static SDRAM_HandleTypeDef g_SDRAM_handle;
 static LTDC_HandleTypeDef g_LTDC_handle;
@@ -239,48 +244,95 @@ static void BSP_DMA2D_Init(void)
    }
 }
 
+#if defined(P_NUCLEO_53L0A1)
+#define I2cExpAddr0                                      ((int) (0x43 * 2))
+#define I2cExpAddr1                                      ((int) (0x42 * 2))
+#define GPMR                                             0x10
+#define GPSR                                             0x12
+#define GPDR                                             0x14
 
-#if 0
-// #if defined(P_NUCLEO_53L0A1)
-#include "vl53l0x_platform.h"
-/* --------------------------------------------------------------------------
- * Name : _I2CWrite()
- *
- *
- * -------------------------------------------------------------------------- */
-int _I2CWrite(VL53L0X_DEV Dev, uint8_t *pdata, uint32_t count)
+static union CurIOVal_u
 {
-   int status;
-   int i2c_time_out                                      = I2C_TIME_OUT_BASE + count * I2C_TIME_OUT_BYTE;
-
-   status                                                = HAL_I2C_Master_Transmit(Dev->I2cHandle, Dev->I2cDevAddr, pdata, count, i2c_time_out);
-   if (status)
-   {
-   //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
-   //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
-   }
-   return status;
+   uint8_t bytes[4];                                                          // 4 bytes array i/o view
+   uint32_t u32;                                                              // single dword i/o view
 }
+// cache the extended IO values
+CurIOVal;
 
-/* --------------------------------------------------------------------------
- * Name : _I2CRead()
- *
- *
- * -------------------------------------------------------------------------- */
-int _I2CRead(VL53L0X_DEV Dev, uint8_t *pdata, uint32_t count)
-{
-   int status;
-   int i2c_time_out = I2C_TIME_OUT_BASE+ count* I2C_TIME_OUT_BYTE;
 
-   status                                                = HAL_I2C_Master_Receive(Dev->I2cHandle, Dev->I2cDevAddr|1, pdata, count, i2c_time_out);
-   if (status)
-   {
-      //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
-      //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
-   }
-   return status;
-}
+#ifndef XNUCLEO53L0A1_GetI2cBus
+#define XNUCLEO53L0A1_GetI2cBus(...)                     (void) 0
 #endif
+
+#ifndef XNUCLEO53L0A1_PutI2cBus
+#define XNUCLEO53L0A1_PutI2cBus(...)                     (void) 0
+#endif
+
+static int _ExpanderRd(int I2cExpAddr, int index, uint8_t *data, int n_data);
+static int _ExpanderWR(int I2cExpAddr, int index, uint8_t *data, int n_data);
+
+/* --------------------------------------------------------------------------
+ * Name : _ExpandersSetAllIO()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+static int _ExpandersSetAllIO(void)
+{
+   int status;
+   status                                                = _ExpanderWR(I2cExpAddr0, GPSR, &CurIOVal.bytes[0], 2);
+   if( status )
+   {
+      return status;
+   }
+   status                                                = _ExpanderWR(I2cExpAddr1, GPSR, &CurIOVal.bytes[2], 2);
+   return status;
+}
+
+/* --------------------------------------------------------------------------
+ * Name : _ExpanderRd()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+static int _ExpanderRd(int I2cExpAddr, int index, uint8_t *data, int n_data)
+{
+   int status;
+   uint8_t RegAddr;
+   RegAddr                                               = index;
+   XNUCLEO53L0A1_GetI2cBus();
+   do
+   {
+      status                                             = HAL_I2C_Master_Transmit(&g_I2C_Bus1_handle, I2cExpAddr, &RegAddr, 1, 100);
+      if (status)
+      {
+         break;
+      }
+      status                                             = HAL_I2C_Master_Receive(&g_I2C_Bus1_handle, I2cExpAddr, data, n_data, n_data * 100);
+   } while (0);
+   XNUCLEO53L0A1_PutI2cBus();
+   return status;
+}
+
+/* --------------------------------------------------------------------------
+ * Name : _ExpanderRd()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+static int _ExpanderWR(int I2cExpAddr, int index, uint8_t *data, int n_data)
+{
+   int status;
+   uint8_t RegAddr[0x10];
+
+   RegAddr[0]                                            = index;
+   memcpy(RegAddr + 1, data, n_data);
+   XNUCLEO53L0A1_GetI2cBus();
+   status                                                = HAL_I2C_Master_Transmit(&g_I2C_Bus1_handle, I2cExpAddr, RegAddr, n_data + 1, 100);
+   XNUCLEO53L0A1_PutI2cBus();
+   return status;
+}
+
+#endif
+
+
 
 
 //#if defined(P_NUCLEO_53L0A1)

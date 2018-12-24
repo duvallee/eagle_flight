@@ -44,56 +44,35 @@ extern "C" {
 #define trace_printf uart_printf
 #endif
 
-/**
- * @file vl53l0x_platform.h
- *
- * @brief All end user OS/platform/application porting
- */
- 
-/**
- * @defgroup VL53L0X_platform_group VL53L0X Platform Functions
- * @brief    VL53L0X Platform Functions
- *  @{
- */
 
-/**
- * @struct  VL53L0X_Dev_t
- * @brief    Generic PAL device type that does link between API and platform abstraction layer
- *
- */
-typedef struct {
-    VL53L0X_DevData_t Data;               /*!< embed ST Ewok Dev  data as "Data"*/
+//  Generic PAL device type that does link between API and platform abstraction layer
+typedef struct
+{
+   VL53L0X_DevData_t Data;                      // embed ST Ewok Dev  data as "Data"
 
-    /*!< user specific field */
+   I2C_HandleTypeDef *I2cHandle;
+   uint8_t I2cDevAddr;
 
-    I2C_HandleTypeDef *I2cHandle;
-    uint8_t   I2cDevAddr;
+   char DevLetter;
 
-    char    DevLetter;
+   int Id;
+   int Present;
+   int Enabled;
+   int Ready;
 
-    int     Id;
-    int     Present;
-    int 	Enabled;
-    int		Ready;
+   uint8_t comms_type;
+   uint16_t comms_speed_khz;
 
-    uint8_t   comms_type;
-    uint16_t  comms_speed_khz;
-
-    int LeakyRange;
-    int LeakyFirst;
-    uint8_t RangeStatus;
-    uint8_t PreviousRangeStatus;
-    FixPoint1616_t SignalRateRtnMegaCps;
-    uint16_t EffectiveSpadRtnCount;
-    uint32_t StartTime;
+   int LeakyRange;
+   int LeakyFirst;
+   uint8_t RangeStatus;
+   uint8_t PreviousRangeStatus;
+   FixPoint1616_t SignalRateRtnMegaCps;
+   uint16_t EffectiveSpadRtnCount;
+   uint32_t StartTime;
 
 } VL53L0X_Dev_t;
 
-
-/**
- * @brief   Declare the device Handle as a pointer of the structure @a VL53L0X_Dev_t.
- *
- */
 typedef VL53L0X_Dev_t* VL53L0X_DEV;
 
 /**
@@ -105,7 +84,7 @@ typedef VL53L0X_Dev_t* VL53L0X_DEV;
  * It maybe used and as real data "ref" not just as "get" for sub-structure item
  * like PALDevDataGet(FilterData.field)[i] or PALDevDataGet(FilterData.MeasurementIndex)++
  */
-#define PALDevDataGet(Dev, field) (Dev->Data.field)
+#define PALDevDataGet(Dev, field)                        (Dev->Data.field)
 
 /**
  * @def PALDevDataSet(Dev, field, data)
@@ -114,7 +93,7 @@ typedef VL53L0X_Dev_t* VL53L0X_DEV;
  * @param field     ST structure field name
  * @param data      Data to be set
  */
-#define PALDevDataSet(Dev, field, data) (Dev->Data.field)=(data)
+#define PALDevDataSet(Dev, field, data)                  (Dev->Data.field)=(data)
 
 
 /**
