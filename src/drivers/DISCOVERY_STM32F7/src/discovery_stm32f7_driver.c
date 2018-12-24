@@ -245,6 +245,137 @@ static void BSP_DMA2D_Init(void)
 }
 
 #if defined(P_NUCLEO_53L0A1)
+/**
+ * @defgroup XNUCLEO53L0A1_7Segment 7 segment display
+ *
+ * macro use for human readable segment building
+ * @code
+ *  --s0--
+ *  s    s
+ *  5    1
+ *  --s6--
+ *  s    s
+ *  4    2
+ *  --s3-- . s7 (dp)
+ * @endcode
+ *
+ * @{
+ */
+/** decimal point bit mapping*  */
+#define DP                                               (1 << 7)
+// sgement s0 bit mapping
+#define S0                                               (1 << 3)
+// sgement s1 bit mapping
+#define S1                                               (1 << 5)
+// sgement s2 bit mapping
+#define S2                                               (1 << 6)
+// sgement s3 bit mapping
+#define S3                                               (1 << 4)
+// sgement s4 bit mapping
+#define S4                                               (1 << 0)
+// sgement s5 bit mapping
+#define S5                                               (1 << 1)
+// sgement s6 bit mapping
+#define S6                                               (1 << 2)
+
+/**
+ * build a character by defining the non lighted segment (not one and no DP)
+ *
+ * @param  ... literal sum and or combine of any macro to define any segment #S0 .. #S6
+ *
+ * example '9' is all segment on but S4
+ * @code
+ *   ['9']=           NOT_7_NO_DP(S4),
+ * @endcode
+ */
+#define NOT_7_NO_DP(...)                                 (uint8_t) ~( __VA_ARGS__ + DP )
+
+/**
+ * Ascii to 7 segment  lookup table
+ *
+ * Most common character are supported and follow http://www.twyman.org.uk/Fonts/
+ * few extra special \@ ^~ ... etc are present for specific demo purpose
+ */
+static const uint8_t ascii_to_display_lut[256]           =
+{
+   [' ']                                                 = 0,
+   ['-']                                                 = S6,
+   ['_']                                                 = S3,
+   ['=']                                                 = S3 + S6,
+   ['~']                                                 = S0 + S3 + S6,                           // 3 h bar
+   ['^']                                                 = S0,                                     // use as top bar
+
+   ['?']                                                 = NOT_7_NO_DP(S5 + S3 + S2),
+   ['*']                                                 = NOT_7_NO_DP(),
+   ['[']                                                 = S0 + S3 + S4 + S5,
+   [']']                                                 = S0 + S3 + S2 + S1,
+   ['@']                                                 = S0 + S3,
+
+   ['0']                                                 = NOT_7_NO_DP(S6),
+   ['1']                                                 = S1 + S2,
+   ['2']                                                 = S0 + S1 + S6 + S4 + S3,
+   ['3']                                                 = NOT_7_NO_DP(S4 + S5),
+   ['4']                                                 = S5 + S1 + S6 + S2,
+   ['5']                                                 = NOT_7_NO_DP(S1 + S4),
+   ['6']                                                 = NOT_7_NO_DP(S1),
+   ['7']                                                 = S0 + S1 + S2,
+   ['8']                                                 = NOT_7_NO_DP(0),
+   ['9']                                                 = NOT_7_NO_DP(S4),
+
+   ['a']                                                 = S2 + S3 + S4 + S6 ,
+   ['b']                                                 = NOT_7_NO_DP(S0 + S1),
+   ['c']                                                 = S6 + S4 + S3,
+   ['d']                                                 = NOT_7_NO_DP(S0 + S5),
+   ['e']                                                 = NOT_7_NO_DP(S2),
+   ['f']                                                 = S6 + S5 + S4 + S0,                      // same as F
+   ['g']                                                 = NOT_7_NO_DP(S4),                        // same as 9
+   ['h']                                                 = S6 + S5 + S4 + S2,
+   ['i']                                                 = S4,
+   ['j']                                                 = S1 + S2 + S3 + S4,
+   ['k']                                                 = S6 + S5 + S4 + S2,                      // a h
+   ['l']                                                 = S3 + S4,
+   ['m']                                                 = S0 + S4 + S2,                           // same as
+   ['n']                                                 = S2 + S4 + S6,
+   ['o']                                                 = S6 + S4 + S3 + S2,
+   ['p']                                                 = NOT_7_NO_DP(S3 + S2),                   // same as P
+   ['q']                                                 = S0 + S1 + S2 + S5 + S6,
+   ['r']                                                 = S4 + S6,
+   ['s']                                                 = NOT_7_NO_DP(S1 + S4),
+   ['t']                                                 = NOT_7_NO_DP(S0 + S1 + S2),
+   ['u']                                                 = S4 + S3 + S2 + S5 + S1,                 // U
+   ['v']                                                 = S4 + S3 + S2,                           // is u but u use U
+   ['w']                                                 = S1 + S3 + S5,
+   ['x']                                                 = NOT_7_NO_DP(S0 + S3),                   // similar to H
+   ['y']                                                 = NOT_7_NO_DP(S0 + S4),
+   ['z']                                                 = S0 + S1 + S6 + S4 + S3,                 // same as 2
+
+   ['A']                                                 = NOT_7_NO_DP(S3),
+   ['B']                                                 = NOT_7_NO_DP(S0 + S1),                   // as b
+   ['C']                                                 = S0 + S3 + S4 + S5,                      // same as [
+   ['E']                                                 = NOT_7_NO_DP(S1 + S2),
+   ['F']                                                 = S6 + S5 + S4 + S0,
+   ['G']                                                 = NOT_7_NO_DP(S4),                        // same as 9
+   ['H']                                                 = NOT_7_NO_DP(S0 + S3),
+   ['I']                                                 = S1 + S2,
+   ['J']                                                 = S1 + S2 + S3 + S4,
+   ['K']                                                 = NOT_7_NO_DP(S0 + S3),                   // same as H
+   ['L']                                                 = S3 + S4 + S5,
+   ['M']                                                 = S0 + S4 + S2,                           // same as m
+   ['N']                                                 = S2 + S4 + S6,                           // same as n
+   ['O']                                                 = NOT_7_NO_DP(S6),
+   ['P']                                                 = NOT_7_NO_DP(S3 + S2),
+   ['Q']                                                 = NOT_7_NO_DP(S3 + S2),
+   ['R']                                                 = S4 + S6,
+   ['S']                                                 = NOT_7_NO_DP(S1 + S4),                   // sasme as 5
+   ['T']                                                 = NOT_7_NO_DP(S0 + S1 + S2),              // sasme as t
+   ['U']                                                 = NOT_7_NO_DP(S6 + S0),
+   ['V']                                                 = S4 + S3 + S2,                           // is u but u use U
+   ['W']                                                 = S1 + S3 + S5,
+   ['X']                                                 = NOT_7_NO_DP(S0 + S3),                   // similar to H
+   ['Y']                                                 = NOT_7_NO_DP(S0 + S4),
+   ['Z']                                                 = S0 + S1 + S6 + S4 + S3,                 // same as 2
+};
+
 #define I2cExpAddr0                                      ((int) (0x43 * 2))
 #define I2cExpAddr1                                      ((int) (0x42 * 2))
 #define GPMR                                             0x10
@@ -259,6 +390,8 @@ static union CurIOVal_u
 // cache the extended IO values
 CurIOVal;
 
+static int DisplayBitPos[4]                              = {0, 7, 16, 16 + 7};
+
 
 #ifndef XNUCLEO53L0A1_GetI2cBus
 #define XNUCLEO53L0A1_GetI2cBus(...)                     (void) 0
@@ -270,6 +403,41 @@ CurIOVal;
 
 static int _ExpanderRd(int I2cExpAddr, int index, uint8_t *data, int n_data);
 static int _ExpanderWR(int I2cExpAddr, int index, uint8_t *data, int n_data);
+static int _ExpandersSetAllIO(void);
+
+/* --------------------------------------------------------------------------
+ * Name : _ExpandersSetAllIO()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+int XNUCLEO53L0A1_SetDisplayString(const char *str)
+{
+   int status;
+   uint32_t Segments;
+   int BitPos;
+   int i;
+
+   for (i = 0; i < 4 && str[i] != 0; i++)
+   {
+      Segments                                           = (uint32_t) ascii_to_display_lut[(uint8_t) str[i]];
+      Segments                                           = (~Segments) & 0x7F;
+      BitPos                                             = DisplayBitPos[i];
+      CurIOVal.u32                                       &= ~(0x7F << BitPos);
+      CurIOVal.u32                                       |= Segments << BitPos;
+   }
+   // clear unused digit
+   for ( ; i < 4; i++)
+   {
+      BitPos                                             = DisplayBitPos[i];
+      CurIOVal.u32                                       |= 0x7F << BitPos;
+   }
+   status                                                = _ExpandersSetAllIO();
+   if (status)
+   {
+//      XNUCLEO53L0A1_ErrLog("Set i/o");
+   }
+   return status;
+}
 
 /* --------------------------------------------------------------------------
  * Name : _ExpandersSetAllIO()
@@ -772,6 +940,55 @@ void Board_Driver_Init()
 
    // initialize I2C1
    BSP_I2C_BUS1_Init();
+
+#if defined(P_NUCLEO_53L0A1)
+{
+   int status;
+   uint8_t ExpanderData[2];
+
+   status                                                = _ExpanderRd(I2cExpAddr0, 0, ExpanderData, 2);
+   if (status != 0 || ExpanderData[0] != 0x00 || ExpanderData[1] != 0x16)
+   {
+//      XNUCLEO53L0A1_ErrLog("I2C Expander @0x%02X not detected",(int)I2cExpAddr0 );
+//      goto done_err;
+
+   }
+   status                                                = _ExpanderRd(I2cExpAddr1, 0, ExpanderData, 2);
+   if (status != 0 || ExpanderData[0] != 0x00 || ExpanderData[1] != 0x16)
+   {
+//      XNUCLEO53L0A1_ErrLog("I2C Expander @0x%02X not detected",(int)I2cExpAddr1);
+//      goto done_err;
+   }
+
+   CurIOVal.u32                                          = 0x0;
+   // setup expender i/o direction  all output but exp1 bit 14
+   ExpanderData[0]                                       = 0xFF;
+   ExpanderData[1]                                       = 0xFF;
+   status                                                = _ExpanderWR(I2cExpAddr0, GPDR, ExpanderData, 2);
+
+   if (status)
+   {
+//      XNUCLEO53L0A1_ErrLog("Set Expander @0x%02X DR", I2cExpAddr0);
+//      goto done_err;
+   }
+   ExpanderData[0]                                       = 0xFF;
+   ExpanderData[1]                                       = 0xBF;                    // all but bit 14-15 that is pb1 and xhurt
+   status                                                = _ExpanderWR(I2cExpAddr1, GPDR, ExpanderData, 2);
+   if (status)
+   {
+//      XNUCLEO53L0A1_ErrLog("Set Expander @0x%02X DR", I2cExpAddr1);
+//      goto done_err;
+   }
+
+   // shut down all segment and all device
+   CurIOVal.u32                                          = 0x7F + (0x7F << 7) + (0x7F << 16) + (0x7F << (16 + 7));
+   status                                                = _ExpandersSetAllIO();
+   if (status)
+   {
+//      XNUCLEO53L0A1_ErrLog("Set initial i/o ");
+   }
+}
+#endif
 
 #if defined(NET_LWIP)
    // Initialize Network
