@@ -949,6 +949,8 @@ void Board_Driver_Init()
    status                                                = _ExpanderRd(I2cExpAddr0, 0, ExpanderData, 2);
    if (status != 0 || ExpanderData[0] != 0x00 || ExpanderData[1] != 0x16)
    {
+      debug_output_error("I2C Expander @0x%02X not detected \r\n", (int) I2cExpAddr0);
+
 //      XNUCLEO53L0A1_ErrLog("I2C Expander @0x%02X not detected",(int)I2cExpAddr0 );
 //      goto done_err;
 
@@ -956,7 +958,7 @@ void Board_Driver_Init()
    status                                                = _ExpanderRd(I2cExpAddr1, 0, ExpanderData, 2);
    if (status != 0 || ExpanderData[0] != 0x00 || ExpanderData[1] != 0x16)
    {
-//      XNUCLEO53L0A1_ErrLog("I2C Expander @0x%02X not detected",(int)I2cExpAddr1);
+      debug_output_error("I2C Expander @0x%02X not detected \r\n", (int) I2cExpAddr1);
 //      goto done_err;
    }
 
