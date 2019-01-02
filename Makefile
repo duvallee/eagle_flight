@@ -144,6 +144,7 @@ CLEANFLIGHT_CLI :=
 
 P_NUCLEO_53L0A1 :=
 SENSOR_VL53L0X :=
+GPIO_STMPE1600 :=
 
 # -----------------------------------------------------------------------------
 # for TARGET Board
@@ -210,7 +211,6 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 	TOUCH_DEVICE := FT5536
 	# STM32 Expansion Board
 	P_NUCLEO_53L0A1 := P_NUCLEO_53L0A1
-	SENSOR_VL53L0X := SENSOR_VL53L0X
 
 	# supported middleware
 #	NET_LWIP := NET_LWIP
@@ -532,10 +532,18 @@ endif
 
 # for 52L0A1 Expansion Board fo ST
 ifeq ($(P_NUCLEO_53L0A1),P_NUCLEO_53L0A1)
-	TARGET_MODEL_DEFINITION += -D$(P_NUCLEO_53L0A1)
+	SENSOR_VL53L0X := SENSOR_VL53L0X
+	GPIO_STMPE1600 := GPIO_STMPE1600
 
-#	DRIVERS_C_SRC += src/interface/src/cleanflight_cli.c
-#	INCLUDE_DIR += -Isrc/interface/inc
+	TARGET_MODEL_DEFINITION += -D$(P_NUCLEO_53L0A1)
+endif
+
+# for STMPE1600 GPIO Extension
+ifeq ($(GPIO_STMPE1600), GPIO_STMPE1600)
+	TARGET_MODEL_DEFINITION += -D$(GPIO_STMPE1600)
+
+	DRIVERS_C_SRC += src/drivers/stmpe1600/src/gpio_stmpe1600.c
+	INCLUDE_DIR += -Isrc/drivers/stmpe1600/inc
 endif
 
 # for VL53L0X Sensor
