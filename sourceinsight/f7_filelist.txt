@@ -413,6 +413,8 @@
 .\src\drivers\stemwin\inc\LCDConf.h
 .\src\drivers\stemwin\src\GUIConf.c
 .\src\drivers\stemwin\src\LCDConf.c
+.\src\drivers\stmpe1600\inc\gpio_stmpe1600.h
+.\src\drivers\stmpe1600\src\gpio_stmpe1600.c
 .\src\drivers\touch\inc\touch_ft5536.h
 .\src\drivers\touch\src\touch_ft5536.c
 .\src\drivers\usb\cdc\inc\usbd_cdc_interface.h

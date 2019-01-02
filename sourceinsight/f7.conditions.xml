@@ -16,6 +16,7 @@
 			<define id="DISCOVERY_STM32F7" value="1" />
 			<define id="FT5536" value="1" />
 			<define id="__GNUC__" value="1" />
+			<define id="GPIO_STMPE1600" value="1" />
 			<define id="GUI_OS" value="1" />
 			<define id="GUI_SUPPORT_DEVICES" value="1" />
 			<define id="GUI_SUPPORT_MEMDEV" value="1" />
@@ -40,7 +41,7 @@
 			<define id="HAL_GPIO_MODULE_ENABLED" value="1" />
 			<define id="HAL_HASH_MODULE_ENABLED" value="0" />
 			<define id="HAL_HCD_MODULE_ENABLED" value="0" />
-			<define id="HAL_I2C_MODULE_ENABLED" value="1" />
+			<define id="HAL_I2C_MODULE_ENABLED" value="0" />
 			<define id="HAL_I2S_MODULE_ENABLED" value="0" />
 			<define id="HAL_IRDA_MODULE_ENABLED" value="0" />
 			<define id="HAL_IWDG_MODULE_ENABLED" value="0" />
