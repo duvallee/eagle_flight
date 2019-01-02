@@ -467,7 +467,9 @@ static char szString[6];
 //      debug_output_info("================== stmpe1600_test_task ================== \r\n");
       taskENTER_CRITICAL();
       sprintf(szString, "%04d", test_count++);
+#if defined(GPIO_STMPE1600)
       XNUCLEO53L1A1_SetDisplayString(szString);
+#endif
       taskEXIT_CRITICAL();
    }
 }
