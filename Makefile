@@ -536,6 +536,8 @@ ifeq ($(P_NUCLEO_53L0A1),P_NUCLEO_53L0A1)
 	GPIO_STMPE1600 := GPIO_STMPE1600
 
 	TARGET_MODEL_DEFINITION += -D$(P_NUCLEO_53L0A1)
+
+	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/vl53l0x_platform.c
 endif
 
 # for STMPE1600 GPIO Extension
@@ -559,8 +561,6 @@ ifeq ($(SENSOR_VL53L0X), SENSOR_VL53L0X)
 
 	INCLUDE_DIR += -Isrc/drivers/vl53l0x/inc
 endif
-
-
 
 # -----------------------------------------------------------------------------
 # Common Driver Source

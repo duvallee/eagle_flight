@@ -30,6 +30,49 @@ static DMA2D_HandleTypeDef g_DMA2D_handle;
 static I2C_HandleTypeDef g_I2C_Bus1_handle;
 static I2C_HandleTypeDef g_I2C_Bus3_handle;
 
+
+#if defined(P_NUCLEO_53L0A1)
+#define DEFAULT_53L0A1_I2C_ADDR                          0x52
+#define VL53L0_A1_LEFT_PORT                              0
+#define VL53L0_A1_CENTER_PORT                            1
+#define VL53L0_A1_RIGHT_PORT                             2
+
+static VL53L0X_Dev_t VL53L0XDevs[]                       =
+{
+   {
+#if defined(GPIO_STMPE1600)
+      .Id                                                = XNUCLEO53L1A1_DEV_LEFT,
+#else
+      .Id                                                = 0,
+#endif
+      .DevLetter                                         =  'l',
+      .I2cHandle                                         = &g_I2C_Bus1_handle,
+      .I2cDevAddr                                        = DEFAULT_53L0A1_I2C_ADDR,
+   },
+   {
+#if defined(GPIO_STMPE1600)
+      .Id                                                = XNUCLEO53L1A1_DEV_CENTER,
+#else
+      .Id                                                = 1,
+#endif
+      .DevLetter                                         = 'c',
+      .I2cHandle                                         = &g_I2C_Bus1_handle,
+      .I2cDevAddr                                        =DEFAULT_53L0A1_I2C_ADDR,
+   },
+   {
+#if defined(GPIO_STMPE1600)
+      .Id                                                = XNUCLEO53L1A1_DEV_RIGHT,
+#else
+      .Id                                                = 2,
+#endif
+      .DevLetter                                         = 'r',
+      .I2cHandle                                         = &g_I2C_Bus1_handle,
+      .I2cDevAddr                                        = DEFAULT_53L0A1_I2C_ADDR,
+   },
+};
+#endif
+
+
 #if (defined(RTOS_FREERTOS) && defined(FT5536))
 SemaphoreHandle_t g_touch_event_Semaphore                = NULL;
 #endif
@@ -570,6 +613,17 @@ volatile uint32_t* getFrameBuffer(void)
 void Board_Driver_Init()
 {
    GPIO_InitTypeDef GPIO_InitStruct;
+   int i;
+   uint16_t Id;
+   int status;
+   int FinalAddress;
+
+   UNUSED(i);
+   UNUSED(Id);
+   UNUSED(status);
+   UNUSED(FinalAddress);
+
+
    __HAL_RCC_GPIOI_CLK_ENABLE();
    __HAL_RCC_GPIOK_CLK_ENABLE();
 
@@ -661,8 +715,164 @@ void Board_Driver_Init()
    {
       debug_output_error("Can't create thread : stmpe1600_test_task !!!");
    }
+#endif   // RTOS_FREERTOS
+
+#if defined(P_NUCLEO_53L0A1)
+   // Detect Sensor of V53L0A1
+   gpio_stmpe1600_reset(XNUCLEO53L1A1_DEV_LEFT, 0);
+   gpio_stmpe1600_reset(XNUCLEO53L1A1_DEV_CENTER, 0);
+   gpio_stmpe1600_reset(XNUCLEO53L1A1_DEV_RIGHT, 0);
+
+   for (i = 0; i <= VL53L0_A1_RIGHT_PORT; i++)
+   {
+      VL53L0X_Dev_t *pDev                                = &VL53L0XDevs[i];
+      pDev->I2cDevAddr                                   = DEFAULT_53L0A1_I2C_ADDR;
+      pDev->Present                                      = 0;
+      gpio_stmpe1600_reset(pDev->Id, 1);
+      HAL_Delay(2);
+      FinalAddress                                       = DEFAULT_53L0A1_I2C_ADDR + (i + 1) * 2;
+
+      do
+      {
+         // Set I2C standard mode (400 KHz) before doing the first register access
+         status                                          = VL53L0X_WrByte(pDev, 0x88, 0x00);
+
+         // Try to read one register using default 0x52 address
+         status                                          = VL53L0X_RdWord(pDev, VL53L0X_REG_IDENTIFICATION_MODEL_ID, &Id);
+         if (status)
+         {
+            debug_output_error("#%d Read id failed !!! \r\n", i);
+            break;
+         }
+         debug_output_info("Found V53L0X-A0[%d] - 0x%x \r\n", i, Id);
+
+         if (Id == 0xEEAA)
+         {
+            // Sensor is found => Change its I2C address to final one
+            status                                       = VL53L0X_SetDeviceAddress(pDev, FinalAddress);
+            if (status != 0)
+            {
+               debug_output_error("#i VL53L0X_SetDeviceAddress (0x%x) failed \r\n", i, FinalAddress);
+               break;
+            }
+            pDev->I2cDevAddr                             = FinalAddress;
+
+            // Check all is OK with the new I2C address and initialize the sensor
+            status                                       = VL53L0X_RdWord(pDev, VL53L0X_REG_IDENTIFICATION_MODEL_ID, &Id);
+            if (status != 0)
+            {
+               debug_output_error("#i VL53L0X_RdWord failed by changed i2c address \r\n", i);
+               break;
+            }
+
+            status                                       = VL53L0X_DataInit(pDev);
+            if (status == 0)
+            {
+               pDev->Present                             = 1;
+            }
+            else
+            {
+               debug_output_error("VL53L0X_DataInit %d fail \r\n", i);
+               break;
+            }
+            debug_output_info("VL53L0X %d Present and initiated to final 0x%x \r\n", pDev->Id, pDev->I2cDevAddr);
+//            nDevPresent++;
+//            nDevMask                                     |= 1 << i;
+         }
+         else
+         {
+            debug_output_error("#%d unknown ID %x\n", i, Id);
+            status                                       = 1;
+         }
+      } while (0);
+      // if fail r can't use for any reason then put the  device back to reset
+      if (status)
+      {
+         gpio_stmpe1600_reset(pDev->Id, 0);
+      }
+   }
+
+#if 0
+   if (VL53L0XDevs[VL53L0_A1_CENTER_PORT].Present != 0)
+   {
+      uint8_t VhvSettings;
+      uint8_t PhaseCal;
+      uint32_t refSpadCount;
+      uint8_t isApertureSpads;
+      int status;
+      int Over                                           = 0;
+      int Mode                                           = 0;
+
+
+//      VL53L0A1_EXTI_IOConfigure(XNUCLEO53L0A1_DEV_CENTER, 0, 0);
+//      XNUCLEO53L0A1_SetIntrStateId(1, XNUCLEO53L0A1_DEV_CENTER);
+
+      // Initialize the device in continuous ranging mode
+      VL53L0X_StaticInit(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);
+      VL53L0X_PerformRefCalibration(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], &VhvSettings, &PhaseCal);
+      VL53L0X_PerformRefSpadManagement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], &refSpadCount, &isApertureSpads);
+      VL53L0X_SetInterMeasurementPeriodMilliSeconds(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], 250);
+      VL53L0X_SetDeviceMode(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+
+      do
+      {
+         // set sensor interrupt mode
+         VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);           // it is safer to do this while sensor is stopped
+         VL53L0X_SetInterruptThresholds(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], VL53L0X_DEVICEMODE_CONTINUOUS_RANGING ,  AlarmModes[Mode].ThreshLow ,  AlarmModes[Mode].ThreshHigh);
+         status = VL53L0X_SetGpioConfig(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], 0, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, AlarmModes[Mode].VL53L0X_Mode, VL53L0X_INTERRUPTPOLARITY_HIGH);
+         status = VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], -1); // clear interrupt pending if any
+
+         // Start continuous ranging
+         VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);
+         IntrCounts[1]=0;
+
+         // Check for interrupt
+         do
+         {
+            __WFI();
+            // Interrupt received
+            if (IntrCounts[1] != 0)
+            {
+               /* Reset interrupt counter */
+               IntrCounts[1]=0;
+               /* Get ranging data and display distance*/
+               VL53L0X_GetRangingMeasurementData(pDev, &RangingMeasurementData);
+               sprintf(StrDisplay, "%3dc",(int)RangingMeasurementData.RangeMilliMeter/10);
+               /* Clear interrupt */
+               status = VL53L0X_ClearInterruptMask(pDev, -1);
+               /* keep display for at least 100ms otherwise user may never see it on display*/
+               XNUCLEO53L0A1_SetDisplayString(StrDisplay);
+               HAL_Delay(100);
+            }
+            else
+            {
+               /* No interrupt received => Display alarm mode */
+               XNUCLEO53L0A1_SetDisplayString(AlarmModes[Mode].Name);
+            }
+            break;
+            }
+         } while(1);
+         /* Wait button to be released to decide if it is a short or long press */
+         status=PusbButton_WaitUnPress();
+         /* Long press => stop this demo */
+         if( status )
+         Over =1;
+         /* Short press => change alarm mode */
+         Mode=(Mode+1)%ARRAY_SIZE(AlarmModes);
+      }while( !Over );
+   }
 #endif
+
+#if 0
+#define DEFAULT_53L0A1_I2C_ADDR                          0x52
+#define VL53L0_A1_LEFT_PORT                              0
+#define VL53L0_A1_CENTER_PORT                            1
+#define VL53L0_A1_RIGHT_PORT                             2
 #endif
+
+#endif   // P_NUCLEO_53L0A1
+
+#endif   // GPIO_STMPE1600
 
 #if defined(NET_LWIP)
    // Initialize Network
