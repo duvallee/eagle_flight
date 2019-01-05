@@ -221,6 +221,7 @@ extern "C" {
 #define USB_HS_ULPI_OTG_OVERCURRENT_PIN                  GPIO_PIN_3
 #define USB_HS_ULPI_OTG_OVERCURRENT_PORT                 GPIOE
 
+// -----------------------------------------------------------------------------
 // TOUCH
 #define TOUCH_FT5536_INT_PIN                             GPIO_PIN_13
 #define TOUCH_FT5536_INT_PORT                            GPIOI
@@ -230,6 +231,23 @@ extern "C" {
 
 #define TOUCH_FT5536_SDA_PIN                             GPIO_PIN_8
 #define TOUCH_FT5536_SDA_PORT                            GPIOH
+
+// -----------------------------------------------------------------------------
+// P_NUCLEO_53L0A1
+#define P_NUCLEO_53L0A1_LEFT_INT_PIN                     GPIO_PIN_2
+#define P_NUCLEO_53L0A1_LEFT_INT_PORT                    GPIOI
+
+#define P_NUCLEO_53L0A1_RIGHT_INT_PIN                    GPIO_PIN_6
+#define P_NUCLEO_53L0A1_RIGHT_INT_PORT                   GPIOG
+
+#define P_NUCLEO_53L0A1_CENTER_INT_PIN                   GPIO_PIN_9
+#define P_NUCLEO_53L0A1_CENTER_INT_PORT                  GPIOF
+
+#define P_NUCLEO_53L0A1_SCL_PIN                          GPIO_PIN_8
+#define P_NUCLEO_53L0A1_SCL_PORT                         GPIOB
+
+#define P_NUCLEO_53L0A1_SDA_PIN                          GPIO_PIN_9
+#define P_NUCLEO_53L0A1_SDA_PORT                         GPIOB
 
 // --------------------------------------------------------------------------
 #if defined(USE_USB_CDC_DEVICE)
