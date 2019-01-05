@@ -14,13 +14,15 @@
 #include "touch_ft5536.h"
 #endif
 
-#if defined(P_NUCLEO_53L0A1)
+#if (defined(P_NUCLEO_53L0A1) && defined(SENSOR_VL53L0X))
 #include "vl53l0x_platform.h"
+#include "vl53l0x_api.h"
 #endif
 
 #if defined(GPIO_STMPE1600)
 #include "gpio_stmpe1600.h"
 #endif
+
 
 // --------------------------------------------------------------------------
 static SDRAM_HandleTypeDef g_SDRAM_handle;
@@ -494,6 +496,227 @@ void touch_event_task(void const* argument)
 #endif      // FT5536
 
 
+#if defined(P_NUCLEO_53L0A1)
+/* --------------------------------------------------------------------------
+ * Name : vl53l0x_init()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+
+
+#if 1
+VL53L0X_RangingMeasurementData_t RangingMeasurementData;
+int vl53l0x_init(VL53L0X_Dev_t *pDev)
+{
+   int status                                            = 0;
+   uint8_t VhvSettings;
+   uint8_t PhaseCal;
+   uint32_t refSpadCount;
+   uint8_t isApertureSpads;
+
+   FixPoint1616_t signalLimit                            = (FixPoint1616_t) (0.25 * 65536);
+   FixPoint1616_t sigmaLimit                             = (FixPoint1616_t) (18 * 65536);
+   uint32_t timingBudget                                 = 33000;
+   uint8_t preRangeVcselPeriod                           = 14;
+   uint8_t finalRangeVcselPeriod                         = 10;
+
+   status                                                = VL53L0X_StaticInit(pDev);
+   if (status)
+   {
+      debug_output_error("VL53L0X_StaticInit %d failed \r\n", pDev->Id);
+   }
+
+   status                                                = VL53L0X_PerformRefCalibration(pDev, &VhvSettings, &PhaseCal);
+   if (status)
+   {
+      debug_output_error("VL53L0X_PerformRefCalibration failed \r\n");
+   }
+   debug_output_info("V53L0X-A0[%d] cal data %d, %d \r\n", pDev->Id, VhvSettings, PhaseCal);
+
+   status                                                = VL53L0X_PerformRefSpadManagement(pDev, &refSpadCount, &isApertureSpads);
+   if (status)
+   {
+      debug_output_error("VL53L0X_PerformRefSpadManagement failed \r\n");
+   }
+   debug_output_info("V53L0X-A0[%d] VL53L0X_PerformRefSpadManagement %d, %d \r\n", pDev->Id, refSpadCount, isApertureSpads);
+
+   // Setup in single ranging mode
+   status                                                = VL53L0X_SetDeviceMode(pDev, VL53L0X_DEVICEMODE_SINGLE_RANGING);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetDeviceMode failed \r\n");
+   }
+
+   // Enable Sigma limit
+   status                                                = VL53L0X_SetLimitCheckEnable(pDev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetLimitCheckEnable failed \r\n");
+   }
+
+   // Enable Signa limit
+   status                                                = VL53L0X_SetLimitCheckEnable(pDev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, 1);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetLimitCheckEnable failed \r\n");
+   }
+
+   // Ranging configuration */
+#if 1
+   // LONG_RANGE:
+   signalLimit                                           = (FixPoint1616_t) (0.1 * 65536);
+   sigmaLimit                                            = (FixPoint1616_t) (60 * 65536);
+   timingBudget                                          = 33000;
+   preRangeVcselPeriod                                   = 18;
+   finalRangeVcselPeriod                                 = 14;
+#endif
+
+#if 1
+   // HIGH_ACCURACY:
+   signalLimit                                           = (FixPoint1616_t) (0.25 * 65536);
+   sigmaLimit                                            = (FixPoint1616_t) (18 * 65536);
+   timingBudget                                          = 200000;
+   preRangeVcselPeriod                                   = 14;
+   finalRangeVcselPeriod                                 = 10;
+#endif
+
+#if 1
+   // HIGH_SPEED:
+   signalLimit                                           = (FixPoint1616_t) (0.25 * 65536);
+   sigmaLimit                                            = (FixPoint1616_t) (32 * 65536);
+   timingBudget                                          = 20000;
+   preRangeVcselPeriod                                   = 14;
+   finalRangeVcselPeriod                                 = 10;
+#endif
+
+   status                                                = VL53L0X_SetLimitCheckValue(pDev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, signalLimit);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetLimitCheckValue failed \r\n");
+   }
+
+   status                                                = VL53L0X_SetLimitCheckValue(pDev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, sigmaLimit);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetLimitCheckValue failed \r\n");
+   }
+
+   status                                                = VL53L0X_SetMeasurementTimingBudgetMicroSeconds(pDev, timingBudget);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetMeasurementTimingBudgetMicroSeconds failed \r\n");
+   }
+
+   status                                                = VL53L0X_SetVcselPulsePeriod(pDev, VL53L0X_VCSEL_PERIOD_PRE_RANGE, preRangeVcselPeriod);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetVcselPulsePeriod failed \r\n");
+   }
+
+   status                                                = VL53L0X_SetVcselPulsePeriod(pDev, VL53L0X_VCSEL_PERIOD_FINAL_RANGE, finalRangeVcselPeriod);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetVcselPulsePeriod failed \r\n");
+   }
+
+   status                                                = VL53L0X_PerformRefCalibration(pDev, &VhvSettings, &PhaseCal);
+   if (status)
+   {
+      debug_output_error("VL53L0X_PerformRefCalibration failed \r\n");
+   }
+
+
+   // Call All-In-One blocking API function */
+   status                                                = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
+   if (status == 0)
+   {
+      // Push data logging to UART
+      // trace_printf("%d,%u,%d,%d,%d\n", VL53L0XDevs[SingleSensorNo].Id, TimeStamp_Get(), RangingMeasurementData.RangeStatus, RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.SignalRateRtnMegaCps);
+      // Sensor_SetNewRange(&VL53L0XDevs[SingleSensorNo],&RangingMeasurementData);
+      // Display distance in cm
+      if (RangingMeasurementData.RangeStatus == 0)
+      {
+         // sprintf(StrDisplay, "%3dc",(int)VL53L0XDevs[SingleSensorNo].LeakyRange/10);
+      }
+      else
+      {
+//         sprintf(StrDisplay, "----");
+//         StrDisplay[0]=VL53L0XDevs[SingleSensorNo].DevLetter;
+      }
+   }
+
+
+// 531
+   return 0;
+}
+
+#else
+struct AlrmMode_t
+{
+   const int VL53L0X_Mode;
+   const char *Name;
+   uint32_t ThreshLow;
+   uint32_t ThreshHigh;
+};
+
+struct AlrmMode_t AlarmModes[]                           =
+{
+   { .VL53L0X_Mode = VL53L0X_GPIOFUNCTIONALITY_THRESHOLD_CROSSED_LOW , .Name="Lo" , .ThreshLow=300<<16 ,  .ThreshHigh=0<<16  },
+   { .VL53L0X_Mode = VL53L0X_GPIOFUNCTIONALITY_THRESHOLD_CROSSED_HIGH, .Name= "hi", .ThreshLow=0<<16   ,  .ThreshHigh=300<<16},
+   { .VL53L0X_Mode = VL53L0X_GPIOFUNCTIONALITY_THRESHOLD_CROSSED_OUT , .Name="out", .ThreshLow=300<<16 ,  .ThreshHigh=400<<16},
+};
+int vl53l0x_init(VL53L0X_Dev_t *pDev)
+{
+   uint8_t VhvSettings;
+   uint8_t PhaseCal;
+   uint32_t refSpadCount;
+   uint8_t isApertureSpads;
+   VL53L0X_RangingMeasurementData_t RangingMeasurementData;
+   int status;
+   int Over                                              = 0;
+   int Mode                                              = 0;
+
+   // Initialize the device in continuous ranging mode
+   VL53L0X_StaticInit(pDev);
+   VL53L0X_PerformRefCalibration(pDev, &VhvSettings, &PhaseCal);
+   VL53L0X_PerformRefSpadManagement(pDev, &refSpadCount, &isApertureSpads);
+   VL53L0X_SetInterMeasurementPeriodMilliSeconds(pDev, 250);
+   VL53L0X_SetDeviceMode(pDev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+
+   // et sensor interrupt mode
+   VL53L0X_StopMeasurement(pDev);           // it is safer to do this while sensor is stopped
+   VL53L0X_SetInterruptThresholds(pDev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING , AlarmModes[Mode].ThreshLow , AlarmModes[Mode].ThreshHigh);
+
+   status                                                = VL53L0X_SetGpioConfig(pDev, 0, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, AlarmModes[Mode].VL53L0X_Mode, VL53L0X_INTERRUPTPOLARITY_HIGH);
+   status                                                = VL53L0X_ClearInterruptMask(pDev, -1);         // clear interrupt pending if any
+
+   // Start continuous ranging
+   VL53L0X_StartMeasurement(pDev);
+
+   __WFI();
+   // Interrupt received
+//   if (IntrCounts[1] != 0)
+//   {
+      // Reset interrupt counter
+//      IntrCounts[1] = 0;
+      // Get ranging data and display distance
+      VL53L0X_GetRangingMeasurementData(pDev, &RangingMeasurementData);
+//      sprintf(StrDisplay, "%3dc",(int)RangingMeasurementData.RangeMilliMeter/10);
+      // Clear interrupt
+      status                                             = VL53L0X_ClearInterruptMask(pDev, -1);
+//   }
+
+   // Stop continuous ranging
+   VL53L0X_StopMeasurement(pDev);
+   // Stop continuous ranging
+   VL53L0X_StopMeasurement(pDev);
+
+   return 0;
+}
+#endif
+
+#endif   // P_NUCLEO_53L0A1
+
 #if defined(RTOS_FREERTOS)
 /* --------------------------------------------------------------------------
  * Name : touch_event_task()
@@ -718,6 +941,8 @@ void Board_Driver_Init()
 #endif   // RTOS_FREERTOS
 
 #if defined(P_NUCLEO_53L0A1)
+   // -------------------------------------------------------------------------------------------------------
+   // check sensor and change I2C Address
    // Detect Sensor of V53L0A1
    gpio_stmpe1600_reset(XNUCLEO53L1A1_DEV_LEFT, 0);
    gpio_stmpe1600_reset(XNUCLEO53L1A1_DEV_CENTER, 0);
@@ -752,7 +977,7 @@ void Board_Driver_Init()
             status                                       = VL53L0X_SetDeviceAddress(pDev, FinalAddress);
             if (status != 0)
             {
-               debug_output_error("#i VL53L0X_SetDeviceAddress (0x%x) failed \r\n", i, FinalAddress);
+               debug_output_error("#%d VL53L0X_SetDeviceAddress (0x%x) failed \r\n", i, FinalAddress);
                break;
             }
             pDev->I2cDevAddr                             = FinalAddress;
@@ -761,7 +986,7 @@ void Board_Driver_Init()
             status                                       = VL53L0X_RdWord(pDev, VL53L0X_REG_IDENTIFICATION_MODEL_ID, &Id);
             if (status != 0)
             {
-               debug_output_error("#i VL53L0X_RdWord failed by changed i2c address \r\n", i);
+               debug_output_error("#%d VL53L0X_RdWord failed by changed i2c address \r\n", i);
                break;
             }
 
@@ -791,84 +1016,19 @@ void Board_Driver_Init()
          gpio_stmpe1600_reset(pDev->Id, 0);
       }
    }
+   // -------------------------------------------------------------------------------------------------------
+   // Initialize
+   VL53L0XDevs[VL53L0_A1_LEFT_PORT].comms_speed_khz      = 400;
+   VL53L0XDevs[VL53L0_A1_LEFT_PORT].comms_type           = 1;
+   status                                                = vl53l0x_init(&VL53L0XDevs[VL53L0_A1_LEFT_PORT]);
 
-#if 0
-   if (VL53L0XDevs[VL53L0_A1_CENTER_PORT].Present != 0)
-   {
-      uint8_t VhvSettings;
-      uint8_t PhaseCal;
-      uint32_t refSpadCount;
-      uint8_t isApertureSpads;
-      int status;
-      int Over                                           = 0;
-      int Mode                                           = 0;
+   VL53L0XDevs[VL53L0_A1_CENTER_PORT].comms_speed_khz    = 400;
+   VL53L0XDevs[VL53L0_A1_CENTER_PORT].comms_type         = 1;
+   status                                                = vl53l0x_init(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);
 
-
-//      VL53L0A1_EXTI_IOConfigure(XNUCLEO53L0A1_DEV_CENTER, 0, 0);
-//      XNUCLEO53L0A1_SetIntrStateId(1, XNUCLEO53L0A1_DEV_CENTER);
-
-      // Initialize the device in continuous ranging mode
-      VL53L0X_StaticInit(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);
-      VL53L0X_PerformRefCalibration(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], &VhvSettings, &PhaseCal);
-      VL53L0X_PerformRefSpadManagement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], &refSpadCount, &isApertureSpads);
-      VL53L0X_SetInterMeasurementPeriodMilliSeconds(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], 250);
-      VL53L0X_SetDeviceMode(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
-
-      do
-      {
-         // set sensor interrupt mode
-         VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);           // it is safer to do this while sensor is stopped
-         VL53L0X_SetInterruptThresholds(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], VL53L0X_DEVICEMODE_CONTINUOUS_RANGING ,  AlarmModes[Mode].ThreshLow ,  AlarmModes[Mode].ThreshHigh);
-         status = VL53L0X_SetGpioConfig(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], 0, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, AlarmModes[Mode].VL53L0X_Mode, VL53L0X_INTERRUPTPOLARITY_HIGH);
-         status = VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], -1); // clear interrupt pending if any
-
-         // Start continuous ranging
-         VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);
-         IntrCounts[1]=0;
-
-         // Check for interrupt
-         do
-         {
-            __WFI();
-            // Interrupt received
-            if (IntrCounts[1] != 0)
-            {
-               /* Reset interrupt counter */
-               IntrCounts[1]=0;
-               /* Get ranging data and display distance*/
-               VL53L0X_GetRangingMeasurementData(pDev, &RangingMeasurementData);
-               sprintf(StrDisplay, "%3dc",(int)RangingMeasurementData.RangeMilliMeter/10);
-               /* Clear interrupt */
-               status = VL53L0X_ClearInterruptMask(pDev, -1);
-               /* keep display for at least 100ms otherwise user may never see it on display*/
-               XNUCLEO53L0A1_SetDisplayString(StrDisplay);
-               HAL_Delay(100);
-            }
-            else
-            {
-               /* No interrupt received => Display alarm mode */
-               XNUCLEO53L0A1_SetDisplayString(AlarmModes[Mode].Name);
-            }
-            break;
-            }
-         } while(1);
-         /* Wait button to be released to decide if it is a short or long press */
-         status=PusbButton_WaitUnPress();
-         /* Long press => stop this demo */
-         if( status )
-         Over =1;
-         /* Short press => change alarm mode */
-         Mode=(Mode+1)%ARRAY_SIZE(AlarmModes);
-      }while( !Over );
-   }
-#endif
-
-#if 0
-#define DEFAULT_53L0A1_I2C_ADDR                          0x52
-#define VL53L0_A1_LEFT_PORT                              0
-#define VL53L0_A1_CENTER_PORT                            1
-#define VL53L0_A1_RIGHT_PORT                             2
-#endif
+   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].comms_speed_khz     = 400;
+   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].comms_type          = 1;
+   status                                                = vl53l0x_init(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT]);
 
 #endif   // P_NUCLEO_53L0A1
 
