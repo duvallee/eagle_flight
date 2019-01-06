@@ -168,6 +168,67 @@ void LTDC_IRQHandler(void)
 }
 
 /* --------------------------------------------------------------------------
+ * Name : BSP_53L0A1_LEFT_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+__weak void BSP_53L0A1_LEFT_IRQHandler(void)
+{
+}
+
+/* --------------------------------------------------------------------------
+ * Name : EXTI2_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void EXTI2_IRQHandler(void)
+{
+   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != 0)
+   {
+      BSP_53L0A1_LEFT_IRQHandler();
+      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_53L0A1_CENTER_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+__weak void BSP_53L0A1_CENTER_IRQHandler(void)
+{
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_53L0A1_RIGHT_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+__weak void BSP_53L0A1_RIGHT_IRQHandler(void)
+{
+}
+
+/* --------------------------------------------------------------------------
+ * Name : EXTI9_5_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void EXTI9_5_IRQHandler(void)
+{
+   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != 0)
+   {
+      BSP_53L0A1_RIGHT_IRQHandler();
+      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+   }
+
+   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != 0)
+   {
+      BSP_53L0A1_CENTER_IRQHandler();
+      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
+   }
+}
+
+/* --------------------------------------------------------------------------
  * Name : BSP_TOUCH_IRQHandler()
  *
  *
@@ -183,15 +244,15 @@ __weak void BSP_TOUCH_IRQHandler(void)
  * -------------------------------------------------------------------------- */
 void EXTI15_10_IRQHandler(void)
 {
+   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != 0)
+   {
+      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
+   }
+
    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != 0)
    {
       BSP_TOUCH_IRQHandler();
       HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-   }
-
-   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != 0)
-   {
-      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
    }
 }
 

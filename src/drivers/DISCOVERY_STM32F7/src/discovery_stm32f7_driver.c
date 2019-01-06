@@ -79,6 +79,12 @@ static VL53L0X_Dev_t VL53L0XDevs[]                       =
 SemaphoreHandle_t g_touch_event_Semaphore                = NULL;
 #endif
 
+#if (defined(P_NUCLEO_53L0A1) && defined(RTOS_FREERTOS))
+SemaphoreHandle_t g_53l0a1_left_event_Semaphore          = NULL;
+SemaphoreHandle_t g_53l0a1_center_event_Semaphore        = NULL;
+SemaphoreHandle_t g_53l0a1_right_event_Semaphore         = NULL;
+#endif
+
 /* --------------------------------------------------------------------------
  * Name : BSP_SDRAM_Initialization_sequence()
  *
@@ -498,12 +504,341 @@ void touch_event_task(void const* argument)
 
 #if defined(P_NUCLEO_53L0A1)
 /* --------------------------------------------------------------------------
+ * Name : BSP_53L0A1_LEFT_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void BSP_53L0A1_LEFT_IRQHandler(void)
+{
+#if defined(RTOS_FREERTOS)
+   BaseType_t xHigherPriorityTaskWoken                   = pdFALSE;
+   if (g_53l0a1_left_event_Semaphore != NULL)
+   {
+      xSemaphoreGiveFromISR(g_53l0a1_left_event_Semaphore, &xHigherPriorityTaskWoken);
+      portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+   }
+   debug_output_info("V53L0X-A0 irq \r\n");
+#endif
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_53L0A1_CENTER_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void BSP_53L0A1_CENTER_IRQHandler(void)
+{
+#if defined(RTOS_FREERTOS)
+   BaseType_t xHigherPriorityTaskWoken                   = pdFALSE;
+   if (g_53l0a1_center_event_Semaphore != NULL)
+   {
+      xSemaphoreGiveFromISR(g_53l0a1_center_event_Semaphore, &xHigherPriorityTaskWoken);
+      portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+   }
+   debug_output_info("V53L0X-A0 irq \r\n");
+#endif
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BSP_53L0A1_RIGHT_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void BSP_53L0A1_RIGHT_IRQHandler(void)
+{
+#if defined(RTOS_FREERTOS)
+   BaseType_t xHigherPriorityTaskWoken                   = pdFALSE;
+   if (g_53l0a1_right_event_Semaphore != NULL)
+   {
+      xSemaphoreGiveFromISR(g_53l0a1_right_event_Semaphore, &xHigherPriorityTaskWoken);
+      portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+   }
+   debug_output_info("V53L0X-A0 irq \r\n");
+#endif
+}
+
+#if defined(RTOS_FREERTOS)
+/* --------------------------------------------------------------------------
+ * Name : v53l0a1_left_event_task()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void v53l0a1_left_event_task(void const* argument)
+{
+   while (1)
+   {
+      if (xSemaphoreTake(g_53l0a1_left_event_Semaphore, 1000) == pdPASS)
+      {
+         taskENTER_CRITICAL();
+         taskEXIT_CRITICAL();
+      }
+      else
+      {
+         taskENTER_CRITICAL();
+
+         VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_LEFT_PORT]);           // it is safer to do this while sensor is stopped
+         VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_LEFT_PORT], -1);
+
+         // Start continuous ranging
+         VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_LEFT_PORT]);
+         debug_output_info("... \r\n");
+         taskEXIT_CRITICAL();
+      }
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : v53l0a1_right_event_task()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void v53l0a1_right_event_task(void const* argument)
+{
+   while (1)
+   {
+      if (xSemaphoreTake(g_53l0a1_right_event_Semaphore, 1000) == pdPASS)
+      {
+         taskENTER_CRITICAL();
+         taskEXIT_CRITICAL();
+      }
+      else
+      {
+         taskENTER_CRITICAL();
+
+         VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT]);           // it is safer to do this while sensor is stopped
+         VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT], -1);
+
+         // Start continuous ranging
+         VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT]);
+         debug_output_info("... \r\n");
+         taskEXIT_CRITICAL();
+      }
+   }
+}
+
+/* --------------------------------------------------------------------------
+ * Name : v53l0a1_center_event_task()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void v53l0a1_center_event_task(void const* argument)
+{
+   while (1)
+   {
+      if (xSemaphoreTake(g_53l0a1_center_event_Semaphore, 1000) == pdPASS)
+      {
+         taskENTER_CRITICAL();
+         taskEXIT_CRITICAL();
+      }
+      else
+      {
+         taskENTER_CRITICAL();
+
+         VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);           // it is safer to do this while sensor is stopped
+         VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], -1);
+
+         // Start continuous ranging
+         VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);
+         debug_output_info("... \r\n");
+         taskEXIT_CRITICAL();
+      }
+   }
+}
+
+#endif      // RTOS_FREERTOS
+
+
+/* --------------------------------------------------------------------------
  * Name : vl53l0x_init()
  *
  *
  * -------------------------------------------------------------------------- */
+int vl53l0x_init(VL53L0X_Dev_t *pDev)
+{
+   int status                                            = 0;
+   uint8_t VhvSettings;
+   uint8_t PhaseCal;
+   uint32_t refSpadCount;
+   uint8_t isApertureSpads;
+
+   // Initialize the device in continuous ranging mode
+   VL53L0X_StaticInit(pDev);
+   VL53L0X_PerformRefCalibration(pDev, &VhvSettings, &PhaseCal);
+   VL53L0X_PerformRefSpadManagement(pDev, &refSpadCount, &isApertureSpads);
+   VL53L0X_SetInterMeasurementPeriodMilliSeconds(pDev, 100);
+   VL53L0X_SetDeviceMode(pDev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+
+   debug_output_info("V53L0X-A0[%d] cal data %d, %d \r\n", pDev->Id, VhvSettings, PhaseCal);
+
+   // et sensor interrupt mode
+   VL53L0X_StopMeasurement(pDev);           // it is safer to do this while sensor is stopped
+   VL53L0X_SetInterruptThresholds(pDev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, 0 << 16 , 300 << 16);
+
+   status                                                = VL53L0X_SetGpioConfig(pDev, 0, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, VL53L0X_GPIOFUNCTIONALITY_THRESHOLD_CROSSED_HIGH, VL53L0X_INTERRUPTPOLARITY_HIGH);
+   status                                                = VL53L0X_ClearInterruptMask(pDev, -1);         // clear interrupt pending if any
+
+   // Start continuous ranging
+   VL53L0X_StartMeasurement(pDev);
 
 
+   return 0;
+}
+
+
+
+
+#if 0
+VL53L0X_RangingMeasurementData_t RangingMeasurementData;
+int vl53l0x_init(VL53L0X_Dev_t *pDev)
+{
+   int status                                            = 0;
+   uint8_t VhvSettings;
+   uint8_t PhaseCal;
+   uint32_t refSpadCount;
+   uint8_t isApertureSpads;
+
+   FixPoint1616_t signalLimit                            = (FixPoint1616_t) (0.25 * 65536);
+   FixPoint1616_t sigmaLimit                             = (FixPoint1616_t) (18 * 65536);
+   uint32_t timingBudget                                 = 33000;
+   uint8_t preRangeVcselPeriod                           = 14;
+   uint8_t finalRangeVcselPeriod                         = 10;
+
+   status                                                = VL53L0X_StaticInit(pDev);
+   if (status)
+   {
+      debug_output_error("VL53L0X_StaticInit %d failed \r\n", pDev->Id);
+   }
+
+   status                                                = VL53L0X_PerformRefCalibration(pDev, &VhvSettings, &PhaseCal);
+   if (status)
+   {
+      debug_output_error("VL53L0X_PerformRefCalibration failed \r\n");
+   }
+   debug_output_info("V53L0X-A0[%d] cal data %d, %d \r\n", pDev->Id, VhvSettings, PhaseCal);
+
+   status                                                = VL53L0X_PerformRefSpadManagement(pDev, &refSpadCount, &isApertureSpads);
+   if (status)
+   {
+      debug_output_error("VL53L0X_PerformRefSpadManagement failed \r\n");
+   }
+   debug_output_info("V53L0X-A0[%d] VL53L0X_PerformRefSpadManagement %d, %d \r\n", pDev->Id, (int) refSpadCount, (int) isApertureSpads);
+
+   // Setup in single ranging mode
+   status                                                = VL53L0X_SetDeviceMode(pDev, VL53L0X_DEVICEMODE_SINGLE_RANGING);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetDeviceMode failed \r\n");
+   }
+
+   // Enable Sigma limit
+   status                                                = VL53L0X_SetLimitCheckEnable(pDev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, 1);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetLimitCheckEnable failed \r\n");
+   }
+
+   // Enable Signa limit
+   status                                                = VL53L0X_SetLimitCheckEnable(pDev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, 1);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetLimitCheckEnable failed \r\n");
+   }
+
+   // Ranging configuration */
+#if 1
+   // LONG_RANGE:
+   signalLimit                                           = (FixPoint1616_t) (0.1 * 65536);
+   sigmaLimit                                            = (FixPoint1616_t) (60 * 65536);
+   timingBudget                                          = 33000;
+   preRangeVcselPeriod                                   = 18;
+   finalRangeVcselPeriod                                 = 14;
+#endif
+
+#if 1
+   // HIGH_ACCURACY:
+   signalLimit                                           = (FixPoint1616_t) (0.25 * 65536);
+   sigmaLimit                                            = (FixPoint1616_t) (18 * 65536);
+   timingBudget                                          = 200000;
+   preRangeVcselPeriod                                   = 14;
+   finalRangeVcselPeriod                                 = 10;
+#endif
+
+#if 1
+   // HIGH_SPEED:
+   signalLimit                                           = (FixPoint1616_t) (0.25 * 65536);
+   sigmaLimit                                            = (FixPoint1616_t) (32 * 65536);
+   timingBudget                                          = 20000;
+   preRangeVcselPeriod                                   = 14;
+   finalRangeVcselPeriod                                 = 10;
+#endif
+
+   status                                                = VL53L0X_SetLimitCheckValue(pDev, VL53L0X_CHECKENABLE_SIGNAL_RATE_FINAL_RANGE, signalLimit);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetLimitCheckValue failed \r\n");
+   }
+
+   status                                                = VL53L0X_SetLimitCheckValue(pDev, VL53L0X_CHECKENABLE_SIGMA_FINAL_RANGE, sigmaLimit);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetLimitCheckValue failed \r\n");
+   }
+
+   status                                                = VL53L0X_SetMeasurementTimingBudgetMicroSeconds(pDev, timingBudget);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetMeasurementTimingBudgetMicroSeconds failed \r\n");
+   }
+
+   status                                                = VL53L0X_SetVcselPulsePeriod(pDev, VL53L0X_VCSEL_PERIOD_PRE_RANGE, preRangeVcselPeriod);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetVcselPulsePeriod failed \r\n");
+   }
+
+   status                                                = VL53L0X_SetVcselPulsePeriod(pDev, VL53L0X_VCSEL_PERIOD_FINAL_RANGE, finalRangeVcselPeriod);
+   if (status)
+   {
+      debug_output_error("VL53L0X_SetVcselPulsePeriod failed \r\n");
+   }
+
+   status                                                = VL53L0X_PerformRefCalibration(pDev, &VhvSettings, &PhaseCal);
+   if (status)
+   {
+      debug_output_error("VL53L0X_PerformRefCalibration failed \r\n");
+   }
+
+
+   // Call All-In-One blocking API function */
+   status                                                = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
+   if (status == 0)
+   {
+      // Push data logging to UART
+      // trace_printf("%d,%u,%d,%d,%d\n", VL53L0XDevs[SingleSensorNo].Id, TimeStamp_Get(), RangingMeasurementData.RangeStatus, RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.SignalRateRtnMegaCps);
+      // Sensor_SetNewRange(&VL53L0XDevs[SingleSensorNo],&RangingMeasurementData);
+      // Display distance in cm
+      if (RangingMeasurementData.RangeStatus == 0)
+      {
+         // sprintf(StrDisplay, "%3dc",(int)VL53L0XDevs[SingleSensorNo].LeakyRange/10);
+      }
+      else
+      {
+//         sprintf(StrDisplay, "----");
+//         StrDisplay[0]=VL53L0XDevs[SingleSensorNo].DevLetter;
+      }
+   }
+
+
+#endif
+
+
+
+#if 0
+/* --------------------------------------------------------------------------
+ * Name : vl53l0x_init()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 #if 1
 VL53L0X_RangingMeasurementData_t RangingMeasurementData;
 int vl53l0x_init(VL53L0X_Dev_t *pDev)
@@ -538,7 +873,7 @@ int vl53l0x_init(VL53L0X_Dev_t *pDev)
    {
       debug_output_error("VL53L0X_PerformRefSpadManagement failed \r\n");
    }
-   debug_output_info("V53L0X-A0[%d] VL53L0X_PerformRefSpadManagement %d, %d \r\n", pDev->Id, refSpadCount, isApertureSpads);
+   debug_output_info("V53L0X-A0[%d] VL53L0X_PerformRefSpadManagement %d, %d \r\n", pDev->Id, (int) refSpadCount, (int) isApertureSpads);
 
    // Setup in single ranging mode
    status                                                = VL53L0X_SetDeviceMode(pDev, VL53L0X_DEVICEMODE_SINGLE_RANGING);
@@ -714,6 +1049,16 @@ int vl53l0x_init(VL53L0X_Dev_t *pDev)
    return 0;
 }
 #endif
+#endif
+
+
+
+
+
+
+
+
+
 
 #endif   // P_NUCLEO_53L0A1
 
@@ -1016,6 +1361,7 @@ void Board_Driver_Init()
          gpio_stmpe1600_reset(pDev->Id, 0);
       }
    }
+
    // -------------------------------------------------------------------------------------------------------
    // Initialize
    VL53L0XDevs[VL53L0_A1_LEFT_PORT].comms_speed_khz      = 400;
@@ -1029,6 +1375,64 @@ void Board_Driver_Init()
    VL53L0XDevs[VL53L0_A1_RIGHT_PORT].comms_speed_khz     = 400;
    VL53L0XDevs[VL53L0_A1_RIGHT_PORT].comms_type          = 1;
    status                                                = vl53l0x_init(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT]);
+
+#if defined(RTOS_FREERTOS)
+    // -------------------------------------------------------------------------
+    // vl53l0 interrupt
+    GPIO_InitStruct.Pin                                   = P_NUCLEO_53L0A1_LEFT_INT_PIN;
+    GPIO_InitStruct.Mode                                  = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(P_NUCLEO_53L0A1_LEFT_INT_PORT, &GPIO_InitStruct);
+    
+    GPIO_InitStruct.Pin                                   = P_NUCLEO_53L0A1_RIGHT_INT_PIN;
+    GPIO_InitStruct.Mode                                  = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(P_NUCLEO_53L0A1_RIGHT_INT_PORT, &GPIO_InitStruct);
+    
+    GPIO_InitStruct.Pin                                   = P_NUCLEO_53L0A1_CENTER_INT_PIN;
+    GPIO_InitStruct.Mode                                  = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(P_NUCLEO_53L0A1_CENTER_INT_PORT, &GPIO_InitStruct);
+
+    g_53l0a1_left_event_Semaphore                        = xSemaphoreCreateBinary();;
+    g_53l0a1_center_event_Semaphore                      = xSemaphoreCreateBinary();;
+    g_53l0a1_right_event_Semaphore                       = xSemaphoreCreateBinary();;
+
+    // --------------------------------------------------------------------------
+    // Thread definition for v53l0a1
+    osThreadDef(v53l0a1_left_event_task, v53l0a1_left_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 3);
+    if (osThreadCreate(osThread(v53l0a1_left_event_task), (void *) NULL) == NULL)
+    {
+       debug_output_error("Can't create thread : touch_event_task !!!");
+    }
+
+    // --------------------------------------------------------------------------
+    // Thread definition for v53l0a1
+    osThreadDef(v53l0a1_right_event_task, v53l0a1_right_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 3);
+    if (osThreadCreate(osThread(v53l0a1_right_event_task), (void *) NULL) == NULL)
+    {
+       debug_output_error("Can't create thread : touch_event_task !!!");
+    }
+
+    // --------------------------------------------------------------------------
+    // Thread definition for v53l0a1
+    osThreadDef(v53l0a1_center_event_task, v53l0a1_center_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 3);
+    if (osThreadCreate(osThread(v53l0a1_center_event_task), (void *) NULL) == NULL)
+    {
+       debug_output_error("Can't create thread : touch_event_task !!!");
+    }
+
+    // EXTI interrupt init for ...
+    HAL_NVIC_SetPriority(EXTI2_IRQn, 0x0F, 0);
+    HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
+    // EXTI interrupt init for ...
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0x0F, 0);
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+#endif   // RTOS_FREERTOS
 
 #endif   // P_NUCLEO_53L0A1
 
