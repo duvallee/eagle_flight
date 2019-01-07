@@ -31,7 +31,6 @@ static DMA2D_HandleTypeDef g_DMA2D_handle;
 static I2C_HandleTypeDef g_I2C_Bus1_handle;
 static I2C_HandleTypeDef g_I2C_Bus3_handle;
 
-
 #if defined(P_NUCLEO_53L0A1)
 #define DEFAULT_53L0A1_I2C_ADDR                          0x52
 
@@ -93,6 +92,8 @@ SemaphoreHandle_t g_touch_event_Semaphore                = NULL;
 SemaphoreHandle_t g_53l0a1_left_event_Semaphore          = NULL;
 SemaphoreHandle_t g_53l0a1_center_event_Semaphore        = NULL;
 SemaphoreHandle_t g_53l0a1_right_event_Semaphore         = NULL;
+
+QueueHandle_t g_53l0a1_Mutex                             = NULL;
 #endif
 
 /* --------------------------------------------------------------------------
@@ -750,6 +751,7 @@ int vl53l0x_Continuous_Mode_init(VL53L0X_Dev_t *pDev)
    VL53L0X_PerformRefSpadManagement(pDev, &refSpadCount, &isApertureSpads);
    VL53L0X_SetInterMeasurementPeriodMilliSeconds(pDev, 250);
    VL53L0X_SetDeviceMode(pDev, VL53L0X_DEVICEMODE_CONTINUOUS_RANGING);
+   return 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -815,12 +817,16 @@ int LeakyFactorFix8                                      = (int) (0.6 * 256);
  * -------------------------------------------------------------------------- */
 void v53l0a1_center_event_task(void const* argument)
 {
+   int status;
    VL53L0X_RangingMeasurementData_t RangingMeasurementData;
    while (1)
    {
       if (VL53L0XDevs[VL53L0_A1_CENTER_PORT].running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
-         if (VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], &RangingMeasurementData) !=  VL53L0X_ERROR_NONE)
+         xSemaphoreTake(g_53l0a1_Mutex, portMAX_DELAY);
+         status                                             = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], &RangingMeasurementData);
+         xSemaphoreGive(g_53l0a1_Mutex);
+         if (status != VL53L0X_ERROR_NONE)
          {
             debug_output_warn("VL53L0X_PerformSingleRangingMeasurement() failed : Sensor of Center \r\n");
             osDelay(1000);
@@ -850,20 +856,15 @@ void v53l0a1_center_event_task(void const* argument)
       {
          if (xSemaphoreTake(g_53l0a1_center_event_Semaphore, 1000) == pdPASS)
          {
-            taskENTER_CRITICAL();
-            taskEXIT_CRITICAL();
          }
          else
          {
-            taskENTER_CRITICAL();
-
             VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);           // it is safer to do this while sensor is stopped
             VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], -1);
 
             // Start continuous ranging
             VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);
             debug_output_info("... \r\n");
-            taskEXIT_CRITICAL();
          }
       }
       else
@@ -881,12 +882,16 @@ void v53l0a1_center_event_task(void const* argument)
  * -------------------------------------------------------------------------- */
 void v53l0a1_left_event_task(void const* argument)
 {
+   int status;
    VL53L0X_RangingMeasurementData_t RangingMeasurementData;
    while (1)
    {
       if (VL53L0XDevs[VL53L0_A1_LEFT_PORT].running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
-         if (VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[VL53L0_A1_LEFT_PORT], &RangingMeasurementData) !=  VL53L0X_ERROR_NONE)
+         xSemaphoreTake(g_53l0a1_Mutex, portMAX_DELAY);
+         status                                          = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[VL53L0_A1_LEFT_PORT], &RangingMeasurementData);
+         xSemaphoreGive(g_53l0a1_Mutex);
+         if (status != VL53L0X_ERROR_NONE)
          {
             debug_output_warn("VL53L0X_PerformSingleRangingMeasurement() failed : Sensor of Left \r\n");
             osDelay(1000);
@@ -916,20 +921,15 @@ void v53l0a1_left_event_task(void const* argument)
       {
          if (xSemaphoreTake(g_53l0a1_left_event_Semaphore, 1000) == pdPASS)
          {
-            taskENTER_CRITICAL();
-            taskEXIT_CRITICAL();
          }
          else
          {
-            taskENTER_CRITICAL();
-
             VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_LEFT_PORT]);           // it is safer to do this while sensor is stopped
             VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_LEFT_PORT], -1);
 
             // Start continuous ranging
             VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_LEFT_PORT]);
             debug_output_info("... \r\n");
-            taskEXIT_CRITICAL();
          }
       }
       else
@@ -946,12 +946,16 @@ void v53l0a1_left_event_task(void const* argument)
  * -------------------------------------------------------------------------- */
 void v53l0a1_right_event_task(void const* argument)
 {
+   int status;
    VL53L0X_RangingMeasurementData_t RangingMeasurementData;
    while (1)
    {
       if (VL53L0XDevs[VL53L0_A1_RIGHT_PORT].running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
-         if (VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT], &RangingMeasurementData) !=  VL53L0X_ERROR_NONE)
+         xSemaphoreTake(g_53l0a1_Mutex, portMAX_DELAY);
+         status                                          = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT], &RangingMeasurementData);
+         xSemaphoreGive(g_53l0a1_Mutex);
+         if (status != VL53L0X_ERROR_NONE)
          {
             debug_output_warn("VL53L0X_PerformSingleRangingMeasurement() failed : Sensor of Center \r\n");
             osDelay(1000);
@@ -981,20 +985,15 @@ void v53l0a1_right_event_task(void const* argument)
       {
          if (xSemaphoreTake(g_53l0a1_right_event_Semaphore, 1000) == pdPASS)
          {
-            taskENTER_CRITICAL();
-            taskEXIT_CRITICAL();
          }
          else
          {
-            taskENTER_CRITICAL();
-
             VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT]);           // it is safer to do this while sensor is stopped
             VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT], -1);
 
             // Start continuous ranging
             VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT]);
             debug_output_info("... \r\n");
-            taskEXIT_CRITICAL();
          }
       }
       else
@@ -1709,21 +1708,27 @@ void Board_Driver_Init()
     GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(P_NUCLEO_53L0A1_CENTER_INT_PORT, &GPIO_InitStruct);
 
+    // --------------------------------------------------------------------------
+    // semaphore
     g_53l0a1_left_event_Semaphore                        = xSemaphoreCreateBinary();;
     g_53l0a1_center_event_Semaphore                      = xSemaphoreCreateBinary();;
     g_53l0a1_right_event_Semaphore                       = xSemaphoreCreateBinary();;
 
     // --------------------------------------------------------------------------
-    // Thread definition for v53l0a1
+    // Mutex
+    g_53l0a1_Mutex                                       = xSemaphoreCreateMutex();
+
     // --------------------------------------------------------------------------
     // Thread definition for v53l0a1
-    osThreadDef(v53l0a1_center_event_task, v53l0a1_center_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 3);
+    osThreadDef(v53l0a1_center_event_task, v53l0a1_center_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
     if (osThreadCreate(osThread(v53l0a1_center_event_task), (void *) NULL) == NULL)
     {
        debug_output_error("Can't create thread : touch_event_task !!!");
     }
 
-    osThreadDef(v53l0a1_left_event_task, v53l0a1_left_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 3);
+    // --------------------------------------------------------------------------
+    // Thread definition for v53l0a1
+    osThreadDef(v53l0a1_left_event_task, v53l0a1_left_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
     if (osThreadCreate(osThread(v53l0a1_left_event_task), (void *) NULL) == NULL)
     {
        debug_output_error("Can't create thread : touch_event_task !!!");
@@ -1731,7 +1736,7 @@ void Board_Driver_Init()
 
     // --------------------------------------------------------------------------
     // Thread definition for v53l0a1
-    osThreadDef(v53l0a1_right_event_task, v53l0a1_right_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 3);
+    osThreadDef(v53l0a1_right_event_task, v53l0a1_right_event_task, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
     if (osThreadCreate(osThread(v53l0a1_right_event_task), (void *) NULL) == NULL)
     {
        debug_output_error("Can't create thread : touch_event_task !!!");
