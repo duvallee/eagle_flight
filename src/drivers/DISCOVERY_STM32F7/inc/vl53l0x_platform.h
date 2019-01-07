@@ -44,6 +44,20 @@ extern "C" {
 #define trace_printf uart_printf
 #endif
 
+enum VL53L0X_RUNNING_MODE
+{
+   VL53L0X_RUNNING_NOT_READY                             = 0,
+   VL53L0X_RUNNING_SINGLE_SHOT_MODE                      = 1,
+   VL53L0X_RUNNING_CONTINUOUS_MODE                       = 2,
+};
+
+enum VL53L0X_SINGLE_SHOT_OPTION
+{
+   VL53L0X_RUNNING_SINGLE_SHOT_LONG_RANGE                = 0,
+   VL53L0X_RUNNING_SINGLE_SHOT_HIGH_ACCURACY             = 1,
+   VL53L0X_RUNNING_SINGLE_SHOT_HIGH_SPEED                = 2,
+};
+
 
 //  Generic PAL device type that does link between API and platform abstraction layer
 typedef struct
@@ -52,6 +66,9 @@ typedef struct
 
    I2C_HandleTypeDef *I2cHandle;
    uint8_t I2cDevAddr;
+
+   enum VL53L0X_RUNNING_MODE running_mode;
+   enum VL53L0X_SINGLE_SHOT_OPTION single_shot_option;
 
    char DevLetter;
 

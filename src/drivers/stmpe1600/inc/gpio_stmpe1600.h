@@ -11,8 +11,8 @@
 // ============================================================================
 enum XNUCLEO53L1A1_dev_e
 {
-   XNUCLEO53L1A1_DEV_LEFT                                = 0,                    // !< left satellite device P21 header : 'l'
-   XNUCLEO53L1A1_DEV_CENTER                              = 1,                    // !< center (built-in) vl053 device : 'c"
+   XNUCLEO53L1A1_DEV_CENTER                              = 0,                    // !< center (built-in) vl053 device : 'c"
+   XNUCLEO53L1A1_DEV_LEFT                                = 1,                    // !< left satellite device P21 header : 'l'
    XNUCLEO53L1A1_DEV_RIGHT                               = 2                     // !< Right satellite device P22 header : 'r'
 };
 
