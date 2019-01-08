@@ -1019,6 +1019,8 @@ int vl53l0x_init(VL53L0X_Dev_t *pDev)
    uint32_t refSpadCount;
    uint8_t isApertureSpads;
 
+   UNUSED(status);
+
    // Initialize the device in continuous ranging mode
    VL53L0X_StaticInit(pDev);
    VL53L0X_PerformRefCalibration(pDev, &VhvSettings, &PhaseCal);
