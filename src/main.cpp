@@ -137,8 +137,7 @@ void freertos_idle_task(void const* argument)
    {
       osDelay(10000);
       debug_output_info("================== IDLE TASK ================== \r\n");
-#if defined(STEMWIN)
-
+#if 0
       GUI_SetPenSize(3);
       GUI_SetColor(GUI_GREEN);
       

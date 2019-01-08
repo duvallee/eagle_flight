@@ -46,7 +46,7 @@ static VL53L0X_Dev_t VL53L0XDevs[]                       =
       .Id                                                = XNUCLEO53L1A1_DEV_CENTER,
 #else
       .Id                                                = 0,
-#endif
+#endif   // GPIO_STMPE1600
       .DevLetter                                         =  'c',
       .I2cHandle                                         = &g_I2C_Bus1_handle,
       .I2cDevAddr                                        = DEFAULT_53L0A1_I2C_ADDR,
@@ -59,7 +59,7 @@ static VL53L0X_Dev_t VL53L0XDevs[]                       =
       .Id                                                = XNUCLEO53L1A1_DEV_LEFT,
 #else
       .Id                                                = 1,
-#endif
+#endif   // GPIO_STMPE1600
       .DevLetter                                         = 'l',
       .I2cHandle                                         = &g_I2C_Bus1_handle,
       .I2cDevAddr                                        =DEFAULT_53L0A1_I2C_ADDR,
@@ -72,7 +72,7 @@ static VL53L0X_Dev_t VL53L0XDevs[]                       =
       .Id                                                = XNUCLEO53L1A1_DEV_RIGHT,
 #else
       .Id                                                = 2,
-#endif
+#endif   // GPIO_STMPE1600
       .DevLetter                                         = 'r',
       .I2cHandle                                         = &g_I2C_Bus1_handle,
       .I2cDevAddr                                        = DEFAULT_53L0A1_I2C_ADDR,
@@ -81,7 +81,39 @@ static VL53L0X_Dev_t VL53L0XDevs[]                       =
       .Present                                           = 0,
    },
 };
-#endif
+
+#if defined(STEMWIN)
+typedef struct
+{
+   GUI_RECT frame_rect;
+   I16 round;
+   GUI_COLOR frame_color;
+   GUI_RECT text_rect;   
+} VL53L0_A1_GUI;
+
+static VL53L0_A1_GUI g_vl5310_ar_gui[]                   =
+{
+   {
+      {   0,  99, 319, 173},
+      10,
+      GUI_CYAN,
+      {   9, 100, 150, 172},
+   },
+   {
+      { 160,  99, 320, 173},
+      10,
+      GUI_CYAN,
+      { 169, 100, 310, 172},
+   },
+   {
+      { 320,  99, 479, 173},
+      10,
+      GUI_CYAN,
+      { 329, 100, 470, 172},
+   },
+};
+#endif   // STEMWIN
+#endif   // P_NUCLEO_53L0A1
 
 
 #if (defined(RTOS_FREERTOS) && defined(FT5536))
@@ -619,7 +651,7 @@ int Nucleo_53l0a1_init()
  *
  *
  * -------------------------------------------------------------------------- */
-int vl53l0x_Single_Mode_init(VL53L0X_Dev_t *pDev)
+static int vl53l0x_Single_Mode_init(VL53L0X_Dev_t *pDev)
 {
    uint8_t VhvSettings;
    uint8_t PhaseCal;
@@ -739,7 +771,7 @@ int vl53l0x_Single_Mode_init(VL53L0X_Dev_t *pDev)
  *
  *
  * -------------------------------------------------------------------------- */
-int vl53l0x_Continuous_Mode_init(VL53L0X_Dev_t *pDev)
+static int vl53l0x_Continuous_Mode_init(VL53L0X_Dev_t *pDev)
 {
    uint8_t VhvSettings;
    uint8_t PhaseCal;
@@ -819,51 +851,69 @@ void v53l0a1_center_event_task(void const* argument)
 {
    int status;
    VL53L0X_RangingMeasurementData_t RangingMeasurementData;
+   VL53L0X_Dev_t* pDev                                   = &VL53L0XDevs[VL53L0_A1_CENTER_PORT];
+#if defined(STEMWIN)
+   VL53L0_A1_GUI* pGUI                                   = &g_vl5310_ar_gui[VL53L0_A1_CENTER_PORT];
+static char measure_str[32];
+#endif
    while (1)
    {
-      if (VL53L0XDevs[VL53L0_A1_CENTER_PORT].running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
+      if (pDev->running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
          xSemaphoreTake(g_53l0a1_Mutex, portMAX_DELAY);
-         status                                             = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], &RangingMeasurementData);
+         status                                             = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
          xSemaphoreGive(g_53l0a1_Mutex);
+
+#if defined(STEMWIN)
+         GUI_ClearRectEx(&(pGUI->frame_rect));
+         GUI_SetColor(pGUI->frame_color);
+         GUI_SetDrawMode(GUI_DRAWMODE_TRANS);
+         GUI_SetPenSize(3);
+         GUI_SetFont(&GUI_Font10_1);
+         GUI_DrawRoundedRect(pGUI->frame_rect.x0, pGUI->frame_rect.y0, pGUI->frame_rect.x1, pGUI->frame_rect.y1, pGUI->round);
+#endif
+
          if (status != VL53L0X_ERROR_NONE)
          {
             debug_output_warn("VL53L0X_PerformSingleRangingMeasurement() failed : Sensor of Center \r\n");
             osDelay(1000);
             continue;
          }
-         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) VL53L0XDevs[VL53L0_A1_CENTER_PORT].Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
+         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) pDev->Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
          if (RangingMeasurementData.RangeStatus == 0)
          {
-            if (VL53L0XDevs[VL53L0_A1_CENTER_PORT].LeakyFirst)
+            if (pDev->LeakyFirst)
             {
-               VL53L0XDevs[VL53L0_A1_CENTER_PORT].LeakyFirst = 0;
-               VL53L0XDevs[VL53L0_A1_CENTER_PORT].LeakyRange = RangingMeasurementData.RangeDMaxMilliMeter;
+               pDev->LeakyFirst                          = 0;
+               pDev->LeakyRange                          = RangingMeasurementData.RangeDMaxMilliMeter;
             }
             else
             {
-               VL53L0XDevs[VL53L0_A1_CENTER_PORT].LeakyRange = (VL53L0XDevs[VL53L0_A1_CENTER_PORT].LeakyRange * LeakyFactorFix8 +
-                                                               (256 - LeakyFactorFix8) * RangingMeasurementData.RangeDMaxMilliMeter) >> 8;
+               pDev->LeakyRange                          = (pDev->LeakyRange * LeakyFactorFix8 + (256 - LeakyFactorFix8) * RangingMeasurementData.RangeDMaxMilliMeter) >> 8;
             }
+#if defined(STEMWIN)
+            sprintf(measure_str, "%d mm", RangingMeasurementData.RangeMilliMeter);
+            GUI__DispStringInRect(measure_str, &pGUI->text_rect, GUI_TA_CENTER | GUI_TA_VCENTER, strlen(measure_str));
+#endif
          }
          else
          {
-            VL53L0XDevs[VL53L0_A1_CENTER_PORT].LeakyFirst = 1;
+            pDev->LeakyFirst                             = 1;
          }
          osDelay(100);
       }
-      else if (VL53L0XDevs[VL53L0_A1_CENTER_PORT].running_mode == VL53L0X_RUNNING_CONTINUOUS_MODE)
+      else if (pDev->running_mode == VL53L0X_RUNNING_CONTINUOUS_MODE)
       {
          if (xSemaphoreTake(g_53l0a1_center_event_Semaphore, 1000) == pdPASS)
          {
          }
          else
          {
-            VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);           // it is safer to do this while sensor is stopped
-            VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_CENTER_PORT], -1);
+            VL53L0X_StopMeasurement(pDev);                           // it is safer to do this while sensor is stopped
+            VL53L0X_ClearInterruptMask(pDev, -1);
 
             // Start continuous ranging
-            VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_CENTER_PORT]);
+            VL53L0X_StartMeasurement(pDev);
             debug_output_info("... \r\n");
          }
       }
@@ -884,51 +934,70 @@ void v53l0a1_left_event_task(void const* argument)
 {
    int status;
    VL53L0X_RangingMeasurementData_t RangingMeasurementData;
+   VL53L0X_Dev_t* pDev                                   = &VL53L0XDevs[VL53L0_A1_LEFT_PORT];
+#if defined(STEMWIN)
+   VL53L0_A1_GUI* pGUI                                   = &g_vl5310_ar_gui[VL53L0_A1_LEFT_PORT];
+static char measure_str[32];
+#endif
    while (1)
    {
-      if (VL53L0XDevs[VL53L0_A1_LEFT_PORT].running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
+      if (pDev->running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
          xSemaphoreTake(g_53l0a1_Mutex, portMAX_DELAY);
-         status                                          = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[VL53L0_A1_LEFT_PORT], &RangingMeasurementData);
+         status                                          = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
          xSemaphoreGive(g_53l0a1_Mutex);
+
+#if defined(STEMWIN)
+         GUI_ClearRectEx(&(pGUI->frame_rect));
+         GUI_SetColor(pGUI->frame_color);
+         GUI_SetDrawMode(GUI_DRAWMODE_TRANS);
+         GUI_SetPenSize(3);
+         GUI_SetFont(&GUI_Font10_1);
+         GUI_DrawRoundedRect(pGUI->frame_rect.x0, pGUI->frame_rect.y0, pGUI->frame_rect.x1, pGUI->frame_rect.y1, pGUI->round);
+#endif
+
          if (status != VL53L0X_ERROR_NONE)
          {
             debug_output_warn("VL53L0X_PerformSingleRangingMeasurement() failed : Sensor of Left \r\n");
             osDelay(1000);
             continue;
          }
-         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) VL53L0XDevs[VL53L0_A1_LEFT_PORT].Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
+         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) pDev->Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
          if (RangingMeasurementData.RangeStatus == 0)
          {
-            if (VL53L0XDevs[VL53L0_A1_LEFT_PORT].LeakyFirst)
+            if (pDev->LeakyFirst)
             {
-               VL53L0XDevs[VL53L0_A1_LEFT_PORT].LeakyFirst = 0;
-               VL53L0XDevs[VL53L0_A1_LEFT_PORT].LeakyRange = RangingMeasurementData.RangeDMaxMilliMeter;
+               pDev->LeakyFirst = 0;
+               pDev->LeakyRange = RangingMeasurementData.RangeDMaxMilliMeter;
             }
             else
             {
-               VL53L0XDevs[VL53L0_A1_LEFT_PORT].LeakyRange = (VL53L0XDevs[VL53L0_A1_LEFT_PORT].LeakyRange * LeakyFactorFix8 +
+               pDev->LeakyRange = (pDev->LeakyRange * LeakyFactorFix8 +
                                                              (256 - LeakyFactorFix8) * RangingMeasurementData.RangeDMaxMilliMeter) >> 8;
             }
+#if defined(STEMWIN)
+            sprintf(measure_str, "%d mm", RangingMeasurementData.RangeMilliMeter);
+            GUI__DispStringInRect(measure_str, &pGUI->text_rect, GUI_TA_CENTER | GUI_TA_VCENTER, strlen(measure_str));
+#endif
          }
          else
          {
-            VL53L0XDevs[VL53L0_A1_LEFT_PORT].LeakyFirst = 1;
+            pDev->LeakyFirst = 1;
          }
          osDelay(100);
       }
-      else if (VL53L0XDevs[VL53L0_A1_LEFT_PORT].running_mode == VL53L0X_RUNNING_CONTINUOUS_MODE)
+      else if (pDev->running_mode == VL53L0X_RUNNING_CONTINUOUS_MODE)
       {
          if (xSemaphoreTake(g_53l0a1_left_event_Semaphore, 1000) == pdPASS)
          {
          }
          else
          {
-            VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_LEFT_PORT]);           // it is safer to do this while sensor is stopped
-            VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_LEFT_PORT], -1);
+            VL53L0X_StopMeasurement(pDev);           // it is safer to do this while sensor is stopped
+            VL53L0X_ClearInterruptMask(pDev, -1);
 
             // Start continuous ranging
-            VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_LEFT_PORT]);
+            VL53L0X_StartMeasurement(pDev);
             debug_output_info("... \r\n");
          }
       }
@@ -948,51 +1017,69 @@ void v53l0a1_right_event_task(void const* argument)
 {
    int status;
    VL53L0X_RangingMeasurementData_t RangingMeasurementData;
+   VL53L0X_Dev_t* pDev                                   = &VL53L0XDevs[VL53L0_A1_RIGHT_PORT];
+#if defined(STEMWIN)
+   VL53L0_A1_GUI* pGUI                                   = &g_vl5310_ar_gui[VL53L0_A1_RIGHT_PORT];
+static char measure_str[32];
+#endif
    while (1)
    {
-      if (VL53L0XDevs[VL53L0_A1_RIGHT_PORT].running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
+      if (pDev->running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
          xSemaphoreTake(g_53l0a1_Mutex, portMAX_DELAY);
-         status                                          = VL53L0X_PerformSingleRangingMeasurement(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT], &RangingMeasurementData);
+         status                                          = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
          xSemaphoreGive(g_53l0a1_Mutex);
+
+#if defined(STEMWIN)
+         GUI_ClearRectEx(&(pGUI->frame_rect));
+         GUI_SetColor(pGUI->frame_color);
+         GUI_SetDrawMode(GUI_DRAWMODE_TRANS);
+         GUI_SetPenSize(3);
+         GUI_SetFont(&GUI_Font10_1);
+         GUI_DrawRoundedRect(pGUI->frame_rect.x0, pGUI->frame_rect.y0, pGUI->frame_rect.x1, pGUI->frame_rect.y1, pGUI->round);
+#endif
          if (status != VL53L0X_ERROR_NONE)
          {
             debug_output_warn("VL53L0X_PerformSingleRangingMeasurement() failed : Sensor of Center \r\n");
             osDelay(1000);
             continue;
          }
-         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) VL53L0XDevs[VL53L0_A1_RIGHT_PORT].Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
+         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) pDev->Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
          if (RangingMeasurementData.RangeStatus == 0)
          {
-            if (VL53L0XDevs[VL53L0_A1_RIGHT_PORT].LeakyFirst)
+            if (pDev->LeakyFirst)
             {
-               VL53L0XDevs[VL53L0_A1_RIGHT_PORT].LeakyFirst = 0;
-               VL53L0XDevs[VL53L0_A1_RIGHT_PORT].LeakyRange = RangingMeasurementData.RangeDMaxMilliMeter;
+               pDev->LeakyFirst = 0;
+               pDev->LeakyRange = RangingMeasurementData.RangeDMaxMilliMeter;
             }
             else
             {
-               VL53L0XDevs[VL53L0_A1_RIGHT_PORT].LeakyRange = (VL53L0XDevs[VL53L0_A1_RIGHT_PORT].LeakyRange * LeakyFactorFix8 +
+               pDev->LeakyRange = (pDev->LeakyRange * LeakyFactorFix8 +
                                                               (256 - LeakyFactorFix8) * RangingMeasurementData.RangeDMaxMilliMeter) >> 8;
             }
+#if defined(STEMWIN)
+            sprintf(measure_str, "%d mm", RangingMeasurementData.RangeMilliMeter);
+            GUI__DispStringInRect(measure_str, &pGUI->text_rect, GUI_TA_CENTER | GUI_TA_VCENTER, strlen(measure_str));
+#endif
          }
          else
          {
-            VL53L0XDevs[VL53L0_A1_RIGHT_PORT].LeakyFirst = 1;
+            pDev->LeakyFirst = 1;
          }
          osDelay(100);
       }
-      else if (VL53L0XDevs[VL53L0_A1_RIGHT_PORT].running_mode == VL53L0X_RUNNING_CONTINUOUS_MODE)
+      else if (pDev->running_mode == VL53L0X_RUNNING_CONTINUOUS_MODE)
       {
          if (xSemaphoreTake(g_53l0a1_right_event_Semaphore, 1000) == pdPASS)
          {
          }
          else
          {
-            VL53L0X_StopMeasurement(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT]);           // it is safer to do this while sensor is stopped
-            VL53L0X_ClearInterruptMask(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT], -1);
+            VL53L0X_StopMeasurement(pDev);                  // it is safer to do this while sensor is stopped
+            VL53L0X_ClearInterruptMask(pDev, -1);
 
             // Start continuous ranging
-            VL53L0X_StartMeasurement(&VL53L0XDevs[VL53L0_A1_RIGHT_PORT]);
+            VL53L0X_StartMeasurement(pDev);
             debug_output_info("... \r\n");
          }
       }
