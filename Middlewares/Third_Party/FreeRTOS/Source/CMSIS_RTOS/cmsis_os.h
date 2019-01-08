@@ -467,7 +467,7 @@ const osThreadDef_t os_thread_def_##name = \
 
 #define osThreadDef(name, thread, priority, instances, stacksz)  \
 const osThreadDef_t os_thread_def_##name = \
-{ #name, (thread), (priority), (instances), (stacksz)}
+{ (char*) #name, (thread), (priority), (instances), (stacksz)}
 #endif
 #endif
 
