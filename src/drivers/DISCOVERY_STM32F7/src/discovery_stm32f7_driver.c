@@ -94,22 +94,22 @@ typedef struct
 static VL53L0_A1_GUI g_vl5310_ar_gui[]                   =
 {
    {
-      {   0,  99, 319, 173},
+      { 169,  99, 310, 173},
       10,
       GUI_CYAN,
-      {   9, 100, 150, 172},
+      { 179, 109, 300, 162},
    },
    {
-      { 160,  99, 320, 173},
+      {   9,  99, 150, 173},
       10,
       GUI_CYAN,
-      { 169, 100, 310, 172},
+      {  19, 109, 140, 162},
    },
    {
-      { 320,  99, 479, 173},
+      { 329,  99, 470, 173},
       10,
       GUI_CYAN,
-      { 329, 100, 470, 172},
+      { 339, 109, 460, 162},
    },
 };
 #endif   // STEMWIN
@@ -800,7 +800,7 @@ void BSP_53L0A1_LEFT_IRQHandler(void)
       xSemaphoreGiveFromISR(g_53l0a1_left_event_Semaphore, &xHigherPriorityTaskWoken);
       portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
    }
-   debug_output_info("V53L0X-A0 irq \r\n");
+//   debug_output_info("V53L0X-A0 irq \r\n");
 #endif
 }
 
@@ -818,7 +818,7 @@ void BSP_53L0A1_CENTER_IRQHandler(void)
       xSemaphoreGiveFromISR(g_53l0a1_center_event_Semaphore, &xHigherPriorityTaskWoken);
       portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
    }
-   debug_output_info("V53L0X-A0 irq \r\n");
+//   debug_output_info("V53L0X-A0 irq \r\n");
 #endif
 }
 
@@ -836,12 +836,13 @@ void BSP_53L0A1_RIGHT_IRQHandler(void)
       xSemaphoreGiveFromISR(g_53l0a1_right_event_Semaphore, &xHigherPriorityTaskWoken);
       portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
    }
-   debug_output_info("V53L0X-A0 irq \r\n");
+//   debug_output_info("V53L0X-A0 irq \r\n");
 #endif
 }
 
 #if defined(RTOS_FREERTOS)
 int LeakyFactorFix8                                      = (int) (0.6 * 256);
+#define V530L0X_SINGLE_DELAY                             10
 /* --------------------------------------------------------------------------
  * Name : v53l0a1_center_event_task()
  *
@@ -855,6 +856,7 @@ void v53l0a1_center_event_task(void const* argument)
 #if defined(STEMWIN)
    VL53L0_A1_GUI* pGUI                                   = &g_vl5310_ar_gui[VL53L0_A1_CENTER_PORT];
 static char measure_str[32];
+   GUI_Clear();
 #endif
    while (1)
    {
@@ -865,7 +867,7 @@ static char measure_str[32];
          xSemaphoreGive(g_53l0a1_Mutex);
 
 #if defined(STEMWIN)
-         GUI_ClearRectEx(&(pGUI->frame_rect));
+         GUI_ClearRectEx(&(pGUI->text_rect));
          GUI_SetColor(pGUI->frame_color);
          GUI_SetDrawMode(GUI_DRAWMODE_TRANS);
          GUI_SetPenSize(3);
@@ -879,7 +881,7 @@ static char measure_str[32];
             osDelay(1000);
             continue;
          }
-         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) pDev->Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
+//         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) pDev->Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
          if (RangingMeasurementData.RangeStatus == 0)
          {
             if (pDev->LeakyFirst)
@@ -900,7 +902,7 @@ static char measure_str[32];
          {
             pDev->LeakyFirst                             = 1;
          }
-         osDelay(100);
+         osDelay(V530L0X_SINGLE_DELAY);
       }
       else if (pDev->running_mode == VL53L0X_RUNNING_CONTINUOUS_MODE)
       {
@@ -948,7 +950,7 @@ static char measure_str[32];
          xSemaphoreGive(g_53l0a1_Mutex);
 
 #if defined(STEMWIN)
-         GUI_ClearRectEx(&(pGUI->frame_rect));
+         GUI_ClearRectEx(&(pGUI->text_rect));
          GUI_SetColor(pGUI->frame_color);
          GUI_SetDrawMode(GUI_DRAWMODE_TRANS);
          GUI_SetPenSize(3);
@@ -962,7 +964,7 @@ static char measure_str[32];
             osDelay(1000);
             continue;
          }
-         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) pDev->Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
+//         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) pDev->Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
          if (RangingMeasurementData.RangeStatus == 0)
          {
             if (pDev->LeakyFirst)
@@ -984,7 +986,7 @@ static char measure_str[32];
          {
             pDev->LeakyFirst = 1;
          }
-         osDelay(100);
+         osDelay(V530L0X_SINGLE_DELAY);
       }
       else if (pDev->running_mode == VL53L0X_RUNNING_CONTINUOUS_MODE)
       {
@@ -1031,7 +1033,7 @@ static char measure_str[32];
          xSemaphoreGive(g_53l0a1_Mutex);
 
 #if defined(STEMWIN)
-         GUI_ClearRectEx(&(pGUI->frame_rect));
+         GUI_ClearRectEx(&(pGUI->text_rect));
          GUI_SetColor(pGUI->frame_color);
          GUI_SetDrawMode(GUI_DRAWMODE_TRANS);
          GUI_SetPenSize(3);
@@ -1044,7 +1046,7 @@ static char measure_str[32];
             osDelay(1000);
             continue;
          }
-         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) pDev->Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
+//         debug_output_info("%d : %d mm (status = %d, SignalRate = %d) \r\n", (int) pDev->Id, (int) RangingMeasurementData.RangeMilliMeter, RangingMeasurementData.RangeStatus, (int) RangingMeasurementData.SignalRateRtnMegaCps);
          if (RangingMeasurementData.RangeStatus == 0)
          {
             if (pDev->LeakyFirst)
@@ -1066,7 +1068,7 @@ static char measure_str[32];
          {
             pDev->LeakyFirst = 1;
          }
-         osDelay(100);
+         osDelay(V530L0X_SINGLE_DELAY);
       }
       else if (pDev->running_mode == VL53L0X_RUNNING_CONTINUOUS_MODE)
       {
@@ -1733,9 +1735,14 @@ void Board_Driver_Init()
    VL53L0XDevs[VL53L0_A1_LEFT_PORT].running_mode         = VL53L0X_RUNNING_SINGLE_SHOT_MODE;
    VL53L0XDevs[VL53L0_A1_RIGHT_PORT].running_mode        = VL53L0X_RUNNING_SINGLE_SHOT_MODE;
 
-   VL53L0XDevs[VL53L0_A1_CENTER_PORT].single_shot_option = VL53L0X_RUNNING_SINGLE_SHOT_LONG_RANGE;
+
+   VL53L0XDevs[VL53L0_A1_CENTER_PORT].single_shot_option = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_ACCURACY;
    VL53L0XDevs[VL53L0_A1_LEFT_PORT].single_shot_option   = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_ACCURACY;
-   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].single_shot_option  = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_SPEED;
+   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].single_shot_option  = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_ACCURACY;
+
+//   VL53L0XDevs[VL53L0_A1_CENTER_PORT].single_shot_option = VL53L0X_RUNNING_SINGLE_SHOT_LONG_RANGE;
+//   VL53L0XDevs[VL53L0_A1_LEFT_PORT].single_shot_option   = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_ACCURACY;
+//   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].single_shot_option  = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_SPEED;
 #else
    VL53L0XDevs[VL53L0_A1_CENTER_PORT].running_mode       = VL53L0X_RUNNING_CONTINUOUS_MODE;
    VL53L0XDevs[VL53L0_A1_LEFT_PORT].running_mode         = VL53L0X_RUNNING_CONTINUOUS_MODE;
