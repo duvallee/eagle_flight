@@ -307,15 +307,6 @@ extern "C" {
 #include "scheduler.h"
 #endif
 
-#if defined(STEMWIN)
-#include "GUI.h"
-
-#include "LCDConf.h"
-#include "GUI_Private.h"
-
-#include "WM.h"
-#endif
-
 #include "ring_buffer.h"
 
 // --------------------------------------------------------------------------
@@ -323,7 +314,7 @@ extern "C" {
 #define VERSION_MINOR                                    1
 #define VERSION_SUB                                      0
 
-#define PROGRAM_NAME                                     "STM32F7-DISCOVERY"
+#define PROGRAM_NAME                                     "STM32F7-DISCOVERY-BOOTLOADER"
 
 // --------------------------------------------------------------------------
 #if defined(STM32H743XI)
