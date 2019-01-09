@@ -26,6 +26,9 @@
 #include "cleanflight_cli.h"
 #endif
 
+#if defined(QSPI_FLASH_USE)
+#include "qspi_flash.h"
+#endif
 
 #if (defined(NUCLEO_H743ZI) || defined(DISCOVERY_STM32F7))
 /* --------------------------------------------------------------------------
@@ -38,9 +41,21 @@
  * -------------------------------------------------------------------------- */
 static void CPU_CACHE_Enable(void)
 {
+   // Invalidate I-Cache : ICIALLU register
+   SCB_InvalidateICache();
+
+   // Enable branch prediction
+   SCB->CCR                                              |= (1 << 18);
+   __DSB();
+
+   // Invalidate I-Cache : ICIALLU register
+   SCB_InvalidateICache();
+
    // Enable I-Cache
    SCB_EnableICache();
 
+   // Invalidate D-Cache
+   SCB_InvalidateDCache();
    // Enable D-Cache
    SCB_EnableDCache();
 }
@@ -56,13 +71,13 @@ static void MPU_Config(void)
 {
    MPU_Region_InitTypeDef MPU_InitStruct;
 
-   /* Disable the MPU */
+   // Disable the MPU
    HAL_MPU_Disable();
 
-   /* Configure the MPU attributes as Device for Ethernet Descriptors in the SRAM */
+   // Configure the MPU attributes as Device for Ethernet Descriptors in the SRAM 
    MPU_InitStruct.Enable                                 = MPU_REGION_ENABLE;
    MPU_InitStruct.BaseAddress                            = ETHERNET_SRAM_BASE_ADDRESS;
-   MPU_InitStruct.Size                                   = MPU_REGION_SIZE_256B;
+   MPU_InitStruct.Size                                   = MPU_REGION_SIZE_256KB;
    MPU_InitStruct.AccessPermission                       = MPU_REGION_FULL_ACCESS;
    MPU_InitStruct.IsBufferable                           = MPU_ACCESS_BUFFERABLE;
    MPU_InitStruct.IsCacheable                            = MPU_ACCESS_NOT_CACHEABLE;
@@ -88,7 +103,7 @@ static void MPU_Config(void)
    MPU_InitStruct.DisableExec                            = MPU_INSTRUCTION_ACCESS_DISABLE;
    HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-   /* Enable the MPU */
+   // Enable the MPU
    HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
 #endif
@@ -194,6 +209,18 @@ int main(void)
    debug_output_info("Build Date : %s %s (%s) \r\n", __DATE__, __TIME__, __VERSION__);
    debug_output_info("=============================================== \r\n\r\n");
 
+#if defined(QSPI_FLASH_USE)
+   // Initialize the NOR
+   if (qspi_flash_init() < 0)
+   {
+      debug_output_error("qspi_flash_init() failed !!! \r\n");
+      Error_Handler();
+   }
+   qspi_flash_EnableMemoryMappedMode();
+#endif
+
+   __HAL_RCC_BKPSRAM_CLK_ENABLE();
+
    Board_Driver_Init();
 
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
@@ -210,7 +237,7 @@ int main(void)
    osThreadDef(idle_main_task, freertos_idle_task, osPriorityIdle, 0, configMINIMAL_STACK_SIZE);
    if (osThreadCreate(osThread(idle_main_task), (void *) NULL) == NULL)
    {
-      debug_output_error("Can't create thread : idle_main_task !!!");
+      debug_output_error("Can't create thread : idle_main_task !!! \r\n");
    }
 
    // --------------------------------------------------------------------------

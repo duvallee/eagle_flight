@@ -550,6 +550,7 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef * hpcd)
    }
 }
 
+#if defined(NET_LWIP)
 /* --------------------------------------------------------------------------
  * Name : HAL_ETH_MspInit()
  *
@@ -636,6 +637,103 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* ethHandle)
       HAL_NVIC_DisableIRQ(ETH_IRQn);
    }
 }
+#endif
+
+#if defined(QSPI_FLASH_USE)
+/* --------------------------------------------------------------------------
+ * Name : HAL_QSPI_MspInit()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void HAL_QSPI_MspInit(QSPI_HandleTypeDef *hqspi)
+{
+   GPIO_InitTypeDef gpio_init_structure;
+
+   // ##-1- Enable peripherals and GPIO Clocks #################################
+   // Enable the QuadSPI memory interface clock
+   __HAL_RCC_QSPI_CLK_ENABLE();
+
+   // Reset the QuadSPI memory interface
+   __HAL_RCC_QSPI_FORCE_RESET();
+   __HAL_RCC_QSPI_RELEASE_RESET();
+
+   // Enable GPIO clocks
+   __HAL_RCC_GPIOB_CLK_ENABLE();
+   __HAL_RCC_GPIOD_CLK_ENABLE();
+   __HAL_RCC_GPIOE_CLK_ENABLE();
+
+   // ##-2- Configure peripheral GPIO ##########################################
+   // QSPI CS GPIO pin configuration
+   gpio_init_structure.Pin                               = GPIO_PIN_6;
+   gpio_init_structure.Mode                              = GPIO_MODE_AF_PP;
+   gpio_init_structure.Pull                              = GPIO_PULLUP;
+   gpio_init_structure.Speed                             = GPIO_SPEED_HIGH;
+   gpio_init_structure.Alternate                         = GPIO_AF10_QUADSPI;
+   HAL_GPIO_Init(GPIOB, &gpio_init_structure);
+
+   // QSPI CLK GPIO pin configuration
+   gpio_init_structure.Pin                               = GPIO_PIN_2;
+   gpio_init_structure.Pull                              = GPIO_NOPULL;
+   gpio_init_structure.Alternate                         = GPIO_AF9_QUADSPI;
+   HAL_GPIO_Init(GPIOB, &gpio_init_structure);
+
+   // QSPI D0 GPIO pin configuration
+   gpio_init_structure.Pin                               = GPIO_PIN_11;
+   gpio_init_structure.Alternate                         = GPIO_AF9_QUADSPI;
+   HAL_GPIO_Init(GPIOD, &gpio_init_structure);
+
+   // QSPI D1 GPIO pin configuration
+   gpio_init_structure.Pin                               = GPIO_PIN_12;
+   gpio_init_structure.Alternate                         = GPIO_AF9_QUADSPI;
+   HAL_GPIO_Init(GPIOD, &gpio_init_structure);
+
+   // QSPI D2 GPIO pin configuration
+   gpio_init_structure.Pin                               = GPIO_PIN_2;
+   gpio_init_structure.Alternate                         = GPIO_AF9_QUADSPI;
+   HAL_GPIO_Init(GPIOE, &gpio_init_structure);
+
+   // QSPI D3 GPIO pin configuration
+   gpio_init_structure.Pin                               = GPIO_PIN_13;
+   gpio_init_structure.Alternate                         = GPIO_AF9_QUADSPI;
+   HAL_GPIO_Init(GPIOD, &gpio_init_structure);
+
+   // ##-3- Configure the NVIC for QSPI #########################################
+   // NVIC configuration for QSPI interrupt
+   HAL_NVIC_SetPriority(QUADSPI_IRQn, 0x0F, 0);
+   HAL_NVIC_EnableIRQ(QUADSPI_IRQn);
+}
+
+/* --------------------------------------------------------------------------
+ * Name : HAL_QSPI_MspInit()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void HAL_QSPI_MspDeInit(QSPI_HandleTypeDef *hqspi)
+{
+   // ##-1- Disable the NVIC for QSPI ###########################################
+   HAL_NVIC_DisableIRQ(QUADSPI_IRQn);
+
+   // ##-2- Disable peripherals and GPIO Clocks ################################
+   // De-Configure QSPI pins
+   HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6);
+   HAL_GPIO_DeInit(GPIOB, GPIO_PIN_2);
+   HAL_GPIO_DeInit(GPIOD, GPIO_PIN_11);
+   HAL_GPIO_DeInit(GPIOD, GPIO_PIN_12);
+   HAL_GPIO_DeInit(GPIOE, GPIO_PIN_2);
+   HAL_GPIO_DeInit(GPIOD, GPIO_PIN_13);
+
+   // ##-3- Reset peripherals ##################################################
+   // Reset the QuadSPI memory interface
+   __HAL_RCC_QSPI_FORCE_RESET();
+   __HAL_RCC_QSPI_RELEASE_RESET();
+
+   /* Disable the QuadSPI memory interface clock */
+   __HAL_RCC_QSPI_CLK_DISABLE();
+}
+
+#endif
+
+
 
 
 

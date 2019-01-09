@@ -35,7 +35,6 @@ ifeq (c:,$(findstring c:, $(PATH)))
 	OS_NAME := WINDOWS
 endif
 
-
 ifeq ($(TRUESTUDIO_BUILD), 1)
 	# -----------------------------------------------------------------------------
 	# Windows or Linux
@@ -146,6 +145,9 @@ P_NUCLEO_53L0A1 :=
 SENSOR_VL53L0X :=
 GPIO_STMPE1600 :=
 
+QSPI_FLASH_USE :=
+QSPI_MEMORY_TYPE :=
+
 # -----------------------------------------------------------------------------
 # for TARGET Board
 
@@ -211,6 +213,10 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 	TOUCH_DEVICE := FT5536
 	# STM32 Expansion Board
 	P_NUCLEO_53L0A1 := P_NUCLEO_53L0A1
+
+	# QSPI NOR Flash Memory
+	QSPI_FLASH_USE := QSPI_FLASH_USE
+	QSPI_MEMORY_TYPE := MICRON_N25Q128A
 
 	# supported middleware
 #	NET_LWIP := NET_LWIP
@@ -336,6 +342,10 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 
 	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_sdram.c
 	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_eth.c
+
+	ifeq ($(QSPI_FLASH_USE), QSPI_FLASH_USE)
+		HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_qspi.c
+	endif
 
 	ifeq ($(USE_USB_DEVICE),USED)
 		HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pcd.c
@@ -562,6 +572,17 @@ ifeq ($(SENSOR_VL53L0X), SENSOR_VL53L0X)
 	INCLUDE_DIR += -Isrc/drivers/vl53l0x/inc
 endif
 
+# for QSPI Nor Flash Memory
+ifeq ($(QSPI_FLASH_USE), QSPI_FLASH_USE)
+	TARGET_MODEL_DEFINITION += -D$(QSPI_FLASH_USE) -D$(QSPI_MEMORY_TYPE)
+
+	LINK_SCCRIPT_FILES := ldscript/$(TARGET_BOARD)/$(TARGET_BOARD)_FLASH_WITH_QFLASH.ld
+
+	DRIVERS_C_SRC += src/drivers/qspi/src/qspi_flash.c
+
+	INCLUDE_DIR += -Isrc/drivers/qspi/inc
+endif
+
 # -----------------------------------------------------------------------------
 # Common Driver Source
 ifeq ($(USE_USB_DEVICE),USED)
@@ -722,6 +743,7 @@ $(TARGET): $(OBJS)
 	@echo Buils System   : $(OS_NAME)
 	@echo Build Compiler : $(GCC_PREFIX)
 	@echo Target Board   : $(TARGET_BOARD)
+	@echo Link Script    : $(LINK_SCCRIPT_FILES)
 	@echo ---------------------------------------------------------------------------------------
 	$(SIZE) "$(BIN_DIR)/$(TARGET).elf"
 	@echo =======================================================================================

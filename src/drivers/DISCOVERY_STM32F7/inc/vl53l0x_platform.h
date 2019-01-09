@@ -67,6 +67,10 @@ typedef struct
    I2C_HandleTypeDef *I2cHandle;
    uint8_t I2cDevAddr;
 
+#if defined(RTOS_FREERTOS)
+   void* i2c_semaphore;
+#endif
+
    enum VL53L0X_RUNNING_MODE running_mode;
    enum VL53L0X_SINGLE_SHOT_OPTION single_shot_option;
 

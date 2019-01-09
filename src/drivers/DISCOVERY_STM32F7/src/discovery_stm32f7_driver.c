@@ -31,6 +31,9 @@ static DMA2D_HandleTypeDef g_DMA2D_handle;
 static I2C_HandleTypeDef g_I2C_Bus1_handle;
 static I2C_HandleTypeDef g_I2C_Bus3_handle;
 
+#define V530L0X_SINGLE_DELAY                             10
+#define TOUCH_POLLING_DELAY                              10
+
 #if defined(P_NUCLEO_53L0A1)
 #define DEFAULT_53L0A1_I2C_ADDR                          0x52
 
@@ -115,17 +118,16 @@ static VL53L0_A1_GUI g_vl5310_ar_gui[]                   =
 #endif   // STEMWIN
 #endif   // P_NUCLEO_53L0A1
 
-
 #if (defined(RTOS_FREERTOS) && defined(FT5536))
 SemaphoreHandle_t g_touch_event_Semaphore                = NULL;
 #endif
 
 #if (defined(P_NUCLEO_53L0A1) && defined(RTOS_FREERTOS))
+SemaphoreHandle_t g_i2c_bus_1_semaphore                  = NULL;
+
 SemaphoreHandle_t g_53l0a1_left_event_Semaphore          = NULL;
 SemaphoreHandle_t g_53l0a1_center_event_Semaphore        = NULL;
 SemaphoreHandle_t g_53l0a1_right_event_Semaphore         = NULL;
-
-QueueHandle_t g_53l0a1_Mutex                             = NULL;
 #endif
 
 /* --------------------------------------------------------------------------
@@ -479,10 +481,12 @@ void BSP_TOUCH_IRQHandler(void)
    BaseType_t xHigherPriorityTaskWoken                   = pdFALSE;
    if (g_touch_event_Semaphore != NULL)
    {
+      // xEventGroupSetBitsFromISR
+      // xEventGroupWaitBits
       xSemaphoreGiveFromISR(g_touch_event_Semaphore, &xHigherPriorityTaskWoken);
       portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
    }
-#endif
+#endif   // RTOS_FREERTOS
 
 //   debug_output_info("Touch interrupt : %d \r\n", HAL_GPIO_ReadPin(TOUCH_FT5536_INT_PORT, TOUCH_FT5536_INT_PIN));
 }
@@ -495,49 +499,45 @@ void BSP_TOUCH_IRQHandler(void)
  * -------------------------------------------------------------------------- */
 void touch_event_task(void const* argument)
 {
+#if defined(STEMWIN)
    TOUCH_EVENT_STRUCT touch_event;
+#endif
+   int i                                                 = 0;
    while (1)
    {
-      if (xSemaphoreTake(g_touch_event_Semaphore, portMAX_DELAY) == pdPASS)
+      if (xSemaphoreTake(g_touch_event_Semaphore, 1000) == pdPASS)
       {
-         taskENTER_CRITICAL();
-         if (get_ft5536_event(&touch_event) > 0)
+         touch_start(TOUCH_FT5536_TRIGGER_MODE_POLLING);
+         while(1)
          {
-            int i;
-            debug_output_dump("pt=%d, ", touch_event.touch_point_num);
-            GUI_CURSOR_SetPosition(touch_event.touch_point[0].x_pos, touch_event.touch_point[0].y_pos);
-            GUI_CURSOR_Show();
-
-            for (i = 0; i < touch_event.touch_point_num; i++)
+            if (get_ft5536_event(&touch_event) > 0)
             {
-               debug_output_dump("[x=%3d, y=%3d, ", touch_event.touch_point[i].x_pos, touch_event.touch_point[i].y_pos);
-               debug_output_dump("action=%d,", touch_event.touch_point[i].touch_action);
-#if 0
-               switch (touch_event.touch_point[i].touch_action)
-               {
-                  case FT5336_TOUCH_EVT_FLAG_PRESS_DOWN :
-                     debug_output_dump("press, ");
-                     break;
-
-                  case FT5336_TOUCH_EVT_FLAG_LIFT_UP :
-                     debug_output_dump("up, ");
-                     break;
-
-                  case FT5336_TOUCH_EVT_FLAG_CONTACT :
-                     debug_output_dump("contact, ");
-                     break;
-
-                  case FT5336_TOUCH_EVT_FLAG_NO_EVENT :
-                     debug_output_dump("no_event, ");
-                     break;
-               }
+#if defined(STEMWIN)
+               GUI_CURSOR_SetPosition(touch_event.touch_point[0].x_pos, touch_event.touch_point[0].y_pos);
+               GUI_CURSOR_Show();
 #endif
-               debug_output_dump("weight=%3d, ", touch_event.touch_point[i].touch_weight);
-               debug_output_dump("misc=%d] ", touch_event.touch_point[i].touch_area);
+//               debug_output_dump("pt=%d, ", touch_event.touch_point_num);
+
+               for (i = 0; i < touch_event.touch_point_num; i++)
+               {
+//                  debug_output_dump("[x=%3d, y=%3d, ", touch_event.touch_point[i].x_pos, touch_event.touch_point[i].y_pos);
+//                  debug_output_dump("action=%d,", touch_event.touch_point[i].touch_action);
+//                  debug_output_dump("weight=%3d, ", touch_event.touch_point[i].touch_weight);
+//                  debug_output_dump("misc=%d] ", touch_event.touch_point[i].touch_area);
+               }
             }
-            debug_output_dump("%c\r\n", ' ');
+            else
+            {
+               touch_start(TOUCH_FT5536_TRIGGER_MODE_INTERRUPT);
+               break;
+            }
+//               debug_output_dump("%c\r\n", ' ');
+            osDelay(TOUCH_POLLING_DELAY);
          }
-         taskEXIT_CRITICAL();
+      }
+      else
+      {
+         touch_start(TOUCH_FT5536_TRIGGER_MODE_INTERRUPT);
       }
    }
 }
@@ -842,7 +842,6 @@ void BSP_53L0A1_RIGHT_IRQHandler(void)
 
 #if defined(RTOS_FREERTOS)
 int LeakyFactorFix8                                      = (int) (0.6 * 256);
-#define V530L0X_SINGLE_DELAY                             10
 /* --------------------------------------------------------------------------
  * Name : v53l0a1_center_event_task()
  *
@@ -862,9 +861,7 @@ static char measure_str[32];
    {
       if (pDev->running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
-         xSemaphoreTake(g_53l0a1_Mutex, portMAX_DELAY);
          status                                             = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
-         xSemaphoreGive(g_53l0a1_Mutex);
 
 #if defined(STEMWIN)
          GUI_ClearRectEx(&(pGUI->text_rect));
@@ -945,10 +942,7 @@ static char measure_str[32];
    {
       if (pDev->running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
-         xSemaphoreTake(g_53l0a1_Mutex, portMAX_DELAY);
          status                                          = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
-         xSemaphoreGive(g_53l0a1_Mutex);
-
 #if defined(STEMWIN)
          GUI_ClearRectEx(&(pGUI->text_rect));
          GUI_SetColor(pGUI->frame_color);
@@ -1028,10 +1022,7 @@ static char measure_str[32];
    {
       if (pDev->running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
-         xSemaphoreTake(g_53l0a1_Mutex, portMAX_DELAY);
          status                                          = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
-         xSemaphoreGive(g_53l0a1_Mutex);
-
 #if defined(STEMWIN)
          GUI_ClearRectEx(&(pGUI->text_rect));
          GUI_SetColor(pGUI->frame_color);
@@ -1709,10 +1700,23 @@ void Board_Driver_Init()
 
    // initialize I2C1
    BSP_I2C_BUS1_Init();
+#if defined(RTOS_FREERTOS)
+   // create a binary semaphore used for informing ethernetif of frame reception
+   g_i2c_bus_1_semaphore                                 = xSemaphoreCreateBinary();
+   if (g_i2c_bus_1_semaphore == NULL)
+   {
+      debug_output_error("Can't create semaphore !!! \r\n");
+      Error_Handler();
+   }
+#endif   // RTOS_FREERTOS
 
 #if defined(GPIO_STMPE1600)
    // initialize stmpe1600
-   gpio_stmpe1600_init((void *) &g_I2C_Bus1_handle);
+#if defined(RTOS_FREERTOS)
+   gpio_stmpe1600_init((void *) &g_I2C_Bus1_handle, g_i2c_bus_1_semaphore);
+#else
+   gpio_stmpe1600_init((void *) &g_I2C_Bus1_handle, NULL);
+#endif
 
 #if defined(RTOS_FREERTOS)
    // --------------------------------------------------------------------------
@@ -1723,6 +1727,12 @@ void Board_Driver_Init()
       debug_output_error("Can't create thread : stmpe1600_test_task !!! \r\n");
    }
 #endif   // RTOS_FREERTOS
+
+#if defined(RTOS_FREERTOS)
+   VL53L0XDevs[VL53L0_A1_CENTER_PORT].i2c_semaphore      = g_i2c_bus_1_semaphore;
+   VL53L0XDevs[VL53L0_A1_LEFT_PORT].i2c_semaphore        = g_i2c_bus_1_semaphore;
+   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].i2c_semaphore       = g_i2c_bus_1_semaphore;
+#endif
 
 #if defined(P_NUCLEO_53L0A1)
    if (Nucleo_53l0a1_init() < 0)
@@ -1809,10 +1819,6 @@ void Board_Driver_Init()
     g_53l0a1_left_event_Semaphore                        = xSemaphoreCreateBinary();;
     g_53l0a1_center_event_Semaphore                      = xSemaphoreCreateBinary();;
     g_53l0a1_right_event_Semaphore                       = xSemaphoreCreateBinary();;
-
-    // --------------------------------------------------------------------------
-    // Mutex
-    g_53l0a1_Mutex                                       = xSemaphoreCreateMutex();
 
     // --------------------------------------------------------------------------
     // Thread definition for v53l0a1

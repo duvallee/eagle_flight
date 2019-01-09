@@ -30,6 +30,10 @@ static I2C_HandleTypeDef* g_i2c_handle                   = NULL;
 #define STMPE1600_GPSR                                   0x12
 #define STMPE1600_GPDR                                   0x14
 
+#if defined(RTOS_FREERTOS)
+static SemaphoreHandle_t g_i2c_semaphore                 = NULL;
+#endif
+
 #if defined(GPIO_STMPE1600)
 /**
  * @defgroup XNUCLEO53L0A1_7Segment 7 segment display
@@ -174,12 +178,26 @@ static int DisplayBitPos[4]                              = {0, 7, 16, 16 + 7};
 
 
 #ifndef XNUCLEO53L0A1_GetI2cBus
+#if defined(RTOS_FREERTOS)
+static void XNUCLEO53L0A1_GetI2cBus()
+{
+   xSemaphoreTake(g_i2c_semaphore, portMAX_DELAY);
+}
+#else
 #define XNUCLEO53L0A1_GetI2cBus(...)                     (void) 0
-#endif
+#endif   // RTOS_FREERTOS
+#endif   // XNUCLEO53L0A1_GetI2cBus
 
 #ifndef XNUCLEO53L0A1_PutI2cBus
+#if defined(RTOS_FREERTOS)
+static void XNUCLEO53L0A1_PutI2cBus()
+{
+   xSemaphoreGive(g_i2c_semaphore);
+}
+#else
 #define XNUCLEO53L0A1_PutI2cBus(...)                     (void) 0
 #endif
+#endif   // XNUCLEO53L0A1_PutI2cBus
 
 static int _ExpanderRd(int I2cExpAddr, int index, uint8_t *data, int n_data);
 static int _ExpanderWR(int I2cExpAddr, int index, uint8_t *data, int n_data);
@@ -246,6 +264,7 @@ static int _ExpanderRd(int I2cExpAddr, int index, uint8_t *data, int n_data)
    int status;
    uint8_t RegAddr;
    RegAddr                                               = index;
+
    XNUCLEO53L0A1_GetI2cBus();
    do
    {
@@ -371,11 +390,15 @@ void gpio_stmpe1600_reset(enum XNUCLEO53L1A1_dev_e DevNo, int state)
  *
  *
  * -------------------------------------------------------------------------- */
-void gpio_stmpe1600_init(void* pI2C_Handle)
+void gpio_stmpe1600_init(void* pI2C_Handle, void* bus_semaphore)
 {
    int status                                            = 0;
    uint8_t ExpanderData[2]                               = {0, };
    g_i2c_handle                                          = (I2C_HandleTypeDef *) pI2C_Handle;
+
+#if defined(RTOS_FREERTOS)
+   g_i2c_semaphore                                       = bus_semaphore;
+#endif
 
    status                                                = _ExpanderRd(I2cExpAddr0, STMPE1600_CHIP_ID_LSB_REG, ExpanderData, 2);
    if (status != 0 || ExpanderData[0] != STMPE1600_CHIP_ID_LSB || ExpanderData[1] != STMPE1600_CHIP_ID_MSB)

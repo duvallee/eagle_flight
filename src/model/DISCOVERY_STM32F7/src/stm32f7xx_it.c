@@ -286,4 +286,24 @@ void OTG_HS_IRQHandler(void)
    USB_IRQHandler();
 }
 
+#if defined(QSPI_FLASH_USE)
+/* --------------------------------------------------------------------------
+ * Name : qspi_flash_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+__weak void qspi_flash_IRQHandler()
+{
+}
+
+/* --------------------------------------------------------------------------
+ * Name : QUADSPI_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void QUADSPI_IRQHandler(void)
+{
+   qspi_flash_IRQHandler();
+}
+#endif
 
