@@ -738,6 +738,7 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7_BOOTLOADER")
 	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/stm32f7xx_hal_msp.c
 	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/stm32f7xx_it.c
 	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/system_stm32f7xx.c
+	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/app.c
 
 	# C Source of user driver
 	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/discovery_stm32f7_driver.c

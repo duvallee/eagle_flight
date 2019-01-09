@@ -16,6 +16,7 @@
 
 #if defined(DISCOVERY_STM32F7_BOOTLOADER)
 #include "discovery_stm32f7_driver.h"
+#include "app.h"
 #endif
 
 #if defined(NUCLEO_H743ZI)
@@ -249,6 +250,10 @@ int main(void)
    osKernelStart();
 #else
    scheduler_init();
+#endif
+
+#if defined(DISCOVERY_STM32F7_BOOTLOADER)
+   app_init();
 #endif
 
    while (1)
