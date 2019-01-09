@@ -7,24 +7,25 @@
 		<Defines>
 			<define id="__CC_ARM" value="0" />
 			<define id="CHECKSUM_BY_HARDWARE" value="0" />
+			<define id="CLEANFLIGHT_CLI" value="0" />
 			<define id="DEBUG_STRING_LEVEL_DEBUG" value="1" />
 			<define id="DEBUG_STRING_LEVEL_DUMP" value="1" />
 			<define id="DEBUG_STRING_LEVEL_ERROR" value="1" />
 			<define id="DEBUG_STRING_LEVEL_FN_TRACE" value="1" />
 			<define id="DEBUG_STRING_LEVEL_INFO" value="1" />
 			<define id="DEBUG_STRING_LEVEL_WARN" value="1" />
-			<define id="DISCOVERY_STM32F7" value="1" />
-			<define id="DISCOVERY_STM32F7_BOOTLOADER" value="0" />
-			<define id="FT5536" value="1" />
+			<define id="DISCOVERY_STM32F7" value="0" />
+			<define id="DISCOVERY_STM32F7_BOOTLOADER" value="1" />
+			<define id="FT5536" value="0" />
 			<define id="__GNUC__" value="1" />
-			<define id="GPIO_STMPE1600" value="1" />
-			<define id="GUI_OS" value="1" />
-			<define id="GUI_SUPPORT_DEVICES" value="1" />
-			<define id="GUI_SUPPORT_MEMDEV" value="1" />
-			<define id="GUI_SUPPORT_MOUSE" value="1" />
-			<define id="GUI_SUPPORT_TOUCH" value="1" />
-			<define id="GUI_WINSUPPORT" value="1" />
-			<define id="HAL_ADC_MODULE_ENABLED" value="1" />
+			<define id="GPIO_STMPE1600" value="0" />
+			<define id="GUI_OS" value="0" />
+			<define id="GUI_SUPPORT_DEVICES" value="0" />
+			<define id="GUI_SUPPORT_MEMDEV" value="0" />
+			<define id="GUI_SUPPORT_MOUSE" value="0" />
+			<define id="GUI_SUPPORT_TOUCH" value="0" />
+			<define id="GUI_WINSUPPORT" value="0" />
+			<define id="HAL_ADC_MODULE_ENABLED" value="0" />
 			<define id="HAL_CAN_MODULE_ENABLED" value="0" />
 			<define id="HAL_CEC_MODULE_ENABLED" value="0" />
 			<define id="HAL_CORTEX_MODULE_ENABLED" value="1" />
@@ -71,27 +72,15 @@
 			<define id="HAL_USART_MODULE_ENABLED" value="0" />
 			<define id="HAL_WWDG_MODULE_ENABLED" value="0" />
 			<define id="__ICCARM__" value="0" />
-			<define id="INCLUDE_uxTaskPriorityGet" value="1" />
-			<define id="INCLUDE_vTaskCleanUpResources" value="0" />
-			<define id="INCLUDE_vTaskDelay" value="1" />
-			<define id="INCLUDE_vTaskDelayUntil" value="0" />
-			<define id="INCLUDE_vTaskDelete" value="1" />
-			<define id="INCLUDE_vTaskPrioritySet" value="1" />
-			<define id="INCLUDE_vTaskSuspend" value="1" />
-			<define id="INCLUDE_xTaskGetSchedulerState" value="1" />
-			<define id="LWIP_DHCP" value="1" />
-			<define id="LWIP_NETIF_LINK_CALLBACK" value="1" />
-			<define id="LWIP_STATS" value="0" />
-			<define id="LWIP_TIMEVAL_PRIVATE" value="0" />
 			<define id="MEM_ALIGNMENT" value="4" />
 			<define id="MICRON_N25Q128A" value="1" />
 			<define id="NET_LWIP" value="0" />
 			<define id="NUCLEO_H743ZI" value="0" />
 			<define id="NUM_BUFFERS" value="3" />
 			<define id="OS_SUPPORT" value="1" />
-			<define id="P_NUCLEO_53L0A1" value="1" />
+			<define id="P_NUCLEO_53L0A1" value="0" />
 			<define id="QSPI_FLASH_USE" value="1" />
-			<define id="RTOS_FREERTOS" value="1" />
+			<define id="RTOS_FREERTOS" value="0" />
 			<define id="STEMWIN" value="1" />
 			<define id="STEVAL_FCU001V1" value="0" />
 			<define id="STM32F401xC" value="1" />
