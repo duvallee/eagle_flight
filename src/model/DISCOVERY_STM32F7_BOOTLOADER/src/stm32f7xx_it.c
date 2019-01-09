@@ -37,11 +37,9 @@
  *
  *
  * -------------------------------------------------------------------------- */
-#if !defined(RTOS_FREERTOS)
 void NMI_Handler(void)
 {
 }
-#endif
 
 /* --------------------------------------------------------------------------
  * Name : HardFault_Handler()
@@ -88,11 +86,9 @@ void UsageFault_Handler(void)
  *
  *
  * -------------------------------------------------------------------------- */
-#if !defined(RTOS_FREERTOS)
 void SVC_Handler(void)
 {
 }
-#endif
 
 /* --------------------------------------------------------------------------
  * Name : DebugMon_Handler()
@@ -108,11 +104,9 @@ void DebugMon_Handler(void)
  *
  *
  * -------------------------------------------------------------------------- */
-#if !defined(RTOS_FREERTOS)
 void PendSV_Handler(void)
 {
 }
-#endif
 
 
 #if defined(UART_DEBUG_OUTPUT)
@@ -134,11 +128,6 @@ void SysTick_Handler(void)
 #if defined(UART_DEBUG_OUTPUT)
    debug_tick_timer_handler();
 #endif
-
-
-#if defined(RTOS_FREERTOS)
-   osSystickHandler();
-#endif
 }
 
 /******************************************************************************/
@@ -147,125 +136,6 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f7xx.s).                    */
 /******************************************************************************/
-
-/* --------------------------------------------------------------------------
- * Name : BSP_LTDC_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-__weak void BSP_LTDC_IRQHandler(void)
-{
-}
-
-/* --------------------------------------------------------------------------
- * Name : LTDC_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-void LTDC_IRQHandler(void)
-{
-   BSP_LTDC_IRQHandler();
-}
-
-/* --------------------------------------------------------------------------
- * Name : BSP_53L0A1_LEFT_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-__weak void BSP_53L0A1_LEFT_IRQHandler(void)
-{
-}
-
-/* --------------------------------------------------------------------------
- * Name : EXTI2_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-void EXTI2_IRQHandler(void)
-{
-   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != 0)
-   {
-      BSP_53L0A1_LEFT_IRQHandler();
-      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
-   }
-}
-
-/* --------------------------------------------------------------------------
- * Name : BSP_53L0A1_CENTER_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-__weak void BSP_53L0A1_CENTER_IRQHandler(void)
-{
-}
-
-/* --------------------------------------------------------------------------
- * Name : BSP_53L0A1_RIGHT_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-__weak void BSP_53L0A1_RIGHT_IRQHandler(void)
-{
-}
-
-/* --------------------------------------------------------------------------
- * Name : EXTI9_5_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-void EXTI9_5_IRQHandler(void)
-{
-   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != 0)
-   {
-      BSP_53L0A1_RIGHT_IRQHandler();
-      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
-   }
-
-   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != 0)
-   {
-      BSP_53L0A1_CENTER_IRQHandler();
-      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
-   }
-}
-
-/* --------------------------------------------------------------------------
- * Name : BSP_TOUCH_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-__weak void BSP_TOUCH_IRQHandler(void)
-{
-}
-
-/* --------------------------------------------------------------------------
- * Name : EXTI15_10_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-void EXTI15_10_IRQHandler(void)
-{
-   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != 0)
-   {
-      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
-   }
-
-   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != 0)
-   {
-      BSP_TOUCH_IRQHandler();
-      HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-   }
-}
-
-/* --------------------------------------------------------------------------
- * Name : ETH_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-void ETH_IRQHandler(void)
-{
-   HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_6);
-//   HAL_ETH_IRQHandler(&heth);
-}
 
 /* --------------------------------------------------------------------------
  * Name : USB_IRQHandler()

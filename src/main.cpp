@@ -14,6 +14,10 @@
 #include "discovery_stm32f7_driver.h"
 #endif
 
+#if defined(DISCOVERY_STM32F7_BOOTLOADER)
+#include "discovery_stm32f7_driver.h"
+#endif
+
 #if defined(NUCLEO_H743ZI)
 #include "nucleo_h743zi_driver.h"
 #endif
@@ -30,7 +34,7 @@
 #include "qspi_flash.h"
 #endif
 
-#if (defined(NUCLEO_H743ZI) || defined(DISCOVERY_STM32F7))
+#if (defined(NUCLEO_H743ZI) || defined(DISCOVERY_STM32F7) || defined(DISCOVERY_STM32F7_BOOTLOADER))
 /* --------------------------------------------------------------------------
  * Name : CPU_CACHE_Enable()
  *
@@ -61,7 +65,7 @@ static void CPU_CACHE_Enable(void)
 }
 #endif
 
-#if defined(DISCOVERY_STM32F7)
+#if (defined(DISCOVERY_STM32F7) || defined(DISCOVERY_STM32F7_BOOTLOADER))
 /* --------------------------------------------------------------------------
  * Name : MPU_Config()
  *
@@ -180,11 +184,11 @@ void freertos_idle_task(void const* argument)
 int main(void)
 {
    // Configure the MPU attributes as Write Through
-#if defined(DISCOVERY_STM32F7)
+#if (defined(DISCOVERY_STM32F7) || defined(DISCOVERY_STM32F7_BOOTLOADER))
    MPU_Config();
 #endif
 
-#if (defined(NUCLEO_H743ZI) || defined(DISCOVERY_STM32F7))
+#if (defined(NUCLEO_H743ZI) || defined(DISCOVERY_STM32F7) || defined(DISCOVERY_STM32F7_BOOTLOADER))
    CPU_CACHE_Enable();
 #endif
 
@@ -216,12 +220,12 @@ int main(void)
       debug_output_error("qspi_flash_init() failed !!! \r\n");
       Error_Handler();
    }
+#if defined(DISCOVERY_STM32F7)
    qspi_flash_EnableMemoryMappedMode();
-#endif
+#endif   // DISCOVERY_STM32F7
+#endif   // QSPI_FLASH_USE
 
-   __HAL_RCC_BKPSRAM_CLK_ENABLE();
-
-   Board_Driver_Init();
+    Board_Driver_Init();
 
 #if (defined(USE_USB_CDC_DEVICE) || defined(USE_USB_BULK_DEVICE))
    usb_device_init();
@@ -246,7 +250,6 @@ int main(void)
 #else
    scheduler_init();
 #endif
-
 
    while (1)
    {

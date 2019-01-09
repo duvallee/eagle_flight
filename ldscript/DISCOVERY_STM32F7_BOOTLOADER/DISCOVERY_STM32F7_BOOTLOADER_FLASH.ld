@@ -42,9 +42,12 @@ _Min_Heap_Size = 0;      /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Specify the memory areas */
+/* 0x0800 0000 -- 0x0800 7FFF : 32 KB */
+/* 0x0800 8000 -- 0x0800 FFFF : 32 KB */
+/* 0x0801 0000 -- 0x0801 7FFF : 32 KB, Env */
 MEMORY
 {
-  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 64K
   DTCMRAM (xrw)   : ORIGIN = 0x20000000, LENGTH = 64K
   SRAM1 (xrw)     : ORIGIN = 0x20010000, LENGTH = 240K
   SRAM2 (xrw)     : ORIGIN = 0x2004C000, LENGTH = 16K

@@ -244,7 +244,16 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef* pdev)
 
 #if defined(USE_USB_HS)
    // Set LL Driver parameters
+   // Set LL Driver parameters
+#if defined(STM32F4XX)
+   g_usb_pcd.Instance                                    = USB_OTG_HS;
+#elif defined(STM32F7xx)
+   g_usb_pcd.Instance                                    = USB_OTG_HS;
+#elif defined(STM32H7xx)
    g_usb_pcd.Instance                                    = USB1_OTG_HS;
+#else
+#error "Unknown definition !!!"
+#endif
    g_usb_pcd.Init.dev_endpoints                          = 8;
    g_usb_pcd.Init.use_dedicated_ep1                      = 0;
    g_usb_pcd.Init.ep0_mps                                = 0x40;
