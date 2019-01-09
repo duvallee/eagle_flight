@@ -125,6 +125,8 @@ SemaphoreHandle_t g_touch_event_Semaphore                = NULL;
 #if (defined(P_NUCLEO_53L0A1) && defined(RTOS_FREERTOS))
 SemaphoreHandle_t g_i2c_bus_1_semaphore                  = NULL;
 
+SemaphoreHandle_t g_53l0a1_semaphore                     = NULL;
+
 SemaphoreHandle_t g_53l0a1_left_event_Semaphore          = NULL;
 SemaphoreHandle_t g_53l0a1_center_event_Semaphore        = NULL;
 SemaphoreHandle_t g_53l0a1_right_event_Semaphore         = NULL;
@@ -861,7 +863,9 @@ static char measure_str[32];
    {
       if (pDev->running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
+         xSemaphoreTake(g_53l0a1_semaphore, portMAX_DELAY);
          status                                             = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
+         xSemaphoreGive(g_53l0a1_semaphore);
 
 #if defined(STEMWIN)
          GUI_ClearRectEx(&(pGUI->text_rect));
@@ -942,7 +946,9 @@ static char measure_str[32];
    {
       if (pDev->running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
+         xSemaphoreTake(g_53l0a1_semaphore, portMAX_DELAY);
          status                                          = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
+         xSemaphoreGive(g_53l0a1_semaphore);
 #if defined(STEMWIN)
          GUI_ClearRectEx(&(pGUI->text_rect));
          GUI_SetColor(pGUI->frame_color);
@@ -1022,7 +1028,9 @@ static char measure_str[32];
    {
       if (pDev->running_mode == VL53L0X_RUNNING_SINGLE_SHOT_MODE)
       {
+         xSemaphoreTake(g_53l0a1_semaphore, portMAX_DELAY);
          status                                          = VL53L0X_PerformSingleRangingMeasurement(pDev, &RangingMeasurementData);
+         xSemaphoreGive(g_53l0a1_semaphore);
 #if defined(STEMWIN)
          GUI_ClearRectEx(&(pGUI->text_rect));
          GUI_SetColor(pGUI->frame_color);
@@ -1515,13 +1523,12 @@ static char szString[6];
    while (1)
    {
       osDelay(1000);
-//      debug_output_info("================== stmpe1600_test_task ================== \r\n");
-      taskENTER_CRITICAL();
+      xSemaphoreTake(g_53l0a1_semaphore, portMAX_DELAY);
       sprintf(szString, "%04d", test_count++);
 #if defined(GPIO_STMPE1600)
       XNUCLEO53L1A1_SetDisplayString(szString);
 #endif
-      taskEXIT_CRITICAL();
+      xSemaphoreGive(g_53l0a1_semaphore);
    }
 }
 #endif
@@ -1702,18 +1709,24 @@ void Board_Driver_Init()
    BSP_I2C_BUS1_Init();
 #if defined(RTOS_FREERTOS)
    // create a binary semaphore used for informing ethernetif of frame reception
-   g_i2c_bus_1_semaphore                                 = xSemaphoreCreateBinary();
+//   g_i2c_bus_1_semaphore                                 = xSemaphoreCreateBinary();
+
+   g_i2c_bus_1_semaphore                                 = xSemaphoreCreateMutex();
+
    if (g_i2c_bus_1_semaphore == NULL)
    {
       debug_output_error("Can't create semaphore !!! \r\n");
       Error_Handler();
    }
+
+   g_53l0a1_semaphore                                    = xSemaphoreCreateMutex();
+
 #endif   // RTOS_FREERTOS
 
 #if defined(GPIO_STMPE1600)
    // initialize stmpe1600
 #if defined(RTOS_FREERTOS)
-   gpio_stmpe1600_init((void *) &g_I2C_Bus1_handle, g_i2c_bus_1_semaphore);
+   gpio_stmpe1600_init((void *) &g_I2C_Bus1_handle, (void *) &g_i2c_bus_1_semaphore);
 #else
    gpio_stmpe1600_init((void *) &g_I2C_Bus1_handle, NULL);
 #endif
@@ -1729,9 +1742,9 @@ void Board_Driver_Init()
 #endif   // RTOS_FREERTOS
 
 #if defined(RTOS_FREERTOS)
-   VL53L0XDevs[VL53L0_A1_CENTER_PORT].i2c_semaphore      = g_i2c_bus_1_semaphore;
-   VL53L0XDevs[VL53L0_A1_LEFT_PORT].i2c_semaphore        = g_i2c_bus_1_semaphore;
-   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].i2c_semaphore       = g_i2c_bus_1_semaphore;
+   VL53L0XDevs[VL53L0_A1_CENTER_PORT].i2c_semaphore      = (void *) &g_i2c_bus_1_semaphore;
+   VL53L0XDevs[VL53L0_A1_LEFT_PORT].i2c_semaphore        = (void *) &g_i2c_bus_1_semaphore;
+   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].i2c_semaphore       = (void *) &g_i2c_bus_1_semaphore;
 #endif
 
 #if defined(P_NUCLEO_53L0A1)
@@ -1816,9 +1829,15 @@ void Board_Driver_Init()
 
     // --------------------------------------------------------------------------
     // semaphore
+#if 1
+    g_53l0a1_left_event_Semaphore                        = xSemaphoreCreateMutex();;
+    g_53l0a1_center_event_Semaphore                      = xSemaphoreCreateMutex();;
+    g_53l0a1_right_event_Semaphore                       = xSemaphoreCreateMutex();;
+#else
     g_53l0a1_left_event_Semaphore                        = xSemaphoreCreateBinary();;
     g_53l0a1_center_event_Semaphore                      = xSemaphoreCreateBinary();;
     g_53l0a1_right_event_Semaphore                       = xSemaphoreCreateBinary();;
+#endif
 
     // --------------------------------------------------------------------------
     // Thread definition for v53l0a1

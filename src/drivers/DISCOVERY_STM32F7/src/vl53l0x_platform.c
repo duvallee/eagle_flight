@@ -24,7 +24,7 @@
 #if defined(RTOS_FREERTOS)
 void VL53L0X_GetI2cBus(VL53L0X_DEV Dev)
 {
-   xSemaphoreTake(Dev->i2c_semaphore, portMAX_DELAY);
+//   xSemaphoreTake(*(Dev->i2c_semaphore), portMAX_DELAY);
 }
 #else
 #define VL53L0X_GetI2cBus(...)                           (void) 0
@@ -35,7 +35,7 @@ void VL53L0X_GetI2cBus(VL53L0X_DEV Dev)
 #if defined(RTOS_FREERTOS)
 void VL53L0X_PutI2cBus(VL53L0X_DEV Dev)
 {
-   xSemaphoreGive(Dev->i2c_semaphore);
+//   xSemaphoreGive(*(Dev->i2c_semaphore));
 }
 #else
 // This macro can be overloaded by user to enforce i2c sharing in RTOS context
@@ -47,7 +47,8 @@ void VL53L0X_PutI2cBus(VL53L0X_DEV Dev)
 #if defined(RTOS_FREERTOS)
 void VL53L0X_OsDelay(uint32_t milli_second)
 {
-   osDelay(milli_second);
+//   osDelay(milli_second);
+//   HAL_Delay(milli_second);
 }
 #else
 #define VL53L0X_OsDelay(x)                               HAL_Delay(x)

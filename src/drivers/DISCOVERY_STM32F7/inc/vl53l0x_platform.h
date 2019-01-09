@@ -68,7 +68,7 @@ typedef struct
    uint8_t I2cDevAddr;
 
 #if defined(RTOS_FREERTOS)
-   void* i2c_semaphore;
+   SemaphoreHandle_t* i2c_semaphore;
 #endif
 
    enum VL53L0X_RUNNING_MODE running_mode;

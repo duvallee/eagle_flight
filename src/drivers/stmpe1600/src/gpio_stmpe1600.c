@@ -31,7 +31,7 @@ static I2C_HandleTypeDef* g_i2c_handle                   = NULL;
 #define STMPE1600_GPDR                                   0x14
 
 #if defined(RTOS_FREERTOS)
-static SemaphoreHandle_t g_i2c_semaphore                 = NULL;
+static SemaphoreHandle_t* g_i2c_semaphore                = NULL;
 #endif
 
 #if defined(GPIO_STMPE1600)
@@ -181,7 +181,7 @@ static int DisplayBitPos[4]                              = {0, 7, 16, 16 + 7};
 #if defined(RTOS_FREERTOS)
 static void XNUCLEO53L0A1_GetI2cBus()
 {
-   xSemaphoreTake(g_i2c_semaphore, portMAX_DELAY);
+//   xSemaphoreTake(*g_i2c_semaphore, portMAX_DELAY);
 }
 #else
 #define XNUCLEO53L0A1_GetI2cBus(...)                     (void) 0
@@ -192,7 +192,7 @@ static void XNUCLEO53L0A1_GetI2cBus()
 #if defined(RTOS_FREERTOS)
 static void XNUCLEO53L0A1_PutI2cBus()
 {
-   xSemaphoreGive(g_i2c_semaphore);
+//   xSemaphoreGive(*g_i2c_semaphore);
 }
 #else
 #define XNUCLEO53L0A1_PutI2cBus(...)                     (void) 0
