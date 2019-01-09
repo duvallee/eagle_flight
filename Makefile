@@ -189,6 +189,49 @@ ifeq ("$(TARGET_BOARD)", "STEVAL_FCU001V1")
 	INCLUDE_DIR += -I./Drivers/$(TARGET_HAL_VERSION)/STM32F4xx_HAL_Driver/Inc/Legacy
 endif
 
+# "DISCOVERY_STM32F7_BOOTLOADER"
+ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7_BOOTLOADER")
+	TARGET_MCU += -mcpu=cortex-m7
+	TARGET_FPU += -mfpu=fpv5-sp-d16
+	TARGET_INSTRUCTION += -mthumb -mhard-float
+	TARGET_C_EXTRA += -ffunction-sections -fdata-sections -specs=nano.specs
+	TARGET_CXX_EXTRA += -fno-threadsafe-statics -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti
+	TARGET_A_EXTRA += -specs=nano.specs -x assembler-with-cpp
+
+	TARGET_HAL_DEFINITION += -DSTM32F7xx -DSTM32F746xx -DUSE_HAL_DRIVER
+	TARGET_MODEL_DEFINITION += -D$(TARGET_BOARD) -DUART_DEBUG_PORT=6 -DSUPPORT_DEBUG_OUTPUT -DUART_DEBUG_OUTPUT -DDEBUG_STRING_LEVEL_ERROR
+#	TARGET_MODEL_DEFINITION += -DSYSTEM_CLOCK_MAX_216MHZ
+	TARGET_MODEL_DEFINITION += -DSYSTEM_CLOCK_200MHZ
+	TARGET_MODEL_DEFINITION += -DUSE_USB_BULK_DEVICE -DUSE_USB_HS
+
+	# HAL Library Version
+	TARGET_HAL_VERSION := F7_V1.14.0
+
+	# supported usb device
+	USB_DEVICE := BULK
+	USE_USB_DEVICE := USED
+
+	# QSPI NOR Flash Memory
+	QSPI_FLASH_USE := QSPI_FLASH_USE
+	QSPI_MEMORY_TYPE := MICRON_N25Q128A
+
+	ifeq ("$(DEBUG)", "1")
+		TARGET := $(TARGET_BOARD)_DEBUG
+		BUILD_OPTION += -g -O0
+		TARGET_MODEL_DEFINITION += -DDEBUG_STRING_LEVEL_WARN -DDEBUG_STRING_LEVEL_DEBUG -DDEBUG_STRING_LEVEL_FN_TRACE -DDEBUG_STRING_LEVEL_INFO -DDEBUG_STRING_LEVEL_DUMP
+	else
+		TARGET := $(TARGET_BOARD)_RELEASE
+		BUILD_OPTION += -O3
+	endif
+
+	# for HAL library & CMSIS
+	INCLUDE_DIR += -I./Drivers/$(TARGET_HAL_VERSION)/CMSIS/Include
+	INCLUDE_DIR += -I./Drivers/$(TARGET_HAL_VERSION)/CMSIS/Device/ST/STM32F7xx/Include
+	INCLUDE_DIR += -I./Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Inc
+	INCLUDE_DIR += -I./Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Inc/Legacy
+endif
+
+
 # "DISCOVERY_STM32F7"
 ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 	TARGET_MCU += -mcpu=cortex-m7
@@ -308,6 +351,43 @@ ifeq ("$(TARGET_BOARD)", "STEVAL_FCU001V1")
 		HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.c
 	endif
 endif
+
+# "DISCOVERY_STM32F7_BOOTLOADER"
+ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7_BOOTLOADER")
+	# HAL Library Source
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.c
+
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_usart.c
+
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.c
+
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma_ex.c
+
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash_ex.c
+
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr_ex.c
+
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_ll_fmc.c
+	HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_sdram.c
+
+	ifeq ($(QSPI_FLASH_USE), QSPI_FLASH_USE)
+		HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_qspi.c
+	endif
+
+	ifeq ($(USE_USB_DEVICE),USED)
+		HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pcd.c
+		HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pcd_ex.c
+		HAL_LIBRARY_C_SRC += Drivers/$(TARGET_HAL_VERSION)/STM32F7xx_HAL_Driver/Src/stm32f7xx_ll_usb.c
+	endif
+endif
+
 
 # "DISCOVERY_STM32F7"
 ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
@@ -647,6 +727,21 @@ ifeq ("$(TARGET_BOARD)", "STEVAL_FCU001V1")
 	MODEL_CXX_SRC +=
 endif
 
+# "DISCOVERY_STM32F7_BOOTLOADER"
+ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7_BOOTLOADER")
+	INCLUDE_DIR += -Isrc/model/$(TARGET_BOARD)/inc
+	INCLUDE_DIR += -Isrc/drivers/$(TARGET_BOARD)/inc
+
+	ASM_SRC += src/startup/$(TARGET_BOARD)/startup_stm32f746xx.s
+
+	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/stm32f7xx_hal_msp.c
+	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/stm32f7xx_it.c
+	MODEL_C_SRC += src/model/$(TARGET_BOARD)/src/system_stm32f7xx.c
+
+	# C Source of user driver
+	DRIVERS_C_SRC += src/drivers/$(TARGET_BOARD)/src/discovery_stm32f7_driver.c
+endif
+
 # "DISCOVERY_STM32F7"
 ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 	INCLUDE_DIR += -Isrc/model/$(TARGET_BOARD)/inc
@@ -668,7 +763,6 @@ ifeq ("$(TARGET_BOARD)", "DISCOVERY_STM32F7")
 		DRIVERS_C_SRC += src/drivers/lwip/src/dhcp_ethernet.c
 	endif
 endif
-
 
 # "NUCLEO_H743ZI"
 ifeq ("$(TARGET_BOARD)", "NUCLEO_H743ZI")
