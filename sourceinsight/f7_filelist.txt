@@ -409,6 +409,9 @@
 .\src\drivers\lwip\src\dhcp_ethernet.c
 .\src\drivers\lwip\src\ethernetif.c
 .\src\drivers\lwip\src\lwip.c
+.\src\drivers\qspi\inc\n25q128a.h
+.\src\drivers\qspi\inc\qspi_flash.h
+.\src\drivers\qspi\src\qspi_flash.c
 .\src\drivers\stemwin\inc\GUIConf.h
 .\src\drivers\stemwin\inc\LCDConf.h
 .\src\drivers\stemwin\src\GUIConf.c

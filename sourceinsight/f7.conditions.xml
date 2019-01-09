@@ -83,11 +83,13 @@
 			<define id="LWIP_STATS" value="0" />
 			<define id="LWIP_TIMEVAL_PRIVATE" value="0" />
 			<define id="MEM_ALIGNMENT" value="4" />
+			<define id="MICRON_N25Q128A" value="1" />
 			<define id="NET_LWIP" value="0" />
 			<define id="NUCLEO_H743ZI" value="0" />
 			<define id="NUM_BUFFERS" value="3" />
 			<define id="OS_SUPPORT" value="1" />
 			<define id="P_NUCLEO_53L0A1" value="1" />
+			<define id="QSPI_FLASH_USE" value="1" />
 			<define id="RTOS_FREERTOS" value="1" />
 			<define id="STEMWIN" value="1" />
 			<define id="STEVAL_FCU001V1" value="0" />
