@@ -901,6 +901,10 @@ static char measure_str[32];
          }
          else
          {
+#if defined(STEMWIN)
+            sprintf(measure_str, "~~~ mm");
+            GUI__DispStringInRect(measure_str, &pGUI->text_rect, GUI_TA_CENTER | GUI_TA_VCENTER, strlen(measure_str));
+#endif
             pDev->LeakyFirst                             = 1;
          }
          osDelay(V530L0X_SINGLE_DELAY);
@@ -984,6 +988,10 @@ static char measure_str[32];
          }
          else
          {
+#if defined(STEMWIN)
+            sprintf(measure_str, "~~~ mm");
+            GUI__DispStringInRect(measure_str, &pGUI->text_rect, GUI_TA_CENTER | GUI_TA_VCENTER, strlen(measure_str));
+#endif
             pDev->LeakyFirst = 1;
          }
          osDelay(V530L0X_SINGLE_DELAY);
@@ -1065,6 +1073,10 @@ static char measure_str[32];
          }
          else
          {
+#if defined(STEMWIN)
+            sprintf(measure_str, "~~~ mm");
+            GUI__DispStringInRect(measure_str, &pGUI->text_rect, GUI_TA_CENTER | GUI_TA_VCENTER, strlen(measure_str));
+#endif
             pDev->LeakyFirst = 1;
          }
          osDelay(V530L0X_SINGLE_DELAY);
@@ -1761,7 +1773,7 @@ void Board_Driver_Init()
 
    VL53L0XDevs[VL53L0_A1_CENTER_PORT].single_shot_option = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_ACCURACY;
    VL53L0XDevs[VL53L0_A1_LEFT_PORT].single_shot_option   = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_ACCURACY;
-   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].single_shot_option  = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_ACCURACY;
+   VL53L0XDevs[VL53L0_A1_RIGHT_PORT].single_shot_option  = VL53L0X_RUNNING_SINGLE_SHOT_LONG_RANGE;
 
 //   VL53L0XDevs[VL53L0_A1_CENTER_PORT].single_shot_option = VL53L0X_RUNNING_SINGLE_SHOT_LONG_RANGE;
 //   VL53L0XDevs[VL53L0_A1_LEFT_PORT].single_shot_option   = VL53L0X_RUNNING_SINGLE_SHOT_HIGH_ACCURACY;
