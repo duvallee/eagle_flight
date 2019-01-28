@@ -43,7 +43,7 @@ extern "C" {
 #define ARDUINO_CN4_PIN_05_PORT                          GPIOG
 #define ARDUINO_CN4_PIN_05                               GPIO_PIN_7
 
-// Connector 4 - Pin 6 : (TIM5_CH4, SPI2_NSS/I2S_WS)
+// Connector 4 - Pin 6 : (TIM1_CH1)
 // 5V tolerant I/O
 #define ARDUINO_CN4_PIN_06_PORT                          GPIOI
 #define ARDUINO_CN4_PIN_06                               GPIO_PIN_0

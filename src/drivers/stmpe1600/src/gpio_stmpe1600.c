@@ -390,7 +390,7 @@ void gpio_stmpe1600_reset(enum XNUCLEO53L1A1_dev_e DevNo, int state)
  *
  *
  * -------------------------------------------------------------------------- */
-void gpio_stmpe1600_init(void* pI2C_Handle, void* bus_semaphore)
+int gpio_stmpe1600_init(void* pI2C_Handle, void* bus_semaphore)
 {
    int status                                            = 0;
    uint8_t ExpanderData[2]                               = {0, };
@@ -404,6 +404,7 @@ void gpio_stmpe1600_init(void* pI2C_Handle, void* bus_semaphore)
    if (status != 0 || ExpanderData[0] != STMPE1600_CHIP_ID_LSB || ExpanderData[1] != STMPE1600_CHIP_ID_MSB)
    {
       debug_output_error("I2C Expander @0x%02X not detected \r\n", (int) I2cExpAddr0);
+      return -1;
    }
    debug_output_info("Found STMPE1600 gpio extension 1 \r\n");
 
@@ -411,6 +412,7 @@ void gpio_stmpe1600_init(void* pI2C_Handle, void* bus_semaphore)
    if (status != 0 || ExpanderData[0] != STMPE1600_CHIP_ID_LSB || ExpanderData[1] != STMPE1600_CHIP_ID_MSB)
    {
       debug_output_error("I2C Expander @0x%02X not detected \r\n", (int) I2cExpAddr0);
+      return -1;
    }
    debug_output_info("Found STMPE1600 gpio extension 2 \r\n");
 
@@ -440,6 +442,7 @@ void gpio_stmpe1600_init(void* pI2C_Handle, void* bus_semaphore)
    {
       debug_output_error("Set initial i/o  \r\n");
    }
+   return 0;
 }
 
 

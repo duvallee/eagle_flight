@@ -17,7 +17,7 @@ enum XNUCLEO53L1A1_dev_e
 };
 
 // ============================================================================
-void gpio_stmpe1600_init(void*, void*);
+int gpio_stmpe1600_init(void*, void*);
 void gpio_stmpe1600_reset(enum XNUCLEO53L1A1_dev_e DevNo, int state);
 
 int XNUCLEO53L1A1_SetDisplayString(const char *str);

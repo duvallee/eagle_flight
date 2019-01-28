@@ -325,46 +325,6 @@ void HAL_DMA2D_MspDeInit(DMA2D_HandleTypeDef* hdma2d)
 }
 
 /* --------------------------------------------------------------------------
- * Name : HAL_TIM_Base_MspInit()
- *        
- *
- * -------------------------------------------------------------------------- */
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
-{
-   if (htim_base->Instance == TIM6)
-   {
-      /* Peripheral clock enable */
-      __HAL_RCC_TIM6_CLK_ENABLE();
-   }
-   else if (htim_base->Instance == TIM1)
-   {
-      /* Peripheral clock enable */
-      __HAL_RCC_TIM1_CLK_ENABLE();
-   }
-   else if(htim_base->Instance == TIM12)
-   {
-      /* Peripheral clock enable */
-      __HAL_RCC_TIM12_CLK_ENABLE();
-   }
-}
-
-
-/* --------------------------------------------------------------------------
- * Name : HAL_TIM_Base_MspDeInit()
- *        
- *
- * -------------------------------------------------------------------------- */
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
-{
-   if (htim_base->Instance == TIM6)
-   {
-      /* Peripheral clock disable */
-      __HAL_RCC_TIM6_CLK_DISABLE();
-   }
-}
-
-
-/* --------------------------------------------------------------------------
  * Name : HAL_UART_MspInit()
  *        
  *
@@ -733,7 +693,70 @@ void HAL_QSPI_MspDeInit(QSPI_HandleTypeDef *hqspi)
 
 #endif
 
+#if defined(TIMER_TEST)
+// ***************************************************************************
+// Fuction      : HAL_TIM_Base_MspInit()
+// Description  : 
+// 
+//
+// ***************************************************************************
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
+{
+   GPIO_InitTypeDef GPIO_InitStruct;
+   if (htim_base->Instance == TIM1)
+   {
+      // Peripheral clock enable
+      __TIM1_CLK_ENABLE();
+      __HAL_RCC_GPIOA_CLK_ENABLE();
+  
+      GPIO_InitStruct.Pin                                = ARDUINO_CN7_PIN_03;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_LOW;
+      GPIO_InitStruct.Alternate                          = GPIO_AF1_TIM1;
+      HAL_GPIO_Init(ARDUINO_CN7_PIN_03_PORT, &GPIO_InitStruct);
+   }
+   else if (htim_base->Instance == TIM12)
+   {
+      // Peripheral clock enable
+      __TIM12_CLK_ENABLE();
+      __HAL_RCC_GPIOB_CLK_ENABLE();
+      __HAL_RCC_GPIOH_CLK_ENABLE();
 
+      // Connector 7 - Pin 4 : (RTC_REFIN, TIM1_CH3N, TIM8_CH_3N, SPI2_MOSI/I2S2_SD, TIM12_CH2 ...)
+      // 5V tolerant I/O
+      GPIO_InitStruct.Pin                                = ARDUINO_CN7_PIN_04;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_HIGH;
+      GPIO_InitStruct.Alternate                          = GPIO_AF9_TIM12;
+      HAL_GPIO_Init(ARDUINO_CN7_PIN_04_PORT, &GPIO_InitStruct);                     // TIM12_CH2
 
+      // Connector 4 - Pin 7 : (I2C2_SMBA, SPI5_SCK,TIM12_CH1 ...)
+      // 5V tolerant I/O
+      GPIO_InitStruct.Pin                                = ARDUINO_CN4_PIN_07;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_HIGH;
+      GPIO_InitStruct.Alternate                          = GPIO_AF9_TIM12;
+      HAL_GPIO_Init(ARDUINO_CN4_PIN_07_PORT, &GPIO_InitStruct);                     // TIM12_CH1
+   }
+}
+
+// ***************************************************************************
+// Fuction      : HAL_TIM_Base_MspDeInit()
+// Description  : 
+// 
+//
+// ***************************************************************************
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
+{
+   if (htim_base->Instance == TIM1)
+   {
+      __TIM1_CLK_DISABLE();
+   }
+}
+
+#endif
 
 
