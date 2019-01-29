@@ -175,9 +175,11 @@ static void test_timer1()
    HAL_GPIO_Init(ARDUINO_CN4_PIN_08_PORT, &GPIO_InitStruct);
 
    g_htim1_timer.Instance                                = TIM1;
-   g_htim1_timer.Init.Prescaler                          = 1;                           // Freq 100MHz(200MHz / (1 + 1))
+   g_htim1_timer.Init.Prescaler                          = 3;                           // Freq 50MHz(200MHz / (3 + 1))
    g_htim1_timer.Init.CounterMode                        = TIM_COUNTERMODE_UP;
-   g_htim1_timer.Init.Period                             = 999;                         // 100 KHz (100MHz / 1000) : 10us
+//   g_htim1_timer.Init.CounterMode                        = TIM_COUNTERMODE_CENTERALIGNED1;
+
+   g_htim1_timer.Init.Period                             = 999;                         // 50 KHz (100MHz / 1000) : 20us
 
    g_htim1_timer.Init.ClockDivision                      = TIM_CLOCKDIVISION_DIV1;
 
@@ -196,16 +198,15 @@ static void test_timer1()
    sMasterConfig.MasterSlaveMode                         = TIM_MASTERSLAVEMODE_DISABLE;
    HAL_TIMEx_MasterConfigSynchronization(&g_htim1_timer, &sMasterConfig);
 
-   sConfigOC.OCMode                                      = TIM_OCMODE_PWM1;
-   sConfigOC.Pulse                                       = 499;
+   sConfigOC.OCMode                                      = TIM_OCMODE_TOGGLE;
+   sConfigOC.Pulse                                       = 0;
    sConfigOC.OCPolarity                                  = TIM_OCPOLARITY_HIGH;
    sConfigOC.OCNPolarity                                 = TIM_OCNPOLARITY_HIGH;
    sConfigOC.OCFastMode                                  = TIM_OCFAST_DISABLE;
    sConfigOC.OCIdleState                                 = TIM_OCIDLESTATE_RESET;
    sConfigOC.OCNIdleState                                = TIM_OCNIDLESTATE_RESET;
-   HAL_TIM_PWM_ConfigChannel(&g_htim1_timer, &sConfigOC, TIM_CHANNEL_1);
+   HAL_TIM_OC_ConfigChannel(&g_htim1_timer, &sConfigOC, TIM_CHANNEL_1);
 
-#if 1
    sBreakDeadTimeConfig.OffStateRunMode                  = TIM_OSSR_DISABLE;
    sBreakDeadTimeConfig.OffStateIDLEMode                 = TIM_OSSI_DISABLE;
    sBreakDeadTimeConfig.LockLevel                        = TIM_LOCKLEVEL_OFF;
@@ -221,7 +222,6 @@ static void test_timer1()
    {
       _Error_Handler(__FILE__, __LINE__);
    }
-#endif
 
    // Set priority for interrupt
    HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 8, 0);
@@ -231,10 +231,8 @@ static void test_timer1()
    // enable update interrupt
    HAL_TIM_Base_Start_IT(&g_htim1_timer);
 
-   // PWM enable
-   HAL_TIM_PWM_Start(&g_htim1_timer, TIM_CHANNEL_1);
-//   HAL_TIM_OC_Start_IT
-//   HAL_TIM_PWM_Start_IT(&g_htim1_timer, TIM_CHANNEL_1);
+   // Output compare enable
+   HAL_TIM_OC_Start(&g_htim1_timer, TIM_CHANNEL_1);
 }
 
 /* --------------------------------------------------------------------------
@@ -247,11 +245,11 @@ static void test_timer12()
    TIM_ClockConfigTypeDef sClockSourceConfig             = {0, };
    TIM_MasterConfigTypeDef sMasterConfig                 = {0, };
    TIM_OC_InitTypeDef sConfigOC                          = {0, };
-   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig   = {0, };
 
    g_htim12_timer.Instance                               = TIM12;
    g_htim12_timer.Init.Prescaler                         = 0;                           // Freq 100MHz(100MHz / (1 + 0))
    g_htim12_timer.Init.CounterMode                       = TIM_COUNTERMODE_UP;
+
    g_htim12_timer.Init.Period                            = 999;                         // 100 KHz (100MHz / 1000) : 10us
 
    g_htim12_timer.Init.ClockDivision                     = TIM_CLOCKDIVISION_DIV1;
@@ -272,7 +270,7 @@ static void test_timer12()
    HAL_TIMEx_MasterConfigSynchronization(&g_htim12_timer, &sMasterConfig);
 
    sConfigOC.OCMode                                      = TIM_OCMODE_PWM1;
-   sConfigOC.Pulse                                       = 499;
+   sConfigOC.Pulse                                       = 245;
    sConfigOC.OCPolarity                                  = TIM_OCPOLARITY_HIGH;
    sConfigOC.OCNPolarity                                 = TIM_OCNPOLARITY_HIGH;
    sConfigOC.OCFastMode                                  = TIM_OCFAST_DISABLE;
@@ -280,34 +278,19 @@ static void test_timer12()
    sConfigOC.OCNIdleState                                = TIM_OCNIDLESTATE_RESET;
    HAL_TIM_PWM_ConfigChannel(&g_htim12_timer, &sConfigOC, TIM_CHANNEL_1);
 
-   sConfigOC.OCMode                                      = TIM_OCMODE_TIMING;
-   sConfigOC.Pulse                                       = 499;
+   sConfigOC.OCMode                                      = TIM_OCMODE_PWM2;
+   sConfigOC.Pulse                                       = 245;
    sConfigOC.OCPolarity                                  = TIM_OCPOLARITY_HIGH;
    sConfigOC.OCNPolarity                                 = TIM_OCNPOLARITY_HIGH;
    sConfigOC.OCFastMode                                  = TIM_OCFAST_DISABLE;
    sConfigOC.OCIdleState                                 = TIM_OCIDLESTATE_RESET;
    sConfigOC.OCNIdleState                                = TIM_OCNIDLESTATE_RESET;
-   HAL_TIM_OC_ConfigChannel(&g_htim12_timer, &sConfigOC, TIM_CHANNEL_2);
-
-   sBreakDeadTimeConfig.OffStateRunMode                  = TIM_OSSR_DISABLE;
-   sBreakDeadTimeConfig.OffStateIDLEMode                 = TIM_OSSI_DISABLE;
-   sBreakDeadTimeConfig.LockLevel                        = TIM_LOCKLEVEL_OFF;
-   sBreakDeadTimeConfig.DeadTime                         = 20;
-   sBreakDeadTimeConfig.BreakState                       = TIM_BREAK_DISABLE;
-   sBreakDeadTimeConfig.BreakPolarity                    = TIM_BREAKPOLARITY_HIGH;
-   sBreakDeadTimeConfig.BreakFilter                      = 0;
-   sBreakDeadTimeConfig.Break2State                      = TIM_BREAK2_DISABLE;
-   sBreakDeadTimeConfig.Break2Polarity                   = TIM_BREAK2POLARITY_HIGH;
-   sBreakDeadTimeConfig.Break2Filter                     = 0;
-   sBreakDeadTimeConfig.AutomaticOutput                  = TIM_AUTOMATICOUTPUT_DISABLE;
-   if (HAL_TIMEx_ConfigBreakDeadTime(&g_htim12_timer, &sBreakDeadTimeConfig) != HAL_OK)
-   {
-      _Error_Handler(__FILE__, __LINE__);
-   }
+   HAL_TIM_PWM_ConfigChannel(&g_htim12_timer, &sConfigOC, TIM_CHANNEL_2);
 
    // PWM enable
    HAL_TIM_PWM_Start(&g_htim12_timer, TIM_CHANNEL_1);
    HAL_TIM_PWM_Start(&g_htim12_timer, TIM_CHANNEL_2);
+
 }
 
 #endif
