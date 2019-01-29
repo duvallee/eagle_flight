@@ -33,6 +33,7 @@ static I2C_HandleTypeDef g_I2C_Bus3_handle;
 
 #if defined(TIMER_TEST)
 static TIM_HandleTypeDef g_htim1_timer;
+static TIM_HandleTypeDef g_htim2_timer;
 static TIM_HandleTypeDef g_htim12_timer;
 #endif
 
@@ -234,6 +235,90 @@ static void test_timer1()
    // Output compare enable
    HAL_TIM_OC_Start(&g_htim1_timer, TIM_CHANNEL_1);
 }
+
+/* --------------------------------------------------------------------------
+ * Name : test_timer2()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+static void test_timer2()
+{
+   GPIO_InitTypeDef GPIO_InitStruct                      = {0, };
+   TIM_ClockConfigTypeDef sClockSourceConfig             = {0, };
+   TIM_MasterConfigTypeDef sMasterConfig                 = {0, };
+   TIM_OC_InitTypeDef sConfigOC                          = {0, };
+   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig   = {0, };
+
+   __HAL_RCC_GPIOI_CLK_ENABLE();
+   __HAL_RCC_GPIOA_CLK_ENABLE();
+
+   // for test
+   GPIO_InitStruct.Pin                                   = ARDUINO_CN4_PIN_08;
+   GPIO_InitStruct.Mode                                  = GPIO_MODE_OUTPUT_PP;
+   GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
+   GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
+   HAL_GPIO_Init(ARDUINO_CN4_PIN_08_PORT, &GPIO_InitStruct);
+
+   g_htim2_timer.Instance                                = TIM2;
+   g_htim2_timer.Init.Prescaler                          = 1;                           // Freq 100MHz(200MHz / (1 + 1))
+   g_htim2_timer.Init.CounterMode                        = TIM_COUNTERMODE_UP;
+
+   g_htim2_timer.Init.Period                             = 999;                         // 100 KHz (100MHz / 1000) : 10us
+
+   g_htim2_timer.Init.ClockDivision                      = TIM_CLOCKDIVISION_DIV1;
+
+   if (HAL_TIM_Base_Init(&g_htim2_timer) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+   }
+
+   sClockSourceConfig.ClockSource                        = TIM_CLOCKSOURCE_INTERNAL;
+   if (HAL_TIM_ConfigClockSource(&g_htim2_timer, &sClockSourceConfig) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+   }
+
+   sMasterConfig.MasterOutputTrigger                     = TIM_TRGO_RESET;
+   sMasterConfig.MasterSlaveMode                         = TIM_MASTERSLAVEMODE_DISABLE;
+   HAL_TIMEx_MasterConfigSynchronization(&g_htim2_timer, &sMasterConfig);
+
+   sConfigOC.OCMode                                      = TIM_OCMODE_TOGGLE;
+   sConfigOC.Pulse                                       = 0;
+   sConfigOC.OCPolarity                                  = TIM_OCPOLARITY_HIGH;
+   sConfigOC.OCNPolarity                                 = TIM_OCNPOLARITY_HIGH;
+   sConfigOC.OCFastMode                                  = TIM_OCFAST_DISABLE;
+   sConfigOC.OCIdleState                                 = TIM_OCIDLESTATE_RESET;
+   sConfigOC.OCNIdleState                                = TIM_OCNIDLESTATE_RESET;
+   HAL_TIM_OC_ConfigChannel(&g_htim2_timer, &sConfigOC, TIM_CHANNEL_1);
+
+   sBreakDeadTimeConfig.OffStateRunMode                  = TIM_OSSR_DISABLE;
+   sBreakDeadTimeConfig.OffStateIDLEMode                 = TIM_OSSI_DISABLE;
+   sBreakDeadTimeConfig.LockLevel                        = TIM_LOCKLEVEL_OFF;
+   sBreakDeadTimeConfig.DeadTime                         = 0;
+   sBreakDeadTimeConfig.BreakState                       = TIM_BREAK_DISABLE;
+   sBreakDeadTimeConfig.BreakPolarity                    = TIM_BREAKPOLARITY_HIGH;
+   sBreakDeadTimeConfig.BreakFilter                      = 0;
+   sBreakDeadTimeConfig.Break2State                      = TIM_BREAK2_DISABLE;
+   sBreakDeadTimeConfig.Break2Polarity                   = TIM_BREAK2POLARITY_HIGH;
+   sBreakDeadTimeConfig.Break2Filter                     = 0;
+   sBreakDeadTimeConfig.AutomaticOutput                  = TIM_AUTOMATICOUTPUT_DISABLE;
+   if (HAL_TIMEx_ConfigBreakDeadTime(&g_htim2_timer, &sBreakDeadTimeConfig) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+   }
+
+   // Set priority for interrupt
+   HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 8, 0);
+   // Enable USBHS Interrupt
+   HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+
+   // enable update interrupt
+   HAL_TIM_Base_Start_IT(&g_htim2_timer);
+
+   // Output compare enable
+   HAL_TIM_OC_Start(&g_htim2_timer, TIM_CHANNEL_1);
+}
+
 
 /* --------------------------------------------------------------------------
  * Name : test_timer12()
@@ -1849,6 +1934,7 @@ void Board_Driver_Init()
 
 #if defined(TIMER_TEST)
    test_timer1();
+   test_timer2();
    test_timer12();
 #endif
 
