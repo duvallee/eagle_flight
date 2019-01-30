@@ -243,27 +243,15 @@ static void test_timer1()
  * -------------------------------------------------------------------------- */
 static void test_timer2()
 {
-   GPIO_InitTypeDef GPIO_InitStruct                      = {0, };
    TIM_ClockConfigTypeDef sClockSourceConfig             = {0, };
    TIM_MasterConfigTypeDef sMasterConfig                 = {0, };
    TIM_OC_InitTypeDef sConfigOC                          = {0, };
-   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig   = {0, };
-
-   __HAL_RCC_GPIOI_CLK_ENABLE();
-   __HAL_RCC_GPIOA_CLK_ENABLE();
-
-   // for test
-   GPIO_InitStruct.Pin                                   = ARDUINO_CN4_PIN_08;
-   GPIO_InitStruct.Mode                                  = GPIO_MODE_OUTPUT_PP;
-   GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
-   GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
-   HAL_GPIO_Init(ARDUINO_CN4_PIN_08_PORT, &GPIO_InitStruct);
 
    g_htim2_timer.Instance                                = TIM2;
-   g_htim2_timer.Init.Prescaler                          = 1;                           // Freq 100MHz(200MHz / (1 + 1))
+   g_htim2_timer.Init.Prescaler                          = 9;                           // Freq 10MHz(100MHz / (1 + 9))
    g_htim2_timer.Init.CounterMode                        = TIM_COUNTERMODE_UP;
 
-   g_htim2_timer.Init.Period                             = 999;                         // 100 KHz (100MHz / 1000) : 10us
+   g_htim2_timer.Init.Period                             = 9999;                        // 1 KHz (10MHz / 10000) : 1ms
 
    g_htim2_timer.Init.ClockDivision                      = TIM_CLOCKDIVISION_DIV1;
 
@@ -290,30 +278,6 @@ static void test_timer2()
    sConfigOC.OCIdleState                                 = TIM_OCIDLESTATE_RESET;
    sConfigOC.OCNIdleState                                = TIM_OCNIDLESTATE_RESET;
    HAL_TIM_OC_ConfigChannel(&g_htim2_timer, &sConfigOC, TIM_CHANNEL_1);
-
-   sBreakDeadTimeConfig.OffStateRunMode                  = TIM_OSSR_DISABLE;
-   sBreakDeadTimeConfig.OffStateIDLEMode                 = TIM_OSSI_DISABLE;
-   sBreakDeadTimeConfig.LockLevel                        = TIM_LOCKLEVEL_OFF;
-   sBreakDeadTimeConfig.DeadTime                         = 0;
-   sBreakDeadTimeConfig.BreakState                       = TIM_BREAK_DISABLE;
-   sBreakDeadTimeConfig.BreakPolarity                    = TIM_BREAKPOLARITY_HIGH;
-   sBreakDeadTimeConfig.BreakFilter                      = 0;
-   sBreakDeadTimeConfig.Break2State                      = TIM_BREAK2_DISABLE;
-   sBreakDeadTimeConfig.Break2Polarity                   = TIM_BREAK2POLARITY_HIGH;
-   sBreakDeadTimeConfig.Break2Filter                     = 0;
-   sBreakDeadTimeConfig.AutomaticOutput                  = TIM_AUTOMATICOUTPUT_DISABLE;
-   if (HAL_TIMEx_ConfigBreakDeadTime(&g_htim2_timer, &sBreakDeadTimeConfig) != HAL_OK)
-   {
-      _Error_Handler(__FILE__, __LINE__);
-   }
-
-   // Set priority for interrupt
-   HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 8, 0);
-   // Enable USBHS Interrupt
-   HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
-
-   // enable update interrupt
-   HAL_TIM_Base_Start_IT(&g_htim2_timer);
 
    // Output compare enable
    HAL_TIM_OC_Start(&g_htim2_timer, TIM_CHANNEL_1);
