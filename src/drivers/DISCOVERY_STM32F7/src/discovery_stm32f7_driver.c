@@ -162,11 +162,11 @@ static void test_timer1()
    GPIO_InitTypeDef GPIO_InitStruct                      = {0, };
    TIM_ClockConfigTypeDef sClockSourceConfig             = {0, };
    TIM_MasterConfigTypeDef sMasterConfig                 = {0, };
+   TIM_SlaveConfigTypeDef sSlaveConfig                   = {0, };
    TIM_OC_InitTypeDef sConfigOC                          = {0, };
    TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig   = {0, };
 
    __HAL_RCC_GPIOI_CLK_ENABLE();
-   __HAL_RCC_GPIOA_CLK_ENABLE();
 
    // for test
    GPIO_InitStruct.Pin                                   = ARDUINO_CN4_PIN_08;
@@ -178,7 +178,6 @@ static void test_timer1()
    g_htim1_timer.Instance                                = TIM1;
    g_htim1_timer.Init.Prescaler                          = 3;                           // Freq 50MHz(200MHz / (3 + 1))
    g_htim1_timer.Init.CounterMode                        = TIM_COUNTERMODE_UP;
-//   g_htim1_timer.Init.CounterMode                        = TIM_COUNTERMODE_CENTERALIGNED1;
 
    g_htim1_timer.Init.Period                             = 999;                         // 50 KHz (100MHz / 1000) : 20us
 
@@ -189,14 +188,30 @@ static void test_timer1()
       _Error_Handler(__FILE__, __LINE__);
    }
 
-   sClockSourceConfig.ClockSource                        = TIM_CLOCKSOURCE_INTERNAL;
+   sClockSourceConfig.ClockSource                        = TIM_CLOCKSOURCE_ITR1;
    if (HAL_TIM_ConfigClockSource(&g_htim1_timer, &sClockSourceConfig) != HAL_OK)
    {
       _Error_Handler(__FILE__, __LINE__);
    }
 
+#if 0
+#define TIM_SLAVEMODE_DISABLE                ((uint32_t)0x0000U)
+#define TIM_SLAVEMODE_RESET                  ((uint32_t)(TIM_SMCR_SMS_2))
+#define TIM_SLAVEMODE_GATED                  ((uint32_t)(TIM_SMCR_SMS_2 | TIM_SMCR_SMS_0))
+#define TIM_SLAVEMODE_TRIGGER                ((uint32_t)(TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1))
+#define TIM_SLAVEMODE_EXTERNAL1              ((uint32_t)(TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1 | TIM_SMCR_SMS_0))
+#define TIM_SLAVEMODE_COMBINED_RESETTRIGGER  ((uint32_t)(TIM_SMCR_SMS_3))
+#endif
+
+   sSlaveConfig.SlaveMode                                = 0x7;
+   sSlaveConfig.InputTrigger                             = TIM_TS_ITR1;
+   if (HAL_TIM_SlaveConfigSynchronization(&g_htim1_timer, &sSlaveConfig) != HAL_OK)
+   {
+      _Error_Handler(__FILE__, __LINE__);
+   }
+
    sMasterConfig.MasterOutputTrigger                     = TIM_TRGO_RESET;
-   sMasterConfig.MasterSlaveMode                         = TIM_MASTERSLAVEMODE_DISABLE;
+   sMasterConfig.MasterSlaveMode                         = TIM_MASTERSLAVEMODE_ENABLE;
    HAL_TIMEx_MasterConfigSynchronization(&g_htim1_timer, &sMasterConfig);
 
    sConfigOC.OCMode                                      = TIM_OCMODE_TOGGLE;
@@ -266,7 +281,7 @@ static void test_timer2()
       _Error_Handler(__FILE__, __LINE__);
    }
 
-   sMasterConfig.MasterOutputTrigger                     = TIM_TRGO_RESET;
+   sMasterConfig.MasterOutputTrigger                     = TIM_TRGO_UPDATE;
    sMasterConfig.MasterSlaveMode                         = TIM_MASTERSLAVEMODE_DISABLE;
    HAL_TIMEx_MasterConfigSynchronization(&g_htim2_timer, &sMasterConfig);
 
