@@ -1923,13 +1923,13 @@ void Board_Driver_Init()
 #if defined(FT5536)
    touch_ft5536_init(BSP_I2C_BUS3_Read, BSP_I2C_BUS3_Write);
 
-    // -------------------------------------------------------------------------
-    // touch interrupt
-    GPIO_InitStruct.Pin                                   = TOUCH_FT5536_INT_PIN;
-    GPIO_InitStruct.Mode                                  = GPIO_MODE_IT_RISING_FALLING;
-    GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(TOUCH_FT5536_INT_PORT, &GPIO_InitStruct);
+   // -------------------------------------------------------------------------
+   // touch interrupt
+   GPIO_InitStruct.Pin                                   = TOUCH_FT5536_INT_PIN;
+   GPIO_InitStruct.Mode                                  = GPIO_MODE_IT_RISING_FALLING;
+   GPIO_InitStruct.Pull                                  = GPIO_NOPULL;
+   GPIO_InitStruct.Speed                                 = GPIO_SPEED_FREQ_LOW;
+   HAL_GPIO_Init(TOUCH_FT5536_INT_PORT, &GPIO_InitStruct);
 
 #if defined(RTOS_FREERTOS)
    // create a binary semaphore used for informing ethernetif of frame reception

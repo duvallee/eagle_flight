@@ -18,21 +18,21 @@ static TIM_HandleTypeDef g_htim1_motor;
  * -------------------------------------------------------------------------- */
 static void BSP_TIM1_Init(void)
 {
-   TIM_ClockConfigTypeDef sClockSourceConfig;
-   TIM_MasterConfigTypeDef sMasterConfig;
-   TIM_OC_InitTypeDef sConfigOC;
+   TIM_ClockConfigTypeDef sClockSourceConfig             = {0, };
+   TIM_MasterConfigTypeDef sMasterConfig                 = {0, };
+   TIM_OC_InitTypeDef sConfigOC                          = {0, };
 
-   g_htim1_motor.Instance                                = TIM1;
+   g_htim1_motor.Instance                                = TIM1;                                // APB2 Bus(TIMER Clock : 200MHz)
 #ifdef MOTOR_DC
-   g_htim1_motor.Init.Prescaler                          = 84;                                  /* DC motor configuration - Freq 494Hz*/
+   g_htim1_motor.Init.Prescaler                          = 84;                                  //
    g_htim1_motor.Init.CounterMode                        = TIM_COUNTERMODE_UP;
    g_htim1_motor.Init.Period                             = 1999;
 #endif
 
 #ifdef MOTOR_ESC
-   g_htim1_motor.Init.Prescaler                          = 100;                                 /* ESC motor configuration - Freq 400Hz*/
+   g_htim1_motor.Init.Prescaler                          = 199;                                 // ESC motor configuration - 200MHz / (199 + 1) = 1MHz (1us)
    g_htim1_motor.Init.CounterMode                        = TIM_COUNTERMODE_UP;
-   g_htim1_motor.Init.Period                             = 2075;
+   g_htim1_motor.Init.Period                             = 1999;                                // 200Hz(10ms) = 1MHz / 10000
 #endif
                      
    g_htim1_motor.Init.ClockDivision                      = TIM_CLOCKDIVISION_DIV1;
@@ -57,10 +57,14 @@ static void BSP_TIM1_Init(void)
    HAL_TIMEx_MasterConfigSynchronization(&g_htim1_motor, &sMasterConfig);
 
    sConfigOC.OCMode                                      = TIM_OCMODE_PWM1;
-   sConfigOC.Pulse                                       = 0;
+   sConfigOC.Pulse                                       = 800;
    sConfigOC.OCPolarity                                  = TIM_OCPOLARITY_HIGH;
    sConfigOC.OCFastMode                                  = TIM_OCFAST_DISABLE;
+
+   sConfigOC.Pulse                                       = 1500;
    HAL_TIM_PWM_ConfigChannel(&g_htim1_motor, &sConfigOC, TIM_CHANNEL_1);
+
+   sConfigOC.Pulse                                       = 800;
    HAL_TIM_PWM_ConfigChannel(&g_htim1_motor, &sConfigOC, TIM_CHANNEL_2);
 }
 
@@ -74,8 +78,6 @@ static void BSP_TIM1_Start(void)
    // Initialize TIM4 for Motors PWM Output
    HAL_TIM_PWM_Start(&g_htim1_motor, TIM_CHANNEL_1);
    HAL_TIM_PWM_Start(&g_htim1_motor, TIM_CHANNEL_2);
-   HAL_TIM_PWM_Start(&g_htim1_motor, TIM_CHANNEL_3);
-   HAL_TIM_PWM_Start(&g_htim1_motor, TIM_CHANNEL_4);
 }
 
 // ***************************************************************************
