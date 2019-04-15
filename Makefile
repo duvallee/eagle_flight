@@ -148,6 +148,8 @@ GPIO_STMPE1600 :=
 QSPI_FLASH_USE :=
 QSPI_MEMORY_TYPE :=
 
+TRAXXAS_RECEIVER :=
+
 # -----------------------------------------------------------------------------
 # for TARGET Board
 
@@ -300,10 +302,8 @@ ifeq ("$(TARGET_BOARD)", "NUCLEO_H743ZI")
 	TARGET_HAL_DEFINITION += -D"STM32H7xx" -D"STM32H743xx"  -DUSE_HAL_DRIVER
 	TARGET_MODEL_DEFINITION += -D$(TARGET_BOARD) -DUART_DEBUG_PORT=6 -DSUPPORT_DEBUG_OUTPUT -DUART_DEBUG_OUTPUT -DDEBUG_STRING_LEVEL_ERROR
 	TARGET_MODEL_DEFINITION += -DUSE_USB_CDC_DEVICE -D"USE_USB_FS"
-	# for Motor
-	TARGET_MODEL_DEFINITION += -UMOTOR_DC -DMOTOR_ESC 
 	# for test
-	TARGET_MODEL_DEFINITION += -D"USED_AUTOGENERATION_CLOCK"
+	# TARGET_MODEL_DEFINITION += -D"USED_AUTOGENERATION_CLOCK"
 
 	# HAL Library Version
 	TARGET_HAL_VERSION := H7_V1.3.0
@@ -315,6 +315,9 @@ ifeq ("$(TARGET_BOARD)", "NUCLEO_H743ZI")
 	# supported middleware
 	RTOS_FREERTOS := RTOS_FREERTOS
 	CLEANFLIGHT_CLI := CLEANFLIGHT_CLI
+
+	# Reciver of LaTrax for Traxxas
+	TRAXXAS_RECEIVER := TRAXXAS_LATRAX_RECEIVER
 
 	ifeq ("$(DEBUG)", "1")
 		TARGET := $(TARGET_BOARD)_DEBUG
@@ -626,6 +629,14 @@ ifeq ($(CLEANFLIGHT_CLI),CLEANFLIGHT_CLI)
 
 	DRIVERS_C_SRC += src/interface/src/cleanflight_cli.c
 	INCLUDE_DIR += -Isrc/interface/inc
+endif
+
+# Reciver of LaTrax for Traxxas
+ifeq ($(TRAXXAS_RECEIVER),TRAXXAS_LATRAX_RECEIVER)
+	TARGET_MODEL_DEFINITION += -D$(TRAXXAS_RECEIVER)
+
+	DRIVERS_C_SRC += src/drivers/traxxas_latrax_receiver/src/traxxas_latrax_receiver.c
+	INCLUDE_DIR += -Isrc/drivers/traxxas_latrax_receiver/inc
 endif
 
 # for 52L0A1 Expansion Board fo ST

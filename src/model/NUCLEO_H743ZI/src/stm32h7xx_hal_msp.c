@@ -264,13 +264,19 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
       // Peripheral clock enable
       __TIM1_CLK_ENABLE();
       __HAL_RCC_GPIOE_CLK_ENABLE();
-  
-      GPIO_InitStruct.Pin                                = MOTOR_1_PIN | MOTOR_2_PIN;
+
+      // TIMER 1 CHANNEL 1, 2
+      GPIO_InitStruct.Pin                                = GPIO_PIN_9 | GPIO_PIN_11;
       GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
       GPIO_InitStruct.Pull                               = GPIO_NOPULL;
-      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_LOW;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_HIGH;
       GPIO_InitStruct.Alternate                          = GPIO_AF1_TIM1;
-      HAL_GPIO_Init(MOTOR_1_PORT, &GPIO_InitStruct);
+      HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+      //
+      HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 1);
+      // Enable the TIMx global Interrupt
+      HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
    }
 }
 
@@ -287,6 +293,57 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
       __TIM1_CLK_DISABLE();
    }
 }
+
+// ***************************************************************************
+// Fuction      : HAL_TIM_IC_MspInit()
+// Description  : 
+// 
+//
+// ***************************************************************************
+void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
+{
+#if 0
+   GPIO_InitTypeDef GPIO_InitStruct;
+#endif
+   if (htim->Instance == TIM1)
+   {
+      // Peripheral clock enable
+      __TIM1_CLK_ENABLE();
+#if 0
+      __HAL_RCC_GPIOE_CLK_ENABLE();
+
+      // TIMER 1 CHANNEL 1, 2
+      GPIO_InitStruct.Pin                                = GPIO_PIN_9 | GPIO_PIN_11;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_HIGH;
+      GPIO_InitStruct.Alternate                          = GPIO_AF1_TIM1;
+      HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+#endif
+
+      HAL_NVIC_SetPriority(TIM1_UP_IRQn, 8, 0);
+      HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
+
+#if 0
+      //
+//      HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 1);
+      // Enable the TIMx global Interrupt
+//      HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
+#endif
+   }
+}
+
+
+// ***************************************************************************
+// Fuction      : HAL_TIM_IC_MspDeInit()
+// Description  : 
+// 
+//
+// ***************************************************************************
+void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim)
+{
+}
+
 
 // ***************************************************************************
 // Fuction      : HAL_PCD_MspInit()

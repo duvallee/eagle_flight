@@ -37,12 +37,6 @@ extern "C" {
 #define LED_PIN                                          GPIO_PIN_14
 #define LED_PORT                                         GPIOB
 
-#define MOTOR_1_PIN                                      GPIO_PIN_9
-#define MOTOR_1_PORT                                     GPIOE
-
-#define MOTOR_2_PIN                                      GPIO_PIN_11
-#define MOTOR_2_PORT                                     GPIOE
-
 #define USB_POWER_SWITCH_PIN                             GPIO_PIN_6
 #define USB_POWER_SWITCH_PORT                            GPIOG
 

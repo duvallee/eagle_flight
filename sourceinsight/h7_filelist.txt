@@ -221,6 +221,8 @@
 .\src\common\src\uart_debug.c
 .\src\drivers\NUCLEO_H743ZI\inc\nucleo_h743zi_driver.h
 .\src\drivers\NUCLEO_H743ZI\src\nucleo_h743zi_driver.c
+.\src\drivers\traxxas_latrax_receiver\inc\traxxas_latrax_receiver.h
+.\src\drivers\traxxas_latrax_receiver\src\traxxas_latrax_receiver.c
 .\src\drivers\usb\cdc\inc\usbd_cdc_interface.h
 .\src\drivers\usb\cdc\inc\usbd_desc.h
 .\src\drivers\usb\cdc\src\usbd_cdc_interface.c
