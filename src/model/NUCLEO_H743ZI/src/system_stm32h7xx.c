@@ -571,6 +571,9 @@ void SystemClock_Config(void)
 
    }
 
+   // add 2019-04-15 from cube-mx
+   __HAL_RCC_PLL_PLLSOURCE_CONFIG(RCC_PLLSOURCE_HSE);
+
 #if defined(USED_AUTOGENERATION_CLOCK)
    // Initializes the CPU, AHB and APB busses clocks 
    RCC_OscInitStruct.OscillatorType                      = RCC_OSCILLATORTYPE_HSE;
@@ -601,7 +604,7 @@ void SystemClock_Config(void)
    RCC_OscInitStruct.PLL.PLLM                            = 4;
    RCC_OscInitStruct.PLL.PLLN                            = 400;
    RCC_OscInitStruct.PLL.PLLP                            = 2;
-   RCC_OscInitStruct.PLL.PLLQ                            = 4;
+   RCC_OscInitStruct.PLL.PLLQ                            = 80;
    RCC_OscInitStruct.PLL.PLLR                            = 2;
 
    RCC_OscInitStruct.PLL.PLLRGE                          = RCC_PLL1VCIRANGE_1;
@@ -671,12 +674,12 @@ void SystemClock_Config(void)
    PeriphClkInitStruct.PLL2.PLL2FRACN                    = 0;
 
    // PLL3 for USB Clock
-   PeriphClkInitStruct.PLL3.PLL3M                        = 8;
+   PeriphClkInitStruct.PLL3.PLL3M                        = 4;
    PeriphClkInitStruct.PLL3.PLL3N                        = 96;
    PeriphClkInitStruct.PLL3.PLL3P                        = 2;
-   PeriphClkInitStruct.PLL3.PLL3R                        = 2;
-   PeriphClkInitStruct.PLL3.PLL3Q                        = 2;
-   PeriphClkInitStruct.PLL3.PLL3RGE                      = RCC_PLL3VCIRANGE_0;
+   PeriphClkInitStruct.PLL3.PLL3R                        = 4;
+   PeriphClkInitStruct.PLL3.PLL3Q                        = 4;
+   PeriphClkInitStruct.PLL3.PLL3RGE                      = RCC_PLL3VCIRANGE_1;
    PeriphClkInitStruct.PLL3.PLL3VCOSEL                   = RCC_PLL3VCOWIDE;
    PeriphClkInitStruct.PLL3.PLL3FRACN                    = 0;
 

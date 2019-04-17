@@ -198,14 +198,40 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef * hpcd)
  * -------------------------------------------------------------------------- */
 USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef* pdev)
 {
+
+#if defined(STM32H7xx)
+   g_usb_pcd.Instance                                    = USB_OTG_FS;
+   g_usb_pcd.pData                                       = pdev;
+   pdev->pData                                           = &g_usb_pcd;
+
+   g_usb_pcd.Instance                                    = USB_OTG_FS;
+   g_usb_pcd.Init.dev_endpoints                          = 9;
+   g_usb_pcd.Init.speed                                  = PCD_SPEED_FULL;
+   g_usb_pcd.Init.dma_enable                             = DISABLE;
+   g_usb_pcd.Init.ep0_mps                                = DEP0CTL_MPS_64;
+   g_usb_pcd.Init.phy_itface                             = PCD_PHY_EMBEDDED;
+   g_usb_pcd.Init.Sof_enable                             = ENABLE;
+   g_usb_pcd.Init.low_power_enable                       = DISABLE;
+   g_usb_pcd.Init.lpm_enable                             = DISABLE;
+   g_usb_pcd.Init.battery_charging_enable                = ENABLE;
+   g_usb_pcd.Init.vbus_sensing_enable                    = ENABLE;
+   g_usb_pcd.Init.use_dedicated_ep1                      = DISABLE;
+   if (HAL_PCD_Init(&g_usb_pcd) != HAL_OK)
+   {
+      Error_Handler( );
+   }
+
+   HAL_PCDEx_SetRxFiFo(&g_usb_pcd, 0x80);
+   HAL_PCDEx_SetTxFiFo(&g_usb_pcd, 0, 0x40);
+   HAL_PCDEx_SetTxFiFo(&g_usb_pcd, 1, 0x80);
+#else
+
 #if defined(USE_USB_FS)
    // Set LL Driver parameters
 #if defined(STM32F4XX)
    g_usb_pcd.Instance                                    = USB_OTG_FS;
 #elif defined(STM32F7xx)
    g_usb_pcd.Instance                                    = USB_OTG_FS;
-#elif defined(STM32H7xx)
-   g_usb_pcd.Instance                                    = USB2_OTG_FS;
 #else
 #error "Unknown definition !!!"
 #endif
@@ -239,6 +265,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef* pdev)
    HAL_PCDEx_SetRxFiFo(&g_usb_pcd, 0x40);
    HAL_PCDEx_SetTxFiFo(&g_usb_pcd, 0, 0x40);
    HAL_PCDEx_SetTxFiFo(&g_usb_pcd, 1, 0x80);
+#endif
 #endif
 
 #if defined(USE_USB_HS)

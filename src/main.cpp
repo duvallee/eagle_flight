@@ -184,6 +184,10 @@ void freertos_idle_task(void const* argument)
  * -------------------------------------------------------------------------- */
 int main(void)
 {
+#if defined(STM32H743xx)
+   GPIO_InitTypeDef GPIO_InitStruct                      = {0 };
+#endif
+
    // Configure the MPU attributes as Write Through
 #if (defined(DISCOVERY_STM32F7) || defined(DISCOVERY_STM32F7_BOOTLOADER))
    MPU_Config();
@@ -201,6 +205,19 @@ int main(void)
 
 #if defined(STM32H743xx)
    power_on();
+
+   __HAL_RCC_GPIOG_CLK_ENABLE();
+   // Configure GPIO pin Output Level
+   HAL_GPIO_WritePin(USB_POWER_SWITCH_PORT, USB_POWER_SWITCH_PIN, GPIO_PIN_RESET);
+  
+   // Configure GPIO pin : USB_POWER_SWITCH_PIN
+   GPIO_InitStruct.Pin                                = USB_POWER_SWITCH_PIN;
+   GPIO_InitStruct.Mode                               = GPIO_MODE_OUTPUT_PP;
+   GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+   GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_LOW;
+   HAL_GPIO_Init(USB_POWER_SWITCH_PORT, &GPIO_InitStruct);
+   HAL_GPIO_WritePin(USB_POWER_SWITCH_PORT, USB_POWER_SWITCH_PIN, GPIO_PIN_RESET);
+
 #endif
 
    debug_break(100);
