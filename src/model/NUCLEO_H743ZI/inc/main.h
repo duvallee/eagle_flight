@@ -103,8 +103,9 @@ void ms_delay(int msec);
 void SystemClock_Config(void);
 
 // --------------------------------------------------------------------------
+void Error_Handler(void);
+#define Error_Handler(void)                              _Error_Handler(__FILE__, __LINE__)
 void _Error_Handler(char *, int);
-#define Error_Handler(fmt, ...)                          _Error_Handler(fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 
 #ifdef __cplusplus
 }
